@@ -21,7 +21,7 @@ class App
         $container = $this->buildContainer($dependencies);
 
         // Request
-        $request = ServerRequestFactory::fromGlobals();
+        $request = $this->getRequest();
 
         // Router
         $router = $this->routerMiddleware($routes, $container);
@@ -36,6 +36,13 @@ class App
 
         // Response
         echo $response->getBody()->getContents();
+    }
+
+    private function getRequest()
+    {
+        $input = json_decode(file_get_contents('php://input'), true) ?: [];
+        $parsedBody = array_merge($_POST, $input);
+        return ServerRequestFactory::fromGlobals(null, null, $parsedBody);
     }
 
     private function loadEnv(array $config)
