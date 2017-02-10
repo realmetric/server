@@ -9,12 +9,15 @@ class TrackController extends BaseController
 {
     public function create(ServerRequestInterface $request, ContainerInterface $di)
     {
-        $body = $request->getParsedBody();
+        $records = $request->getParsedBody();
+        if (!$records || count($records)) {
+            throw new \Exception('shit!');
+        }
 //        $id = $request->getAttribute('id', 123);
 //
 //        $my = $di->get('mysql');
 //        var_dump($my);
 
-        return $this->jsonResponse($body);
+//        return $this->jsonResponse($body);
     }
 }

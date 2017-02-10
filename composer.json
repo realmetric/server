@@ -7,7 +7,8 @@
     "oscarotero/middleland": "0.3.0",
     "middlewares/utils": "0.8.0",
     "middlewares/fast-route": "0.3.0",
-    "lukasoppermann/http-status": "2.0.1"
+    "lukasoppermann/http-status": "2.0.1",
+    "filp/whoops": "^2.1"
   },
   "autoload": {
     "psr-4": {
