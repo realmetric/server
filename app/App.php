@@ -5,15 +5,13 @@ namespace App;
 use Interop\Container\ContainerInterface;
 use League\Container\Container;
 use Middleland\Dispatcher;
+use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\ServerRequestFactory;
 
 class App
 {
     public function run(array $config, array $dependencies, array $middleware, array $routes)
     {
-        // Mute any out
-        ob_start();
-
         // Env
         $this->loadEnv($config);
 
@@ -31,11 +29,8 @@ class App
         $dispatcher = new Dispatcher($middleware, $container);
         $response = $dispatcher->dispatch($request);
 
-        // Tech out
-        $techOut = ob_get_clean();
-
         // Response
-        echo $response->getBody()->getContents();
+        $this->sendGlobalResponse($response);
     }
 
     private function getRequest()
@@ -43,6 +38,27 @@ class App
         $input = json_decode(file_get_contents('php://input'), true) ?: [];
         $parsedBody = array_merge($_POST, $input);
         return ServerRequestFactory::fromGlobals(null, null, $parsedBody);
+    }
+
+    private function sendGlobalResponse(ResponseInterface $response)
+    {
+        $statusCode = $response->getStatusCode();
+        $reasonPhrase = $response->getReasonPhrase();
+        $protocolVersion = $response->getProtocolVersion();
+        header("HTTP/{$protocolVersion} $statusCode $reasonPhrase");
+        foreach ($response->getHeaders() as $name => $values) {
+            if (strtolower($name) === 'set-cookie') {
+                foreach ($values as $cookie) {
+                    header(sprintf('Set-Cookie: %s', $cookie), false);
+                }
+                break;
+            }
+            header(sprintf('%s: %s', $name, $response->getHeaderLine($name)));
+        }
+        $body = $response->getBody();
+        if ($body) {
+            echo $body->__toString();
+        }
     }
 
     private function loadEnv(array $config)
