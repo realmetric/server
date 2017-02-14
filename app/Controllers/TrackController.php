@@ -3,12 +3,11 @@
 namespace App\Controllers;
 
 use App\Biz\Event;
-use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class TrackController extends BaseController
 {
-    public function create(ServerRequestInterface $request, ContainerInterface $di)
+    public function create(ServerRequestInterface $request)
     {
         $events = $request->getParsedBody();
         if (!$events || !count($events)) {
@@ -22,7 +21,6 @@ class TrackController extends BaseController
             $slices = $event['slices'] ?? null;
 
             $event = new Event();
-            $event->setContainer($di);
             $event->save($metric, $value, $time, $slices);
         }
 

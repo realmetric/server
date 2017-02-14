@@ -2,10 +2,10 @@
 
 namespace App\Biz;
 
-use App\Injectable;
-
-class Event extends Injectable
+class Event
 {
+    use \App\Injectable;
+
     public function save($metric, $value, $slices, $time)
     {
 

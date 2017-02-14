@@ -10,27 +10,34 @@ use Zend\Diactoros\ServerRequestFactory;
 
 class App
 {
+    private static $container;
+
     public function run(array $config, array $dependencies, array $middleware, array $routes)
     {
         // Env
         $this->loadEnv($config);
 
         // Container
-        $container = $this->buildContainer($dependencies);
+        self::$container = $this->buildContainer($dependencies);
 
         // Request
         $request = $this->getRequest();
 
         // Router
-        $router = $this->routerMiddleware($routes, $container);
+        $router = $this->routerMiddleware($routes);
 
         // Middleware
         $middleware = array_merge($middleware, [$router]);
-        $dispatcher = new Dispatcher($middleware, $container);
+        $dispatcher = new Dispatcher($middleware);
         $response = $dispatcher->dispatch($request);
 
         // Response
         $this->sendGlobalResponse($response);
+    }
+
+    public static function getContainer()
+    {
+        return self::$container;
     }
 
     private function getRequest()
@@ -82,13 +89,13 @@ class App
         return $container;
     }
 
-    private function routerMiddleware($routes, ContainerInterface $container)
+    private function routerMiddleware($routes)
     {
         $dispatcher = \Fastroute\simpleDispatcher(function (\FastRoute\RouteCollector $r) use ($routes) {
             foreach ($routes as $route) {
                 $r->addRoute($route[0], $route[1], $route[2]);
             }
         });
-        return (new \Middlewares\FastRoute($dispatcher))->arguments($container);
+        return new \Middlewares\FastRoute($dispatcher);
     }
 }

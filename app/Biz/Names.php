@@ -3,10 +3,10 @@ declare(strict_types = 1);
 
 namespace App\Biz;
 
-use App\Injectable;
-
-class Names extends Injectable
+class Names
 {
+    use \App\Injectable;
+
     public function getId(string $name):int
     {
 

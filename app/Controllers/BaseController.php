@@ -7,6 +7,8 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class BaseController
 {
+    use \App\Injectable;
+
     public function jsonResponse($data = [], $status = Httpstatuscodes::HTTP_OK)
     {
         return new JsonResponse($data, $status);
