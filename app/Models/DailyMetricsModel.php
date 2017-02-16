@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class DayModel extends AbstractModel
+class DailyMetricsModel extends AbstractModel
 {
     const TABLE_PREFIX = 'daily_metrics_';
     const TABLE = self::TABLE_PREFIX . '2017_01_01'; // Just for example

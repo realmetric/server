@@ -10,7 +10,7 @@ class Event
     {
         $metricId = 1;
 
-        $eventId = $this->mysql->day->create($metricId, $value, $time);
+        $eventId = $this->mysql->dailyMetrics->create($metricId, $value, $time);
 
     }
 }

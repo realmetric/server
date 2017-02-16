@@ -4,7 +4,7 @@
 namespace App\Models;
 
 /**
- * @property DayModel day
+ * @property DailyMetricsModel dailyMetrics
  */
 
 class ModelFactory
