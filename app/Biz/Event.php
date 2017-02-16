@@ -6,10 +6,11 @@ class Event
 {
     use \App\Injectable;
 
-    public function save($metric, $value, $slices, $time)
+    public function save($metric, $value = 0, $slices = [], $time = 'now')
     {
-        $this->mysql->day->setTable('day_' . date('Y-m-d'))
-            ->create();
+        $metricId = 1;
+
+        $eventId = $this->mysql->day->create($metricId, $value, $time);
 
     }
 }

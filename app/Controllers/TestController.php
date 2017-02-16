@@ -4,11 +4,14 @@
 namespace App\Controllers;
 
 
+use App\Biz\Event;
+
 class TestController extends AbstractController
 {
     public function server()
     {
-        $this->mysql->day->create(1, 2, 'asda');
+        $event = new Event();
+        $event->save(1);
 
 //        var_dump($_SERVER);
         die;

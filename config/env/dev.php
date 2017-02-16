@@ -3,7 +3,7 @@
     'BASE_DIR' => '/home/wdata/mail/',
 
     // MYSQL
-    'MYSQL_DATABASE' => 'adjuster',
+    'MYSQL_DATABASE' => 'realmetric',
     'MYSQL_USERNAME' => 'root',
     'MYSQL_PASSWORD' => 'root',
 ];
