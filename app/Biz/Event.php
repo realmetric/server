@@ -12,5 +12,8 @@ class Event
 
         $eventId = $this->mysql->dailyMetrics->create($metricId, $value, $time);
 
+        $this->mysql->dailySlices->create($eventId, $metricId, 12, 3);
+        $this->mysql->dailySlices->create($eventId, $metricId, 14, 6);
+
     }
 }

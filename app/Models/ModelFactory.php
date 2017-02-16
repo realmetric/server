@@ -5,6 +5,7 @@ namespace App\Models;
 
 /**
  * @property DailyMetricsModel dailyMetrics
+ * @property DailySlicesModel dailySlices
  */
 
 class ModelFactory
