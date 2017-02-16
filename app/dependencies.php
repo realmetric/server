@@ -14,15 +14,8 @@
                 \PDO::ATTR_EMULATE_PREPARES => false,
             ),
         );
-//        $qb = new \Library\Db\PeerFactory($config);
-
-//        $connection = new \Pixie\Connection('mysql', $config);
-//        $this->qb = new \Pixie\QueryBuilder\QueryBuilderHandler($connection);
-//        $className = '\App\Peers\\' . ucfirst($table);
-//        $qb = $this->qb->table($table);
-//        return new $className($qb);
-
-//        return $qb;
-        return $config;
+        $connection = new \Pixie\Connection('mysql', $config);
+        $queryBuilder = new \Pixie\QueryBuilder\QueryBuilderHandler($connection);
+        return new \App\Models\ModelFactory($queryBuilder);
     }
 ];

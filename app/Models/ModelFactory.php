@@ -10,6 +10,12 @@ namespace App\Models;
 class ModelFactory
 {
     protected $cache = [];
+    protected $queryBuilder = null;
+
+    public function __construct($queryBuilder)
+    {
+        $this->queryBuilder = $queryBuilder;
+    }
 
     /**
      * @return AbstractModel
@@ -25,7 +31,7 @@ class ModelFactory
         if (!class_exists($className)) {
             throw new \Exception("Model {$name} not exist");
         }
-        $this->cache[$name] = new $className;
+        $this->cache[$name] = new $className($this->queryBuilder);
         return $this->cache[$name];
     }
 }

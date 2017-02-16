@@ -2,6 +2,10 @@
 
 namespace App;
 
+/**
+ * @property \App\Models\ModelFactory mysql
+ */
+
 trait Injectable
 {
     public function __get($name)

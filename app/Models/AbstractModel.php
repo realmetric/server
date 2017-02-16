@@ -5,23 +5,42 @@ namespace App\Models;
 abstract class AbstractModel
 {
     const TABLE = null;
+    private $tableName = null;
+    private $queryBuilder = null;
 
-    private function table()
+    public function __construct($queryBuilder)
     {
-        return [];
+        $this->setTable(self::TABLE);
+        $this->queryBuilder = $queryBuilder;
     }
 
-    public function getById($primaryKey)
+    /**
+     * @return \Pixie\QueryBuilder\QueryBuilderHandler
+     */
+    protected function qb()
     {
+        return $this->queryBuilder->table($this->getTable());
     }
 
-    public function insert($record)
+    protected function setTable($name)
     {
-
+        $this->tableName = $name;
     }
 
-    public function update($primaryId, $newData)
+    protected function getTable()
     {
+        return $this->tableName;
+    }
 
+    // ------------- Base public functions below -----------------
+    public function getById($primaryId)
+    {
+        return $this->qb()->find($primaryId);
+    }
+
+
+    public function insert($data)
+    {
+        return $this->qb()->insert($data);
     }
 }
