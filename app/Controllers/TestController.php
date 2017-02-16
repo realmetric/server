@@ -4,7 +4,7 @@
 namespace App\Controllers;
 
 
-class TestController extends BaseController
+class TestController extends AbstractController
 {
     public function server()
     {

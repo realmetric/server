@@ -5,7 +5,7 @@ namespace App\Controllers;
 use Lukasoppermann\Httpstatus\Httpstatuscodes;
 use Zend\Diactoros\Response\JsonResponse;
 
-class BaseController
+abstract class AbstractController
 {
     use \App\Injectable;
 

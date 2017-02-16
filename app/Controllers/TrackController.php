@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Biz\Event;
 use Psr\Http\Message\ServerRequestInterface;
 
-class TrackController extends BaseController
+class TrackController extends AbstractController
 {
     public function create(ServerRequestInterface $request)
     {
