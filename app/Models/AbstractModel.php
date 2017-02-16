@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -10,7 +11,7 @@ abstract class AbstractModel
 
     public function __construct($queryBuilder)
     {
-        $this->setTable(self::TABLE);
+        $this->setTable(static::TABLE);
         $this->queryBuilder = $queryBuilder;
     }
 
@@ -22,24 +23,26 @@ abstract class AbstractModel
         return $this->queryBuilder->table($this->getTable());
     }
 
-    protected function setTable($name)
+    public function setTable($name)
     {
         $this->tableName = $name;
+        return $this;
     }
 
-    protected function getTable()
+    public function getTable()
     {
         return $this->tableName;
     }
 
     // ------------- Base public functions below -----------------
-    public function getById($primaryId)
+
+    public function getById(int $primaryId):array
     {
         return $this->qb()->find($primaryId);
     }
 
 
-    public function insert($data)
+    public function insert(array $data):int
     {
         return $this->qb()->insert($data);
     }

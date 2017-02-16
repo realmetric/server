@@ -8,9 +8,9 @@ class TestController extends AbstractController
 {
     public function server()
     {
-        $mysql = $this->mysql->day->getById(1);
+        $this->mysql->day->create(1, 2, 'asda');
 
-        var_dump($mysql);
+//        var_dump($_SERVER);
         die;
     }
 }

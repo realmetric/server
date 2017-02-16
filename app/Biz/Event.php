@@ -8,6 +8,8 @@ class Event
 
     public function save($metric, $value, $slices, $time)
     {
+        $this->mysql->day->setTable('day_' . date('Y-m-d'))
+            ->create();
 
     }
 }
