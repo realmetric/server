@@ -11,6 +11,9 @@ abstract class AbstractModel
 
     public function __construct($queryBuilder)
     {
+        if (!static::TABLE) {
+            throw new \Exception('Model ' . static::class . ' without TABLE constant');
+        }
         $this->setTable(static::TABLE);
         $this->queryBuilder = $queryBuilder;
     }

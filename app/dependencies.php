@@ -16,10 +16,9 @@
         );
 
         $capsule = new Illuminate\Database\Capsule\Manager();
-        $capsule->setFetchMode(\PDO::FETCH_ASSOC);
         $capsule->addConnection($config);
-        $capsule->setAsGlobal();
-        $builder = $capsule::connection();
+        $capsule->setFetchMode(\PDO::FETCH_CLASS);
+        $builder = $capsule->getConnection();
         return new \App\Models\ModelFactory($builder);
     }
 ];

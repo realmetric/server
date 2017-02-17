@@ -4,6 +4,7 @@
 namespace App\Models;
 
 /**
+ * @property MetricsModel metrics
  * @property DailyMetricsModel dailyMetrics
  * @property DailySlicesModel dailySlices
  */

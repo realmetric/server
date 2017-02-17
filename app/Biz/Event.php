@@ -6,10 +6,9 @@ class Event
 {
     use \App\Injectable;
 
-    public function save($metric, $value = 0, $slices = [], $time = 'now')
+    public function save(string $metricName, float $value = 0, string $time, array $slices = [])
     {
-        $metricId = 1;
-
+        $metricId = $this->mysql->metrics->getId($metricName);
         $eventId = $this->mysql->dailyMetrics->create($metricId, $value, $time);
 
         $this->mysql->dailySlices->create($eventId, $metricId, 12, 3);
