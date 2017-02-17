@@ -24,6 +24,6 @@ class TrackController extends AbstractController
             $event->save($metric, $value, $time, $slices);
         }
 
-        return $this->jsonResponse();
+        return $this->jsonResponse(true);
     }
 }

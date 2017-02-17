@@ -42,4 +42,11 @@ class DailyMetricsModel extends AbstractModel
             'minute' => $minutes,
         ]);
     }
+
+    public function getAllMetrics()
+    {
+        return $this->qb()->selectRaw('metric_id, max(value) as value')
+            ->groupBy('metric_id')
+            ->get();
+    }
 }

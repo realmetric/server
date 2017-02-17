@@ -9,7 +9,7 @@ abstract class AbstractController
 {
     use \App\Injectable;
 
-    public function jsonResponse($data = [], $status = Httpstatuscodes::HTTP_OK)
+    public function jsonResponse($data, $status = Httpstatuscodes::HTTP_OK)
     {
         return new JsonResponse($data, $status);
     }
