@@ -17,18 +17,19 @@ class DailyMetricsModel extends AbstractModel
 
     private function createTable($name)
     {
-        $sql = <<<SQL
-        CREATE TABLE IF NOT EXISTS `{$name}` (
-          `id` int  UNSIGNED AUTO_INCREMENT NOT NULL,
-          `metric_id` smallint UNSIGNED NOT NULL,
-          `value` float NOT NULL,
-          `minute` smallint UNSIGNED NOT NULL,
-          PRIMARY KEY (`id`),
-          KEY `metric_id` (`metric_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-SQL;
+        if ($this->shema()->hasTable($name)) {
+            return;
+        }
 
-        $this->qb()->query($sql);
+        $this->shema()->create($name, function ($table) {
+            /** @var \Illuminate\Database\Schema\Blueprint $table */
+            $table->increments('id');
+            $table->unsignedSmallInteger('metric_id');
+            $table->float('value');
+            $table->unsignedSmallInteger('minute');
+
+            $table->index('metric_id');
+        });
     }
 
     public function create(int $metricId, float $value, string $time):int

@@ -14,8 +14,12 @@
                 \PDO::ATTR_EMULATE_PREPARES => false,
             ),
         );
-        $connection = new \Pixie\Connection('mysql', $config);
-        $queryBuilder = new \Pixie\QueryBuilder\QueryBuilderHandler($connection);
-        return new \App\Models\ModelFactory($queryBuilder);
+
+        $capsule = new Illuminate\Database\Capsule\Manager();
+        $capsule->setFetchMode(\PDO::FETCH_ASSOC);
+        $capsule->addConnection($config);
+        $capsule->setAsGlobal();
+        $builder = $capsule::connection();
+        return new \App\Models\ModelFactory($builder);
     }
 ];

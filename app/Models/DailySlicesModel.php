@@ -19,21 +19,20 @@ class DailySlicesModel extends AbstractModel
 
     private function createTable($name)
     {
-        $sql = <<<SQL
-        CREATE TABLE IF NOT EXISTS `{$name}` (
-          `id` int  UNSIGNED AUTO_INCREMENT NOT NULL,
-          `event_id` int UNSIGNED NOT NULL,
-          `metric_id` int UNSIGNED NOT NULL,
-          `slice_id` int UNSIGNED NOT NULL,
-          `value_id` int UNSIGNED NOT NULL,
-          PRIMARY KEY (`id`),
-          KEY `event_id` (`event_id`),
-          KEY `metric_id` (`metric_id`),
-          KEY `slice_id` (`slice_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-SQL;
+        if ($this->shema()->hasTable($name)) {
+            return;
+        }
 
-        $this->qb()->query($sql);
+        $this->shema()->create($name, function ($table) {
+            /** @var \Illuminate\Database\Schema\Blueprint $table */
+            $table->increments('id');
+            $table->unsignedInteger('event_id');
+            $table->unsignedSmallInteger('metric_id');
+            $table->unsignedSmallInteger('slice_id');
+            $table->unsignedSmallInteger('value_id');
+            $table->index('event_id');
+            $table->index('metric_id');
+        });
     }
 
     public function create(int $eventId, int $metricId, int $sliceId, int $valueId):int

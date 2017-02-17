@@ -16,11 +16,19 @@ abstract class AbstractModel
     }
 
     /**
-     * @return \Pixie\QueryBuilder\QueryBuilderHandler
+     * @return \Illuminate\Database\Query\Builder
      */
     protected function qb()
     {
-        return $this->queryBuilder->table($this->getTable());
+        return $this->queryBuilder->query()->from($this->getTable());
+    }
+
+    /**
+     * @return \Illuminate\Database\Schema\Builder
+     */
+    protected function shema()
+    {
+        return $this->queryBuilder->getSchemaBuilder();
     }
 
     public function setTable($name)
