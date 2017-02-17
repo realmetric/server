@@ -40,13 +40,12 @@ class MetricsModel extends AbstractModel
             ->where('name_crc_32', $hash)
             ->where('name', $name)
             ->first();
-        var_dump($exist);die;
         if ($exist) {
             return $exist;
         }
 
         $createdId = $this->create($name);
-        $res = $this->getById($createdId);
+        return $this->getById($createdId);
     }
 
     public function create(string $name)

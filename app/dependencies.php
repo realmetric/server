@@ -9,15 +9,11 @@
             'charset' => 'utf8', // Optional
             'collation' => 'utf8_unicode_ci', // Optional
             'prefix' => '', // Table prefix, optional
-            'options' => array( // PDO constructor options, optional
-                \PDO::ATTR_TIMEOUT => 5,
-                \PDO::ATTR_EMULATE_PREPARES => false,
-            ),
         );
 
         $capsule = new Illuminate\Database\Capsule\Manager();
+        $capsule->setFetchMode(\PDO::FETCH_ASSOC);
         $capsule->addConnection($config);
-        $capsule->setFetchMode(\PDO::FETCH_CLASS);
         $builder = $capsule->getConnection();
         return new \App\Models\ModelFactory($builder);
     }

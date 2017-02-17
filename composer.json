@@ -8,7 +8,7 @@
     "middlewares/fast-route": "0.3.0",
     "lukasoppermann/http-status": "2.0.1",
     "filp/whoops": "2.1.5",
-    "illuminate/database": "5.4.9",
+    "illuminate/database": "5.2.*",
     "psr/log": "^1.0"
   },
   "autoload": {
