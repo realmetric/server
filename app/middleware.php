@@ -1,4 +1,40 @@
 <?php return [
+    // CORS
+    function ($request, $delegate) {
+        /* @var \Zend\Diactoros\Response $response */
+        $response = $delegate->process($request);
+
+
+        $headers = [
+            'Origin',
+            'X-Requested-With',
+            'Content-Range',
+            'Content-Disposition',
+            'Content-Type',
+            'Authorization',
+            'Accept',
+            'Client-Security-Token',
+            'X-CSRFToken',
+        ];
+
+        $method = [
+            'POST',
+            'GET',
+            'OPTIONS',
+            'DELETE',
+            'PUT'
+        ];
+
+        $response = $response
+            ->withHeader("Access-Control-Allow-Origin", '*')
+            ->withHeader("Access-Control-Allow-Methods", implode(',', $method))
+            ->withHeader("Access-Control-Allow-Headers", implode(',', $headers))
+            ->withHeader('Access-Control-Max-Age', '86400')
+            ->withHeader("Access-Control-Allow-Credentials", 'true');
+
+        return $response;
+    },
+
 
     // Error handler
     function ($request, $delegate) {
