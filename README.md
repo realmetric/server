@@ -8,12 +8,12 @@
         "time": "",
         "slices": [
             {
-                "name": "project",
-                "value": "some_project_1"
+                "category": "project",
+                "name": "some_project_1"
             },
             {
-                "name": "paid",
-                "value": "yes"
+                "category": "paid",
+                "name": "yes"
             }
         ]
     },
