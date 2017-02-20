@@ -26,28 +26,32 @@ class DailySlicesModel extends AbstractModel
         $this->shema()->create($name, function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
-            $table->unsignedInteger('event_id');
             $table->unsignedSmallInteger('metric_id');
-            $table->unsignedSmallInteger('category_id');
-            $table->unsignedSmallInteger('name_id');
+            $table->unsignedSmallInteger('slice_id');
             $table->float('value');
             $table->unsignedSmallInteger('minute');
-            $table->index('event_id');
             $table->index('metric_id');
+            $table->index(['metric_id', 'slice_id', 'value', 'minute']);
         });
     }
 
-    public function create(int $eventId, int $metricId, int $categoryId, int $nameId, float $value, string $time):int
+    public function create(int $metricId, int $sliceId, float $value, string $time):int
     {
         $ts = strtotime($time);
         $minute = date('H', $ts) * 60 + date('i', $ts);
         return $this->insert([
-            'event_id' => $eventId,
             'metric_id' => $metricId,
-            'category_id' => $categoryId,
-            'name_id' => $nameId,
+            'slice_id' => $sliceId,
             'value' => $value,
             'minute' => $minute,
         ]);
+    }
+
+    public function getValues(int $metricId, int $sliceId) : array
+    {
+        return $this->qb()
+            ->where('metric_id', '=', $metricId)
+            ->where('slice_id', '=', $sliceId)
+            ->get(['minute', 'value']);
     }
 }

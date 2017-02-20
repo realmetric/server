@@ -48,7 +48,7 @@ class MetricsModel extends AbstractModel
         return $this->getById($createdId);
     }
 
-    public function create(string $name)
+    public function create(string $name):int
     {
         $name = trim($name);
         $hash = crc32($name);

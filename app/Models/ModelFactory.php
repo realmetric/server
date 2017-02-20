@@ -5,6 +5,7 @@ namespace App\Models;
 
 /**
  * @property MetricsModel metrics
+ * @property SlicesModel slices
  * @property DailyMetricsModel dailyMetrics
  * @property DailySlicesModel dailySlices
  */
