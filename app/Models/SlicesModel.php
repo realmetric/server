@@ -32,7 +32,7 @@ class SlicesModel extends AbstractModel
         });
     }
 
-    public function getOrCreate(string $category, string $name):array
+    public function getOrCreate(string $category, string $name): array
     {
         $category = trim($category);
         $categoryCrc32 = crc32($category);
@@ -53,13 +53,13 @@ class SlicesModel extends AbstractModel
         return $this->getById($createdId);
     }
 
-    public function getId(string $category, string $name):int
+    public function getId(string $category, string $name): int
     {
         $record = $this->getOrCreate($category, $name);
         return $record['id'];
     }
 
-    public function create(string $category, string $name):int
+    public function create(string $category, string $name): int
     {
         $category = trim($category);
         $categoryCrc32 = crc32($category);

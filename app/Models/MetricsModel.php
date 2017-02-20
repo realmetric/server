@@ -31,7 +31,7 @@ class MetricsModel extends AbstractModel
         });
     }
 
-    public function getOrCreate(string $name):array
+    public function getOrCreate(string $name): array
     {
         $name = trim($name);
         $hash = crc32($name);
@@ -48,7 +48,7 @@ class MetricsModel extends AbstractModel
         return $this->getById($createdId);
     }
 
-    public function create(string $name):int
+    public function create(string $name): int
     {
         $name = trim($name);
         $hash = crc32($name);
@@ -59,7 +59,7 @@ class MetricsModel extends AbstractModel
         ]);
     }
 
-    public function getId(string $name):int
+    public function getId(string $name): int
     {
         $record = $this->getOrCreate($name);
         return $record['id'];

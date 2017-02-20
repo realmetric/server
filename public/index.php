@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '../../vendor/autoload.php';
 
-if (is_readable(__DIR__ . '/../config/dev/env.php')){
+if (is_readable(__DIR__ . '/../config/dev/env.php')) {
     $config = require __DIR__ . '/../config/dev/env.php';
 } else {
     $config = require __DIR__ . '/../config/env/dev.php';

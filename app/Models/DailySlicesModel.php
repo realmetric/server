@@ -35,7 +35,7 @@ class DailySlicesModel extends AbstractModel
         });
     }
 
-    public function create(int $metricId, int $sliceId, float $value, string $time):int
+    public function create(int $metricId, int $sliceId, float $value, string $time): int
     {
         $ts = strtotime($time);
         $minute = date('H', $ts) * 60 + date('i', $ts);
@@ -47,7 +47,7 @@ class DailySlicesModel extends AbstractModel
         ]);
     }
 
-    public function getValues(int $metricId, int $sliceId) : array
+    public function getValues(int $metricId, int $sliceId): array
     {
         return $this->qb()
             ->where('metric_id', '=', $metricId)

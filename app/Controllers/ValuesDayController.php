@@ -12,7 +12,7 @@ class ValuesDayController extends AbstractController
         $metricId = isset($queryParams['metric_id']) ? (int)$queryParams['metric_id'] : null;
         $sliceId = isset($queryParams['slice_id']) ? (int)$queryParams['slice_id'] : null;
 
-        if (!$metricId || !$sliceId){
+        if (!$metricId || !$sliceId) {
             throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ') or slice_id(' . $sliceId . ') value');
         }
 

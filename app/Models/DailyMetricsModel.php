@@ -32,7 +32,7 @@ class DailyMetricsModel extends AbstractModel
         });
     }
 
-    public function create(int $metricId, float $value, string $time):int
+    public function create(int $metricId, float $value, string $time): int
     {
         $ts = strtotime($time);
         $minutes = date('H', $ts) * 60 + date('i', $ts);
