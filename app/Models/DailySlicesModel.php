@@ -28,20 +28,26 @@ class DailySlicesModel extends AbstractModel
             $table->increments('id');
             $table->unsignedInteger('event_id');
             $table->unsignedSmallInteger('metric_id');
-            $table->unsignedSmallInteger('slice_id');
-            $table->unsignedSmallInteger('value_id');
+            $table->unsignedSmallInteger('category_id');
+            $table->unsignedSmallInteger('name_id');
+            $table->float('value');
+            $table->unsignedSmallInteger('minute');
             $table->index('event_id');
             $table->index('metric_id');
         });
     }
 
-    public function create(int $eventId, int $metricId, int $sliceId, int $valueId):int
+    public function create(int $eventId, int $metricId, int $categoryId, int $nameId, float $value, string $time):int
     {
+        $ts = strtotime($time);
+        $minute = date('H', $ts) * 60 + date('i', $ts);
         return $this->insert([
             'event_id' => $eventId,
             'metric_id' => $metricId,
-            'slice_id' => $sliceId,
-            'value_id' => $valueId,
+            'category_id' => $categoryId,
+            'name_id' => $nameId,
+            'value' => $value,
+            'minute' => $minute,
         ]);
     }
 }

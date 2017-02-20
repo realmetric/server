@@ -55,11 +55,11 @@ abstract class AbstractModel
 
     public function insert(array $data):int
     {
-        $insertedId = $this->qb()->insert($data);
-        if (!$insertedId) {
+        $insertId = $this->qb()->insertGetId($data);
+        if (!$insertId) {
             throw new \Exception('Error in creating record');
         }
-        return (int)$insertedId;
+        return $insertId;
     }
 
     public function getAll():array
