@@ -25,6 +25,16 @@ class TestController extends AbstractController
             'site' => 'example2.com'
         ]);
 
+        $event->save('Product.Some.Metric2', 1.0, 'now', [
+            'vendor' => 'Gmail',
+            'site' => 'example.com'
+        ]);
+
+        $event->save('Product.Some.Metric2', 1.0, 'now', [
+            'vendor' => 'Yahoo',
+            'site' => 'example2.com'
+        ]);
+
         die;
     }
 }

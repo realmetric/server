@@ -35,17 +35,17 @@ class DailySlicesModel extends AbstractModel
         });
     }
 
-    public function create(int $metricId, int $sliceId, float $value, string $time): int
-    {
-        $ts = strtotime($time);
-        $minute = date('H', $ts) * 60 + date('i', $ts);
-        return $this->insert([
-            'metric_id' => $metricId,
-            'slice_id' => $sliceId,
-            'value' => $value,
-            'minute' => $minute,
-        ]);
-    }
+//    public function create(int $metricId, int $sliceId, float $value, string $time): int
+//    {
+//        $ts = strtotime($time);
+//        $minute = date('H', $ts) * 60 + date('i', $ts);
+//        return $this->insert([
+//            'metric_id' => $metricId,
+//            'slice_id' => $sliceId,
+//            'value' => $value,
+//            'minute' => $minute,
+//        ]);
+//    }
 
     public function getValues(int $metricId, int $sliceId): array
     {
