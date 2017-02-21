@@ -29,19 +29,20 @@ class DailyMetricsModel extends AbstractModel
             $table->unsignedSmallInteger('minute');
 
             $table->index('metric_id');
+            $table->index(['metric_id', 'minute']);
         });
     }
 
-    public function create(int $metricId, float $value, string $time): int
-    {
-        $ts = strtotime($time);
-        $minutes = date('H', $ts) * 60 + date('i', $ts);
-        return $this->insert([
-            'metric_id' => $metricId,
-            'value' => $value,
-            'minute' => $minutes,
-        ]);
-    }
+//    public function create(int $metricId, float $value, string $time): int
+//    {
+//        $ts = strtotime($time);
+//        $minutes = date('H', $ts) * 60 + date('i', $ts);
+//        return $this->insert([
+//            'metric_id' => $metricId,
+//            'value' => $value,
+//            'minute' => $minutes,
+//        ]);
+//    }
 
     public function getAllMetrics()
     {
