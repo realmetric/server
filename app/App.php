@@ -12,14 +12,17 @@ class App
 {
     private static $container;
 
-    public function run(array $config, array $dependencies, array $middleware, array $routes)
+    public function init(array $config, array $dependencies)
     {
         // Env
         $this->loadEnv($config);
 
         // Container
         self::$container = $this->buildContainer($dependencies);
+    }
 
+    public function runHttp(array $middleware, array $routes)
+    {
         // Request
         $request = $this->getRequest();
 

@@ -11,4 +11,5 @@ $middleware = require __DIR__ . '/../app/middleware.php';
 $routes = require __DIR__ . '/../app/routes.php';
 
 $app = new \App\App();
-$app->run($config, $dependencies, $middleware, $routes);
+$app->init($config, $dependencies);
+$app->runHttp($middleware, $routes);
