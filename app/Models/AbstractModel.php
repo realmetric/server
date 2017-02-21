@@ -47,13 +47,13 @@ abstract class AbstractModel
 
     // ------------- Base public functions below -----------------
 
-    public function getById(int $primaryId):array
+    public function getById(int $primaryId): array
     {
         return $this->qb()->find($primaryId);
     }
 
 
-    public function insert(array $data):int
+    public function insert(array $data): int
     {
         $insertId = $this->qb()->insertGetId($data);
         if (!$insertId) {
@@ -62,7 +62,7 @@ abstract class AbstractModel
         return $insertId;
     }
 
-    public function getAll():array
+    public function getAll(): array
     {
         return $this->qb()->get();
     }
