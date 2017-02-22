@@ -2,7 +2,7 @@
     'mysql' => function () {
         $config = array(
             'driver' => 'mysql', // Db driver
-            'host' => 'localhost',
+            'host' => getenv('MYSQL_HOST'),
             'database' => getenv('MYSQL_DATABASE'),
             'username' => getenv('MYSQL_USERNAME'),
             'password' => getenv('MYSQL_PASSWORD'),
