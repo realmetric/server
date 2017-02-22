@@ -1,0 +1,2 @@
+* * * * * /home/ubuntu/www/realmetric/server/run raw:metrics >>/home/ubuntu/www/realmetric/server/logs/commands/raw_metrics.log 2>&1
+* * * * * /home/ubuntu/www/realmetric/server/run raw:slices >>/home/ubuntu/www/realmetric/server/logs/commands/raw_slices.log 2>&1
