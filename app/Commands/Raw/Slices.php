@@ -21,6 +21,9 @@ class Slices extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $time = date('Y-m-d H:i:s');
+        echo $time . PHP_EOL;
+
         $lastCounter = $this->mysql->dailyCounters->getByName(static::COUNTER_NAME);
 
         if ($lastCounter){
@@ -28,7 +31,6 @@ class Slices extends AbstractCommand
         } else {
             $startId = 0;
         }
-        $time = date('Y-m-d H:i:s');
         $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $startId);
         if (!$aggregatedData){
             return;
