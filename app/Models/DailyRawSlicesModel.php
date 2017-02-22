@@ -65,7 +65,6 @@ class DailyRawSlicesModel extends AbstractModel
             ->groupBy('metric_id')
             ->groupBy('slice_id')
             ->groupBy('minute')
-            ->orderBy('id')
             ->get();
     }
 
