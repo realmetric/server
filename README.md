@@ -34,8 +34,9 @@ dd if=/dev/zero of=/swapspace bs=1M count=4000
 mkswap /swapspace
 swapon /swapspace
 echo "/swapspace none swap defaults 0 0" >> /etc/fstab
-
-# Configuring mysql (mysql.cfg)
+```
+### Configuring mysql (mysql.cfg) 
+```shell
 [mysqld]
 pid-file        = /var/run/mysqld/mysqld.pid
 socket          = /var/run/mysqld/mysqld.sock
