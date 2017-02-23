@@ -16,34 +16,32 @@ class Metrics extends AbstractCommand
         $this
             ->setName('raw:metrics')
             ->setDescription('TBD')
-            ->setHelp('This command allows you to...')
-        ;
+            ->setHelp('This command allows you to...');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $time = date('Y-m-d H:i:s');
-        echo $time . PHP_EOL;
 
         $lastCounter = $this->mysql->dailyCounters->getByName(static::COUNTER_NAME);
 
-        if ($lastCounter){
+        if ($lastCounter) {
             $startId = $lastCounter['value'] + 1;
         } else {
             $startId = 0;
         }
 
         $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedData($time, $startId);
-        if (!$aggregatedData){
+        if (!$aggregatedData) {
             return;
         }
 
-        foreach($aggregatedData as $row){
+        foreach ($aggregatedData as $row) {
             $this->mysql->dailyMetrics->insert($row);
         }
 
         $maxId = $this->mysql->dailyRawMetrics->getAggregatedMaxId($time);
-        if (!$maxId){
+        if (!$maxId) {
             return;
         }
 
