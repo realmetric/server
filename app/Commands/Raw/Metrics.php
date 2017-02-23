@@ -33,6 +33,7 @@ class Metrics extends AbstractCommand
 
         $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedData($time, $startId);
         if (!$aggregatedData) {
+            $output->writeln('No raw data in dailyRawMetrics from startId ' . $startId);
             return;
         }
 

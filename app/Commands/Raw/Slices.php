@@ -32,6 +32,7 @@ class Slices extends AbstractCommand
         }
         $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $startId);
         if (!$aggregatedData) {
+            $output->writeln('No raw data in dailyRawSlices from startId ' . $startId);
             return;
         }
 
