@@ -18,7 +18,7 @@ class TrackController extends AbstractController
             $metric = $event['metric'];
             $value = $event['value'] ?? 0;
             $time = isset($event['time']) ? strtotime($event['time']) : time();
-            $slices = $event['slices'] ?? null;
+            $slices = $event['slices'] ?? [];
 
             $event = new Event();
             $event->save($metric, $value, $time, $slices);
