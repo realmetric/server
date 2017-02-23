@@ -36,12 +36,16 @@ class Metrics extends AbstractCommand
             return;
         }
 
-        foreach ($aggregatedData as $row) {
+
+        $maxId = 0;
+        foreach($aggregatedData as $row){
             $this->mysql->dailyMetrics->insert($row);
+            if ($maxId < (int) $row['id']) {
+                $maxId = (int) $row['id'];
+            }
         }
 
-        $maxId = $this->mysql->dailyRawMetrics->getAggregatedMaxId($time);
-        if (!$maxId) {
+        if (!$maxId){
             return;
         }
 

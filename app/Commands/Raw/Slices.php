@@ -35,12 +35,15 @@ class Slices extends AbstractCommand
             return;
         }
 
-        foreach ($aggregatedData as $row) {
+        $maxId = 0;
+        foreach($aggregatedData as $row){
             $this->mysql->dailySlices->insert($row);
+            if ($maxId < (int) $row['id']) {
+                $maxId = (int) $row['id'];
+            }
         }
 
-        $maxId = $this->mysql->dailyRawSlices->getAggregatedMaxId($time);
-        if (!$maxId) {
+        if (!$maxId){
             return;
         }
 

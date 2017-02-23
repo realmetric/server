@@ -64,13 +64,4 @@ class DailyRawMetricsModel extends AbstractModel
             ->get();
     }
 
-    public function getAggregatedMaxId(string $time = 'now'): int
-    {
-        $ts = strtotime($time);
-        $minutes = date('H', $ts) * 60 + date('i', $ts);
-        return $this->qb()
-            ->selectRaw('max(id) max_id')
-            ->where('minute', '<', $minutes)
-            ->value('max_id');
-    }
 }
