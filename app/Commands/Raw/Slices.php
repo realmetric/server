@@ -30,24 +30,18 @@ class Slices extends AbstractCommand
         } else {
             $startId = 0;
         }
-        $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $startId);
+
+        $aggregatedRange = $this->mysql->dailyRawSlices->getAggregatedRange($time, $startId);
+        $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $aggregatedRange['min_id'], $aggregatedRange['max_id']);
         if (!$aggregatedData) {
             $output->writeln('No raw data in dailyRawSlices from startId ' . $startId);
             return;
         }
 
-        $maxId = 0;
         foreach ($aggregatedData as $row) {
             $this->mysql->dailySlices->insert($row);
-            if ($maxId < (int)$row['id']) {
-                $maxId = (int)$row['id'];
-            }
         }
 
-        if (!$maxId) {
-            return;
-        }
-
-        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
+        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $aggregatedRange['max_id']);
     }
 }
