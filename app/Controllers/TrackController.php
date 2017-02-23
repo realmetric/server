@@ -14,6 +14,7 @@ class TrackController extends AbstractController
             throw new \Exception('No events');
         }
 
+        $added = 0;
         foreach ($events as $event) {
             $metric = $event['metric'];
             $value = $event['value'] ?? 0;
@@ -21,9 +22,13 @@ class TrackController extends AbstractController
             $slices = $event['slices'] ?? [];
 
             $event = new Event();
-            $event->save($metric, $value, $time, $slices);
+            $eventId = $event->save($metric, $value, $time, $slices);
+
+            if ($eventId) {
+                $added++;
+            }
         }
 
-        return $this->jsonResponse(true);
+        return $this->jsonResponse(['createdEvents' => $added]);
     }
 }
