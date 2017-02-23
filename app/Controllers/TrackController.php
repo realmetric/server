@@ -16,7 +16,7 @@ class TrackController extends AbstractController
 
         foreach ($events as $event) {
             $metric = $event['metric'];
-            $value = $event['value'] ?? 0;
+            $value = (float) $event['value'] ?? 1;
             $time = isset($event['time']) ? strtotime($event['time']) : time();
             $slices = $event['slices'] ?? null;
 
