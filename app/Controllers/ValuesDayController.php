@@ -17,6 +17,6 @@ class ValuesDayController extends AbstractController
         }
 
         $data = $this->mysql->dailySlices->getValues($metricId, $sliceId);
-        return $this->jsonResponse($data);
+        return $this->jsonResponse(['values' => $data]);
     }
 }
