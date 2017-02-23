@@ -18,6 +18,6 @@ class Event
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
             $this->mysql->dailyRawSlices->create($metricId, $sliceId, $value, $time);
         }
-
+        return $eventId;
     }
 }
