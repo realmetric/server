@@ -36,14 +36,14 @@ class Slices extends AbstractCommand
         }
 
         $maxId = 0;
-        foreach($aggregatedData as $row){
+        foreach ($aggregatedData as $row) {
             $this->mysql->dailySlices->insert($row);
-            if ($maxId < (int) $row['id']) {
-                $maxId = (int) $row['id'];
+            if ($maxId < (int)$row['id']) {
+                $maxId = (int)$row['id'];
             }
         }
 
-        if (!$maxId){
+        if (!$maxId) {
             return;
         }
 
