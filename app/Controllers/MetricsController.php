@@ -14,6 +14,6 @@ class MetricsController extends AbstractController
         foreach ($totals as &$record) {
             $record['name'] = $metrics[$record['metric_id']];
         }
-        return $this->jsonResponse($totals);
+        return $this->jsonResponse(['metrics' => $totals]);
     }
 }
