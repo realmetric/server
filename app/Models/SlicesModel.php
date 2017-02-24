@@ -74,4 +74,11 @@ class SlicesModel extends AbstractModel
         ]);
     }
 
+    public function getByIds(array $sliceIds):array
+    {
+        return $this->qb()
+            ->whereIn('id', $sliceIds)
+            ->get(['id', 'name']);
+    }
+
 }
