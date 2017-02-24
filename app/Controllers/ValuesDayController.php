@@ -17,6 +17,12 @@ class ValuesDayController extends AbstractController
         }
 
         $data = $this->mysql->dailySlices->getValues($metricId, $sliceId);
-        return $this->jsonResponse(['values' => $data]);
+
+        $values = [];
+        foreach ($data as $record) {
+            $values[$record['minute']] = $record['value'];
+        }
+
+        return $this->jsonResponse(['values' => $values]);
     }
 }
