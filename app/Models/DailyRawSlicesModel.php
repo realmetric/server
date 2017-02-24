@@ -30,7 +30,6 @@ class DailyRawSlicesModel extends AbstractModel
             $table->unsignedSmallInteger('slice_id');
             $table->float('value');
             $table->unsignedSmallInteger('minute');
-            $table->index('metric_id');
         });
     }
 

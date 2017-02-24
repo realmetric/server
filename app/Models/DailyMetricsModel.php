@@ -29,7 +29,6 @@ class DailyMetricsModel extends AbstractModel
             $table->unsignedSmallInteger('minute');
 
             $table->index('metric_id');
-            $table->index(['metric_id', 'minute']);
         });
     }
 

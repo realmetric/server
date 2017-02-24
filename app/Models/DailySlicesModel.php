@@ -30,8 +30,7 @@ class DailySlicesModel extends AbstractModel
             $table->unsignedSmallInteger('slice_id');
             $table->float('value');
             $table->unsignedSmallInteger('minute');
-            $table->index('metric_id');
-            $table->index(['metric_id', 'slice_id', 'value', 'minute']);
+            $table->index(['metric_id', 'slice_id']);
         });
     }
 
