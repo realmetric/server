@@ -50,4 +50,11 @@ class DailyMetricsModel extends AbstractModel
             ->groupBy('metric_id')
             ->get();
     }
+
+    public function getByMetricId(int $metricId): array
+    {
+        return $this->qb()
+            ->where('metric_id', '=', $metricId)
+            ->get(['minute', 'value']);
+    }
 }

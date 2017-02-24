@@ -64,4 +64,11 @@ class MetricsModel extends AbstractModel
         $record = $this->getOrCreate($name);
         return $record['id'];
     }
+
+    public function getByIds(array $sliceIds):array
+    {
+        return $this->qb()
+            ->whereIn('id', $sliceIds)
+            ->get(['id', 'name']);
+    }
 }

@@ -43,7 +43,7 @@ class DailySlicesModel extends AbstractModel
             ->get(['minute', 'value']);
     }
 
-    public function getTotalsByMetricId(int $metricId): array
+    public function getByMetricId(int $metricId): array
     {
         return $this->qb()
             ->where('metric_id', '=', $metricId)

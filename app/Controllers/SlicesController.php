@@ -11,7 +11,7 @@ class SlicesController extends AbstractController
     {
         $attributes = $request->getAttributes();
 
-        $totals = $this->mysql->dailySlices->getTotalsByMetricId($attributes['metric_id']);
+        $totals = $this->mysql->dailySlices->getByMetricId($attributes['metric_id']);
         $slices = array_column($this->mysql->slices->getByIds(array_column($totals, 'slice_id')), 'name', 'id');
 
         foreach ($totals as &$record) {
