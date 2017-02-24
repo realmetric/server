@@ -25,12 +25,16 @@ class Metrics extends AbstractCommand
 
         $lastCounter = $this->mysql->dailyCounters->getByName(static::COUNTER_NAME);
 
-        if ($lastCounter) {
+        if ($lastCounter && $lastCounter['value']) {
             $startId = $lastCounter['value'] + 1;
         } else {
             $startId = 0;
         }
         $aggregatedRange = $this->mysql->dailyRawMetrics->getAggregatedRange($time, $startId);
+        if (!count($aggregatedRange)) {
+            $output->writeln('No raw data in dailyRawMetrics for range');
+            return;
+        }
         $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($time, $aggregatedRange['min_id'], $aggregatedRange['max_id']);
         if (!$aggregatedData) {
             $output->writeln('No raw data in dailyRawMetrics from startId ' . $startId);
