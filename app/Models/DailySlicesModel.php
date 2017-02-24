@@ -46,6 +46,6 @@ class DailySlicesModel extends AbstractModel
     {
         return $this->qb()
             ->where('metric_id', '=', $metricId)
-            ->get(['slice_id','minute', 'value']);
+            ->get(['slice_id', 'minute', 'value']);
     }
 }

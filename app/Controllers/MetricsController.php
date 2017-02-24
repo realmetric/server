@@ -22,17 +22,13 @@ class MetricsController extends AbstractController
     public function getByMetricId(ServerRequestInterface $request)
     {
         $attributes = $request->getAttributes();
+        $data = $this->mysql->dailyMetrics->getByMetricId($attributes['metric_id']);
 
-        $totals = $this->mysql->dailyMetrics->getByMetricId($attributes['metric_id']);
-//        $metrics = array_column($this->mysql->metrics->getByIds(array_column($totals, 'metric_id')), 'name', 'id');
-
-        foreach ($totals as &$record) {
-//            $record['name'] = $metrics[$record['metric__id']];
-            $hour = floor($record['minute']/60);
-            $minute = $record['minute'] - (60*$hour);
-            unset($record['minute']);
-            $record['datetime'] = date('Y-m-d H:i:s', strtotime(date('Y-m-d ') . $hour . ':' . $minute));
+        $values = [];
+        foreach ($data as $record) {
+            $values[$record['minute']] = $record['value'];
         }
-        return $this->jsonResponse(['metrics' => $totals]);
+
+        return $this->jsonResponse(['values' => $values]);
     }
 }
