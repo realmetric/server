@@ -16,5 +16,7 @@
         $capsule->addConnection($config);
         $builder = $capsule->getConnection();
         return new \App\Models\ModelFactory($builder);
-    }
+    },
+
+    'timer' => new \App\Timer()
 ];

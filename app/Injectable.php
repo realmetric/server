@@ -4,6 +4,7 @@ namespace App;
 
 /**
  * @property \App\Models\ModelFactory mysql
+ * @property Timer timer
  */
 
 trait Injectable

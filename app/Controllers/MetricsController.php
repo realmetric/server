@@ -12,6 +12,7 @@ class MetricsController extends AbstractController
     {
         $totals = $this->mysql->dailyMetrics->getAllMetrics();
         $metrics = $this->mysql->metrics->getAll();
+
         $metrics = array_column($metrics, 'name', 'id');
         foreach ($totals as &$record) {
             $record['name'] = $metrics[$record['metric_id']];

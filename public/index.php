@@ -1,5 +1,6 @@
 <?php
-define('APP_START_TIME', microtime(true));
+require __DIR__ . '../../app/Timer.php';
+\App\Timer::startPointStatic('APP');
 
 require __DIR__ . '../../vendor/autoload.php';
 
