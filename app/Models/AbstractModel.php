@@ -23,7 +23,14 @@ abstract class AbstractModel
      */
     protected function qb()
     {
-        return $this->queryBuilder->query()->from($this->getTable());
+        $connection = $this->queryBuilder;
+        $qb = new QueryBuilder(
+            $connection,
+            $connection->getQueryGrammar(),
+            $connection->getPostProcessor()
+        );
+
+        return $qb->from($this->getTable());
     }
 
     /**
