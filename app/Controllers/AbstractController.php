@@ -9,6 +9,11 @@ abstract class AbstractController
 {
     use \App\Injectable;
 
+    public function __construct()
+    {
+        $this->timer->endPoint('http');
+    }
+
     public function jsonResponse(array $data, $status = Httpstatuscodes::HTTP_OK)
     {
         $this->timer->endPoint('TOTAL');

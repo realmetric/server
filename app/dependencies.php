@@ -18,5 +18,7 @@
         return new \App\Models\ModelFactory($builder);
     },
 
-    'timer' => new \App\Timer()
+    'timer' => function () {
+        return new \App\Timer();
+    }
 ];
