@@ -20,7 +20,7 @@ class QueryBuilder extends Builder
 
     public function get($columns = ['*'])
     {
-        $name = 'mysql_' . mt_rand(99, 9999);
+        $name = 'mysql ' . $this->from;
         $this->timer->startPoint($name);
 
         $result = parent::get($columns);
