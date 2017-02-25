@@ -13,4 +13,11 @@ abstract class AbstractCommand extends \Symfony\Component\Console\Command\Comman
     {
         $output->writeln(PHP_EOL . 'Start at ' . date('Y-m-d H:i:s'));
     }
+
+    public function run(InputInterface $input, OutputInterface $output)
+    {
+        $timeStart = microtime(true);
+        parent::run($input, $output);
+        $output->writeln('Done in ' . number_format(microtime(true) - $timeStart, 3));
+    }
 }
