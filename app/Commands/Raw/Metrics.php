@@ -35,17 +35,23 @@ class Metrics extends AbstractCommand
             $output->writeln('No raw data in dailyRawMetrics for range');
             return;
         }
+        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $aggregatedRange['max_id']);
+
         $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($time, $aggregatedRange['min_id'], $aggregatedRange['max_id']);
         if (!$aggregatedData) {
             $output->writeln('No raw data in dailyRawMetrics from startId ' . $startId);
             return;
         }
 
+        $saved = 0;
         foreach ($aggregatedData as $row) {
-            $this->mysql->dailyMetrics->insert($row);
+            $res = $this->mysql->dailyMetrics->insert($row);
+            if ($res) {
+                $saved++;
+            }
         }
 
-        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $aggregatedRange['max_id']);
+        $output->writeln("Saved {$saved} daily metrics");
     }
 
 }
