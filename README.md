@@ -34,7 +34,13 @@ dd if=/dev/zero of=/swapspace bs=1M count=4000
 mkswap /swapspace
 swapon /swapspace
 echo "/swapspace none swap defaults 0 0" >> /etc/fstab
+
+# Self-signed ssl sertificate. Better use letsencrypt.org
+sudo mkdir /etc/nginx/ssl
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
+
 ```
+
 ### Configuring mysql (mysql.cfg) 
 ```shell
 [mysqld]
