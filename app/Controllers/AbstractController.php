@@ -11,7 +11,7 @@ abstract class AbstractController
 
     public function jsonResponse(array $data, $status = Httpstatuscodes::HTTP_OK)
     {
-        $this->timer->endPoint('APP');
+        $this->timer->endPoint('TOTAL');
         $data['_timing'] = $this->timer->getResults();
         return new JsonResponse($data, $status);
     }
