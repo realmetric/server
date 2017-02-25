@@ -11,7 +11,7 @@ abstract class AbstractController
 
     public function __construct()
     {
-        $this->timer->endPoint('http');
+        $this->timer->endPoint('middleware');
     }
 
     public function jsonResponse(array $data, $status = Httpstatuscodes::HTTP_OK)
