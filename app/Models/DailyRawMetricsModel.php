@@ -48,13 +48,12 @@ class DailyRawMetricsModel extends AbstractModel
             ->get();
     }
 
-    public function getMaxIdForTime(string $time, int $startId): int
+    public function getMaxIdForTime(string $time): int
     {
         $ts = strtotime($time);
         $minute = date('H', $ts) * 60 + date('i', $ts);
         return $this->qb()
             ->selectRaw('max(id) as max_id')
-            ->where('id', '>', $startId)
             ->where('minute', '<', $minute)
             ->value('max_id');
     }

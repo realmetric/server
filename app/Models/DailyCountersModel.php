@@ -43,7 +43,7 @@ class DailyCountersModel extends AbstractModel
     {
         $value = $this->qb()
             ->where('name', '=', $name)
-            ->first();
+            ->value('value');
         return (int)$value;
     }
 
