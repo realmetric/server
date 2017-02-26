@@ -48,19 +48,15 @@ class DailyRawMetricsModel extends AbstractModel
             ->get();
     }
 
-    public function getAggregatedRange(string $time = 'now', int $startId = 0): array
+    public function getMaxIdForTime(string $time, int $startId): int
     {
         $ts = strtotime($time);
-        $minutes = date('H', $ts) * 60 + date('i', $ts);
-        $result = $this->qb()
-            ->selectRaw('min(id) as min_id, max(id) as max_id')
-            ->where('id', '>=', $startId)
-            ->where('minute', '<', $minutes)
-            ->first();
-        if (!$result){
-            return [];
-        }
-        return $result;
+        $minute = date('H', $ts) * 60 + date('i', $ts);
+        return $this->qb()
+            ->selectRaw('max(id) as max_id')
+            ->where('id', '>', $startId)
+            ->where('minute', '<', $minute)
+            ->value('max_id');
     }
 
     public function getAggregatedDataByRange(string $time = 'now', int $firstId, int $lastId): array

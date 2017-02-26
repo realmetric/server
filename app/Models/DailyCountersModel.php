@@ -39,6 +39,14 @@ class DailyCountersModel extends AbstractModel
             ->first();
     }
 
+    public function getValue(string $name):int
+    {
+        $value = $this->qb()
+            ->where('name', '=', $name)
+            ->first();
+        return (int)$value;
+    }
+
     public function updateOrInsert(string $name, int $value) : bool
     {
         return $this->qb()->updateOrInsert(['name' => $name], ['value' => $value]);
