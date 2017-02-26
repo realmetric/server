@@ -49,7 +49,7 @@ class Metrics extends AbstractCommand
             }
         }
 
-        $output->writeln("Saved {$saved} daily metrics. Maxid: {$maxId}");
+        $output->writeln("Saved {$saved} daily metrics. MaxId: {$maxId}");
     }
 
 }

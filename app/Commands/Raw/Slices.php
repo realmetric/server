@@ -22,31 +22,25 @@ class Slices extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $time = date('Y-m-d H:i:s');
+        $lastCounter = $this->mysql->dailyCounters->getValue(static::COUNTER_NAME);
+        $startId = $lastCounter ? $lastCounter + 1 : 0;
 
-        // Find last selected id
-        $lastCounter = $this->mysql->dailyCounters->getByName(static::COUNTER_NAME);
-        if ($lastCounter && $lastCounter['value']) {
-            $startId = $lastCounter['value'] + 1;
-        } else {
-            $startId = 0;
-        }
-
-        // Select range
-        $aggregatedRange = $this->mysql->dailyRawSlices->getAggregatedRange($time, $startId);
-        if (!count($aggregatedRange)) {
-            $output->writeln('No raw data in dailyRawMetrics for range');
+        // Getting maxId bc no order in aggr result
+        $maxId = $this->mysql->dailyRawSlices->getMaxIdForTime($time);
+        if ($maxId < $startId) {
+            $output->writeln('No new records in dailyRawSlices from startId ' . $startId);
             return;
         }
-        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $aggregatedRange['max_id']);
+        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
 
-        // Get raw data
-        $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $aggregatedRange['min_id'], $aggregatedRange['max_id']);
+        // Getting grouped data form RAW
+        $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $startId, $maxId);
         if (!$aggregatedData) {
             $output->writeln('No raw data in dailyRawSlices from startId ' . $startId);
             return;
         }
 
-        // Write to dailySlices
+        // Saving into aggr table
         $saved = 0;
         foreach ($aggregatedData as $row) {
             $res = $this->mysql->dailySlices->insert($row);
@@ -55,6 +49,6 @@ class Slices extends AbstractCommand
             }
         }
 
-        $output->writeln("Saved {$saved} daily slices");
+        $output->writeln("Saved {$saved} daily slices. MaxId: {$maxId}");
     }
 }
