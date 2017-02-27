@@ -36,9 +36,9 @@ class MetricsModel extends AbstractModel
         $name = trim($name);
         $hash = crc32($name);
 
+        // @TODO check collisions
         $exist = $this->qb()
             ->where('name_crc_32', $hash)
-            ->where('name', $name)
             ->first();
         if ($exist) {
             return $exist;
