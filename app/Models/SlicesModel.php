@@ -39,11 +39,10 @@ class SlicesModel extends AbstractModel
         $name = trim($name);
         $nameCrc32 = crc32($name);
 
+        // @TODO check collisions
         $exist = $this->qb()
             ->where('category_crc_32', $categoryCrc32)
             ->where('name_crc_32', $nameCrc32)
-            ->where('category', $category)
-            ->where('name', $name)
             ->first();
         if ($exist) {
             return $exist;
