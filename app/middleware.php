@@ -2,7 +2,11 @@
     // CORS
     function ($request, $delegate) {
         /* @var \Zend\Diactoros\Response $response */
-        $response = $delegate->process($request);
+        if ($request->getMethod() === 'OPTIONS'){
+            $response = new \Zend\Diactoros\Response();
+        } else {
+            $response = $delegate->process($request);
+        }
 
         $headers = [
             'Origin',

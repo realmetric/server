@@ -2,11 +2,8 @@
 
 namespace App;
 
-use Interop\Container\ContainerInterface;
 use League\Container\Container;
 use Middleland\Dispatcher;
-use Middlewares\Utils\Factory;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\ServerRequestFactory;
 
@@ -29,7 +26,7 @@ class App
         $request = $this->getRequest();
 
         // Router
-        $router = $this->routerMiddleware($request, $routes);
+        $router = $this->routerMiddleware($routes);
 
         // Middleware
         $middleware = array_merge($middleware, [$router]);
@@ -95,14 +92,8 @@ class App
         return $container;
     }
 
-    private function routerMiddleware(RequestInterface $request, $routes)
+    private function routerMiddleware( $routes)
     {
-        if ($request->getMethod() === 'OPTIONS') {
-            return function ($request, $delegate) {
-                return Factory::createResponse(200);
-            };
-        }
-
         $dispatcher = \Fastroute\simpleDispatcher(function (\FastRoute\RouteCollector $r) use ($routes) {
             foreach ($routes as $route) {
                 $r->addRoute($route[0], $route[1], $route[2]);
