@@ -43,7 +43,13 @@ class Metrics extends AbstractCommand
         // Saving into aggr table
         $saved = 0;
         foreach ($aggregatedData as $row) {
-            $res = $this->mysql->dailyMetrics->insert($row);
+            $res = false;
+            try {
+                $res = $this->mysql->dailyMetrics->insert($row);
+            } catch (\Exception $e) {
+                $output->writeln($e->getMessage());
+            }
+
             if ($res) {
                 $saved++;
             }
