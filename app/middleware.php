@@ -4,7 +4,6 @@
         /* @var \Zend\Diactoros\Response $response */
         $response = $delegate->process($request);
 
-
         $headers = [
             'Origin',
             'X-Requested-With',
