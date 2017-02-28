@@ -14,23 +14,8 @@ class TrackController extends AbstractController
             throw new \Exception('No events');
         }
 
-        $added = 0;
-        foreach ($events as $event) {
-            $metric = $event['metric'];
-            $value = (float) $event['value'] ?? 1;
-            $time = time();
-            if (isset($event['time'])){
-                $time = is_numeric($event['time']) ? (int)$event['time'] : strtotime($event['time']);
-            }
-            $slices = $event['slices'] ?? [];
-
-            $event = new Event();
-            $eventId = $event->save($metric, $value, $time, $slices);
-
-            if ($eventId) {
-                $added++;
-            }
-        }
+        $eventService = new Event();
+        $added = $eventService->saveBatch($events);
 
         return $this->jsonResponse(['createdEvents' => $added]);
     }

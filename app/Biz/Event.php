@@ -22,7 +22,14 @@ class Event
         }
 
         // --------------- Saving slices ---------------------
+        $insertData = $this->getSlicesInsertData($slices, $metricId, $value, $minute);
+        $this->mysql->dailyRawSlices->insertBatch($insertData);
 
+        return $eventId;
+    }
+
+    private function getSlicesInsertData($slices, $metricId, $value, $minute)
+    {
         $insertData = [];
         foreach ($slices as $category => $sliceName) {
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
@@ -33,8 +40,48 @@ class Event
                 'minute' => $minute,
             ];
         }
-        $this->mysql->dailyRawSlices->insertBatch($insertData);
+        return $insertData;
+    }
 
-        return $eventId;
+    public function saveBatch($events)
+    {
+        $metrics = [];
+        $slices = [];
+
+        foreach ($events as $event) {
+            $metricName = $event['metric'];
+            $value = (float)$event['value'] ?? 1;
+
+            // Time
+            if (isset($event['time'])) {
+                $ts = is_numeric($event['time']) ? (int)$event['time'] : strtotime($event['time']);
+            } else {
+                $ts = time();
+            }
+            $minute = date('H', $ts) * 60 + date('i', $ts);
+
+
+            // Metric
+            $metricId = $this->mysql->metrics->getId($metricName);
+            $metrics[] = [
+                'metric_id' => $metricId,
+                'value' => $value,
+                'minute' => $minute,
+            ];
+
+            // Slices
+            if (!isset($event['slices']) || !count($event['slices'])) {
+                continue;
+            }
+            $slicesData = $this->getSlicesInsertData($event['slices'], $metricId, $value, $minute);
+            foreach ($slicesData as $data) {
+                $slices[] = $data;
+            }
+        }
+
+        $this->mysql->dailyRawMetrics->insertBatch($metrics);
+        $this->mysql->dailyRawSlices->insertBatch($slices);
+
+        return count($metrics);
     }
 }
