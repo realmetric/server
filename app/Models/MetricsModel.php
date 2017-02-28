@@ -33,10 +33,25 @@ class MetricsModel extends AbstractModel
         });
     }
 
+    private function fillCache()
+    {
+        if (count($this->cache)) {
+            return;
+        }
+
+        $rows = $this->getAll();
+        foreach ($rows as $row) {
+            $this->cache[$row['name']] = $row;
+        }
+    }
+
+
     public function getOrCreate(string $name): array
     {
         $name = trim($name);
-        if (isset($this->cache[$name])){
+        $this->fillCache();
+
+        if (isset($this->cache[$name])) {
             return $this->cache[$name];
         }
 
@@ -47,7 +62,7 @@ class MetricsModel extends AbstractModel
             ->where('name_crc_32', $hash)
             ->first();
         if ($exist) {
-            $this->cache[$name] = $exist;
+//            $this->cache[$name] = $exist;
             return $exist;
         }
 

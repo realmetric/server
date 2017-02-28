@@ -34,12 +34,27 @@ class SlicesModel extends AbstractModel
         });
     }
 
+    private function fillCache()
+    {
+        if (count($this->cache)) {
+            return;
+        }
+
+        $rows = $this->getAll();
+        foreach ($rows as $row) {
+            $this->cache[$row['category'] . ':' . $row['name']] = $row;
+        }
+    }
+
     public function getOrCreate(string $category, string $name): array
     {
         $category = trim($category);
         $name = trim($name);
-        if (isset($this->cache[$category . ':' . $name])){
-            return $this->cache[$category . ':' . $name];
+        $this->fillCache();
+
+        $cacheKey = $category . ':' . $name;
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
         $categoryCrc32 = crc32($category);
@@ -51,7 +66,7 @@ class SlicesModel extends AbstractModel
             ->where('name_crc_32', $nameCrc32)
             ->first();
         if ($exist) {
-            $this->cache[$category . ':' . $name] = $exist;
+//            $this->cache[$cacheKey] = $exist;
             return $exist;
         }
 
