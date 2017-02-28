@@ -39,4 +39,15 @@ class QueryBuilder extends Builder
         $this->timer->endPoint($name);
         return $result;
     }
+
+    public function insert(array $values)
+    {
+        $name = 'db insert:' . $this->from;
+        $this->timer->startPoint($name);
+
+        $result = parent::insert($values);
+
+        $this->timer->endPoint($name);
+        return $result;
+    }
 }
