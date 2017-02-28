@@ -20,10 +20,21 @@ class QueryBuilder extends Builder
 
     public function get($columns = ['*'])
     {
-        $name = 'mysql ' . $this->from;
+        $name = 'db select:' . $this->from;
         $this->timer->startPoint($name);
 
         $result = parent::get($columns);
+
+        $this->timer->endPoint($name);
+        return $result;
+    }
+
+    public function insertGetId(array $values, $sequence = null)
+    {
+        $name = 'db insert:' . $this->from;
+        $this->timer->startPoint($name);
+
+        $result = parent::insertGetId($values, $sequence);
 
         $this->timer->endPoint($name);
         return $result;
