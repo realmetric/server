@@ -8,6 +8,8 @@ class SlicesModel extends AbstractModel
 {
     const TABLE = 'slices';
 
+    private $cache = [];
+
     public function __construct($queryBuilder)
     {
         parent::__construct($queryBuilder);
@@ -35,8 +37,12 @@ class SlicesModel extends AbstractModel
     public function getOrCreate(string $category, string $name): array
     {
         $category = trim($category);
-        $categoryCrc32 = crc32($category);
         $name = trim($name);
+        if (isset($this->cache[$category . ':' . $name])){
+            return $this->cache[$category . ':' . $name];
+        }
+
+        $categoryCrc32 = crc32($category);
         $nameCrc32 = crc32($name);
 
         // @TODO check collisions
@@ -45,6 +51,7 @@ class SlicesModel extends AbstractModel
             ->where('name_crc_32', $nameCrc32)
             ->first();
         if ($exist) {
+            $this->cache[$category . ':' . $name] = $exist;
             return $exist;
         }
 

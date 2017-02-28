@@ -8,6 +8,8 @@ class MetricsModel extends AbstractModel
 {
     const TABLE = 'metrics';
 
+    private $cache = [];
+
     public function __construct($queryBuilder)
     {
         parent::__construct($queryBuilder);
@@ -34,6 +36,10 @@ class MetricsModel extends AbstractModel
     public function getOrCreate(string $name): array
     {
         $name = trim($name);
+        if (isset($this->cache[$name])){
+            return $this->cache[$name];
+        }
+
         $hash = crc32($name);
 
         // @TODO check collisions
@@ -41,6 +47,7 @@ class MetricsModel extends AbstractModel
             ->where('name_crc_32', $hash)
             ->first();
         if ($exist) {
+            $this->cache[$name] = $exist;
             return $exist;
         }
 
