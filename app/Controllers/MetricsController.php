@@ -53,8 +53,8 @@ class MetricsController extends AbstractController
         }
 
         $values = [
-            date('Y-m-d') => $today,
-            date('Y-m-d', strtotime('-1 day')) => $yesterday,
+            date('Y-m-d') => (object) $today,
+            date('Y-m-d', strtotime('-1 day')) => (object) $yesterday,
         ];
 
         return $this->jsonResponse(['values' => $values]);
