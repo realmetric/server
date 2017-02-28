@@ -19,16 +19,13 @@ class SlicesController extends AbstractController
         $slices = array_column($this->mysql->slices->getByIds(array_column($totals, 'slice_id')), 'name', 'id');
         $yesterdaySlices = array_column($this->mysql->slices->getByIds(array_column($yesterdayTotals, 'slice_id')), 'name', 'id');
 
-        foreach ($totals as &$record) {
-            $record['name'] = $slices[$record['slice_id']];
-        }
-        foreach ($yesterdayTotals as &$record) {
-            $record['name'] = $yesterdaySlices[$record['slice_id']];
-        }
-
         return $this->jsonResponse([
-            'slices' => [
+            'values' => [
                 date('Y-m-d') => $totals,
+                date('Y-m-d', strtotime('-1 day')) => $yesterdaySlices,
+            ],
+            'slices' => [
+                date('Y-m-d') => $slices,
                 date('Y-m-d', strtotime('-1 day')) => $yesterdaySlices,
             ]
 
