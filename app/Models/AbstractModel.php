@@ -69,6 +69,11 @@ abstract class AbstractModel
         return $insertId;
     }
 
+    public function insertBatch(array $records)
+    {
+        return $this->qb()->insert($records);
+    }
+
     public function getAll(): array
     {
         return $this->qb()->get();
