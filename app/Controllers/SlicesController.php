@@ -3,6 +3,7 @@
 
 namespace App\Controllers;
 
+use App\Models\DailySlicesModel;
 use Psr\Http\Message\ServerRequestInterface;
 
 class SlicesController extends AbstractController
@@ -12,15 +13,25 @@ class SlicesController extends AbstractController
         $attributes = $request->getAttributes();
 
         $totals = $this->mysql->dailySlices->getByMetricId($attributes['metric_id']);
+        $yesterdayTotals = $this->mysql->dailySlices
+            ->setTable(DailySlicesModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
+            ->getByMetricId($attributes['metric_id']);
         $slices = array_column($this->mysql->slices->getByIds(array_column($totals, 'slice_id')), 'name', 'id');
+        $yesterdaySlices = array_column($this->mysql->slices->getByIds(array_column($yesterdayTotals, 'slice_id')), 'name', 'id');
 
         foreach ($totals as &$record) {
             $record['name'] = $slices[$record['slice_id']];
-            $hour = floor($record['minute']/60);
-            $minute = $record['minute'] - (60*$hour);
-            unset($record['minute']);
-            $record['datetime'] = date('Y-m-d H:i:s', strtotime(date('Y-m-d ') . $hour . ':' . $minute));
         }
-        return $this->jsonResponse(['slices' => $totals]);
+        foreach ($yesterdayTotals as &$record) {
+            $record['name'] = $yesterdaySlices[$record['slice_id']];
+        }
+
+        return $this->jsonResponse([
+            'slices' => [
+                date('Y-m-d') => $totals,
+                date('Y-m-d', strtotime('-1 day')) => $yesterdaySlices,
+            ]
+
+        ]);
     }
 }

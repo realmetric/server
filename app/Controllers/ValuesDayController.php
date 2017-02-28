@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\DailySlicesModel;
 use Psr\Http\Message\ServerRequestInterface;
 
 class ValuesDayController extends AbstractController
@@ -17,14 +18,22 @@ class ValuesDayController extends AbstractController
         }
 
         $data = $this->mysql->dailySlices->getValues($metricId, $sliceId);
+        $yesterdayData = $this->mysql->dailySlices
+            ->setTable(DailySlicesModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
+            ->getValues($metricId, $sliceId);
 
         $today = [];
         foreach ($data as $record) {
             $today[$record['minute']] = $record['value'];
         }
+        $yesterday = [];
+        foreach ($yesterdayData as $record) {
+            $yesterday[$record['minute']] = $record['value'];
+        }
 
         $values = [
             date('Y-m-d') => $today,
+            date('Y-m-d', strtotime('-1 day')) => $yesterday,
         ];
 
         return $this->jsonResponse(['values' => $values]);
