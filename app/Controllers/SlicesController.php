@@ -22,7 +22,7 @@ class SlicesController extends AbstractController
         return $this->jsonResponse([
             'values' => [
                 date('Y-m-d') => $totals,
-                date('Y-m-d', strtotime('-1 day')) => $yesterdaySlices,
+                date('Y-m-d', strtotime('-1 day')) => $yesterdayTotals,
             ],
             'slices' => [
                 date('Y-m-d') => $slices,
