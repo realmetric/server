@@ -38,18 +38,24 @@ class Timer
 
     public function getResults()
     {
-        $names = array_column($this->startPoints, 0);
+        $starts = $this->startPoints;
 
         $results = [];
         foreach ($this->endPoints as $endPoint) {
             $name = $endPoint[0];
             $endTime = $endPoint[1];
-            $id = array_search($name, $names);
-            if ($id === false) {
+
+            $startTime = false;
+            foreach ($starts as $id => $start) {
+                if ($start[0] == $name) {
+                    $startTime = $start[2];
+                    unset($starts[$id]);
+                    break;
+                }
+            }
+            if (!$startTime) {
                 continue;
             }
-
-            $startTime = $this->startPoints[$id][2];
 
             $diff = number_format(($endTime - $startTime) * 1000, 2);
             $results[] = [$name, $diff];
