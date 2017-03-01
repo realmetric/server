@@ -11,7 +11,7 @@ class DailyCountersModel extends AbstractModel
     {
         parent::__construct($queryBuilder);
 
-        $this->setTable(self::TABLE_PREFIX . date('Y_m_d'));
+        $this->setTable(self::TABLE_PREFIX . date('Y_m_d_H'));
         $this->createTable($this->getTable());
     }
 
