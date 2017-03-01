@@ -94,12 +94,4 @@ class SlicesModel extends AbstractModel
             'name_crc_32' => $nameCrc32,
         ]);
     }
-
-    public function getByIds(array $sliceIds):array
-    {
-        return $this->qb()
-            ->whereIn('id', $sliceIds)
-            ->get(['id', 'name']);
-    }
-
 }
