@@ -32,6 +32,12 @@ class DailyCountersModel extends AbstractModel
         });
     }
 
+    public function dropTable($datePart)
+    {
+        $name = self::TABLE_PREFIX . $datePart;
+        return $this->shema()->dropIfExists($name);
+    }
+
     public function getByName(string $name)
     {
         return $this->qb()

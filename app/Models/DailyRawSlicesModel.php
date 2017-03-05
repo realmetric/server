@@ -33,6 +33,12 @@ class DailyRawSlicesModel extends AbstractModel
         });
     }
 
+    public function dropTable($datePart)
+    {
+        $name = self::TABLE_PREFIX . $datePart;
+        return $this->shema()->dropIfExists($name);
+    }
+
     public function create(int $metricId, int $sliceId, float $value, string $time): int
     {
         $ts = strtotime($time);
