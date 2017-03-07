@@ -51,6 +51,7 @@ class Event
         $metrics = [];
         $slices = [];
 
+        $this->timer->startPoint('events prepare');
         foreach ($events as $event) {
             $metricName = $event['metric'];
             $value = (float)$event['value'] ?? 1;
@@ -81,6 +82,7 @@ class Event
                 $slices[] = $data;
             }
         }
+        $this->timer->endPoint('events prepare');
 
         $this->mysql->dailyRawMetrics->insertBatch($metrics);
         $this->mysql->dailyRawSlices->insertBatch($slices);
