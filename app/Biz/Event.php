@@ -32,6 +32,9 @@ class Event
     {
         $insertData = [];
         foreach ($slices as $category => $sliceName) {
+            if ($sliceName === null) {
+                continue;
+            }
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
             $insertData[] = [
                 'metric_id' => $metricId,
