@@ -69,9 +69,22 @@ abstract class AbstractModel
         return $insertId;
     }
 
-    public function insertBatch(array $records)
+    public function insertBatch(array $keys, array $values)
     {
-        return $this->qb()->insert($records);
+        // Hard but fast
+
+        $placeHolders = array_fill(0, count($keys), '?');
+        $placeHolders = implode(',', $placeHolders);
+        $valuesSql = array_fill(0, count($values) / count($keys), '(' . $placeHolders . ')');
+        $valuesSql = implode(',', $valuesSql);
+        $keys = implode(',', $keys);
+
+        $table = $this->getTable();
+        $sql = "insert into `{$table}` ({$keys}) values {$valuesSql}";
+
+        $this->queryBuilder->getPdo()
+            ->prepare($sql)
+            ->execute($values);
     }
 
     public function getAll(): array

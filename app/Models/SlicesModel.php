@@ -42,7 +42,7 @@ class SlicesModel extends AbstractModel
 
         $rows = $this->getAll();
         foreach ($rows as $row) {
-            $this->cache[$row['category'] . ':' . $row['name']] = $row;
+            $this->cache[crc32($row['category'] . ':' . $row['name'])] = $row;
         }
     }
 
@@ -52,7 +52,7 @@ class SlicesModel extends AbstractModel
         $name = trim($name);
         $this->fillCache();
 
-        $cacheKey = $category . ':' . $name;
+        $cacheKey = crc32($category . ':' . $name);
         if (isset($this->cache[$cacheKey])) {
             return $this->cache[$cacheKey];
         }

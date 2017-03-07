@@ -41,7 +41,7 @@ class MetricsModel extends AbstractModel
 
         $rows = $this->getAll();
         foreach ($rows as $row) {
-            $this->cache[$row['name']] = $row;
+            $this->cache[crc32($row['name'])] = $row;
         }
     }
 
@@ -51,8 +51,9 @@ class MetricsModel extends AbstractModel
         $name = trim($name);
         $this->fillCache();
 
-        if (isset($this->cache[$name])) {
-            return $this->cache[$name];
+        $cacheKey = crc32($name);
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
         $hash = crc32($name);
