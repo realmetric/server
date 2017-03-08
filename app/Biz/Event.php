@@ -80,6 +80,6 @@ class Event
         $this->mysql->dailyRawSlices->insertBatch(['metric_id', 'slice_id', 'value', 'minute'], $slices);
         $this->timer->endPoint('events saving');
 
-        return count($metrics);
+        return count($events);
     }
 }
