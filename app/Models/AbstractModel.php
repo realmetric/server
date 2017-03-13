@@ -72,7 +72,6 @@ abstract class AbstractModel
     public function insertBatch(array $keys, array $values)
     {
         // Hard but fast
-        echo '----' . json_encode([$keys, $values]) . '------';die;
 
         $placeHolders = array_fill(0, count($keys), '?');
         $placeHolders = implode(',', $placeHolders);
@@ -83,9 +82,14 @@ abstract class AbstractModel
         $table = $this->getTable();
         $sql = "insert into `{$table}` ({$keys}) values {$valuesSql}";
 
-        $this->queryBuilder->getPdo()
-            ->prepare($sql)
-            ->execute($values);
+        try {
+            $this->queryBuilder->getPdo()
+                ->prepare($sql)
+                ->execute($values);
+        } catch (\Exception $e) {
+            echo '----' . json_encode([$keys, $values]) . '------' . $sql;
+            die;
+        }
     }
 
     public function getAll(): array
