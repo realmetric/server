@@ -12,7 +12,7 @@ class TrackController extends AbstractController
         $data = $request->getParsedBody();
 
         $eventService = new Event();
-        $added = $eventService->saveBatch($data['events'], $data['metrics'], $data['categories'], $data['names']);
+        $added = $eventService->saveBatch($data['events'], $data['metrics'], $data['categories'], $data['slices']);
 
         return $this->jsonResponse(['createdEvents' => $added]);
     }
