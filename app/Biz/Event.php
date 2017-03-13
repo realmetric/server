@@ -77,6 +77,9 @@ class Event
                 if (!isset($slices[$key])) {
                     $category = $categories[$slice[0]];
                     $sliceName = $names[$slice[1]];
+                    if ($category === null || $sliceName === null) {
+                        continue;
+                    }
                     $slices[$key] = $this->mysql->slices->getId($category, $sliceName);
                 }
                 array_push($slicesResult, $metricId, $slices[$key], $value, $minute);
