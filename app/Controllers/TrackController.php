@@ -9,13 +9,10 @@ class TrackController extends AbstractController
 {
     public function create(ServerRequestInterface $request)
     {
-        $events = $request->getParsedBody();
-        if (!$events || !count($events)) {
-            throw new \Exception('No events');
-        }
+        $data = $request->getParsedBody();
 
         $eventService = new Event();
-        $added = $eventService->saveBatch($events);
+        $added = $eventService->saveBatch($data['events'], $data['metrics'], $data['categories'], $data['names']);
 
         return $this->jsonResponse(['createdEvents' => $added]);
     }
