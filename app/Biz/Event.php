@@ -53,6 +53,24 @@ class Event
 
         $slices = [];
         foreach ($events as $event) {
+            if (!isset($event['s']) || !count($event['s'])) {
+                continue;
+            }
+            foreach ($event['s'] as $slice) {
+                $key = $slice[0] . '_' . $slice[1];
+                if (!isset($slices[$key])) {
+                    $category = $categories[$slice[0]];
+                    $sliceName = $names[$slice[1]];
+                    if ($category === null || $sliceName === null) {
+                        continue;
+                    }
+                    $slices[$key] = $this->mysql->slices->getId($category, $sliceName);
+                }
+            }
+        }
+        $this->timer->endPoint('events prepare');
+
+        foreach ($events as $event) {
             $value = (float)$event['v'] ?? 1;
 
             // Time
@@ -74,19 +92,9 @@ class Event
             }
             foreach ($event['s'] as $slice) {
                 $key = $slice[0] . '_' . $slice[1];
-                if (!isset($slices[$key])) {
-                    $category = $categories[$slice[0]];
-                    $sliceName = $names[$slice[1]];
-                    if ($category === null || $sliceName === null) {
-                        continue;
-                    }
-                    $slices[$key] = $this->mysql->slices->getId($category, $sliceName);
-                }
                 array_push($slicesResult, $metricId, $slices[$key], $value, $minute);
             }
         }
-
-        $this->timer->endPoint('events prepare');
 
         $this->timer->startPoint('events saving');
         $this->mysql->dailyRawMetrics->insertBatch(['metric_id', 'value', 'minute'], $metricsResult);
