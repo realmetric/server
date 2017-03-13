@@ -72,7 +72,7 @@ abstract class AbstractModel
     public function insertBatch(array $keys, array $values)
     {
         // Hard but fast
-        echo '----' . json_encode([$keys, $values]) . '------';
+        echo '----' . json_encode([$keys, $values]) . '------';die;
 
         $placeHolders = array_fill(0, count($keys), '?');
         $placeHolders = implode(',', $placeHolders);
