@@ -44,9 +44,7 @@ class Event
     public function saveBatch($events, $metrics, $categories, $names)
     {
         $this->timer->startPoint('events db');
-        foreach ($metrics as $id => $name) {
-            $metrics[$id] = $this->mysql->metrics->getId($name);
-        }
+        $allMetrics = $this->mysql->metrics->getAll();
         $allSlices = $this->mysql->slices->getAll();
         $this->timer->endPoint('events db');
 
@@ -60,6 +58,13 @@ class Event
                 && in_array($row['name'], $names)
             ) {
                 $slicesCache[crc32($row['category'] . ':' . $row['name'])] = $row['id'];
+            }
+        }
+
+        $metricsCache = [];
+        foreach ($allMetrics as $row) {
+            if (in_array($row['name'], $metrics)) {
+                $metricsCache[crc32($row['name'])] = $row['id'];
             }
         }
 
@@ -95,7 +100,7 @@ class Event
 
 
             // Metric
-            $metricId = $metrics[$event['m']];
+            $metricId = $metricsCache[crc32($metrics[$event['m']])];
             array_push($metricsResult, $metricId, $value, $minute);
 
             // Slices
