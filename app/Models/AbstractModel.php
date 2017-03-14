@@ -86,8 +86,8 @@ abstract class AbstractModel
             ->execute($values);
     }
 
-    public function getAll(): array
+    public function getAll($columns = ['*']): array
     {
-        return $this->qb()->get();
+        return $this->qb()->get($columns);
     }
 }

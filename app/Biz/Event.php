@@ -43,11 +43,9 @@ class Event
 
     public function saveBatch($events, $metrics, $categories, $names)
     {
-        $this->mysql->slices->getById(1);
-
         $this->timer->startPoint('events db');
-        $allMetrics = $this->mysql->metrics->getAll();
-        $allSlices = $this->mysql->slices->getAll();
+        $allMetrics = $this->mysql->metrics->getAll(['id', 'name_crc_32']);
+        $allSlices = $this->mysql->slices->getAll(['id', 'category_crc_32', 'name_crc_32']);
         $this->timer->endPoint('events db');
 
 
@@ -56,18 +54,16 @@ class Event
         $slicesResult = [];
         $slicesCache = [];
         foreach ($allSlices as $row) {
-            if (in_array($row['category'], $categories)
-                && in_array($row['name'], $names)
-            ) {
-                $slicesCache[crc32($row['category'] . ':' . $row['name'])] = $row['id'];
-            }
+//            if (in_array($row['category'], $categories)
+//                && in_array($row['name'], $names)
+//            ) {
+            $slicesCache[crc32($row['category_crc_32'] . ':' . $row['name_crc_32'])] = $row['id'];
+//            }
         }
 
         $metricsCache = [];
         foreach ($allMetrics as $row) {
-            if (in_array($row['name'], $metrics)) {
-                $metricsCache[crc32($row['name'])] = $row['id'];
-            }
+            $metricsCache[$row['name_crc_32']] = $row['id'];
         }
 
         $slices = [];
@@ -83,7 +79,7 @@ class Event
                     if ($category === null || $sliceName === null) {
                         continue;
                     }
-                    $slices[$key] = $slicesCache[crc32($category . ':' . $sliceName)];
+                    $slices[$key] = $slicesCache[crc32(crc32($category) . ':' . crc32($sliceName))];
                 }
             }
         }
