@@ -43,6 +43,8 @@ class Event
 
     public function saveBatch($events, $metrics, $categories, $names)
     {
+        $this->mysql->slices->getById(1);
+
         $this->timer->startPoint('events db');
         $allMetrics = $this->mysql->metrics->getAll();
         $allSlices = $this->mysql->slices->getAll();
