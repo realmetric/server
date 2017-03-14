@@ -5,7 +5,7 @@ namespace App\Models;
 class DailyRawMetricsModel extends AbstractModel
 {
     const TABLE_PREFIX = 'daily_raw_metrics_';
-    const TABLE = self::TABLE_PREFIX . '2017_01_01'; // Just for example
+    const TABLE = self::TABLE_PREFIX . '2017_01_01_13'; // Just for example
 
     public function __construct($queryBuilder)
     {
@@ -61,7 +61,7 @@ class DailyRawMetricsModel extends AbstractModel
         return $this->qb()
             ->selectRaw('max(id) as max_id')
             ->where('minute', '<', $minute)
-            ->value('max_id');
+            ->value('max_id') ?: 0 ;
     }
 
     public function getAggregatedDataByRange(string $time = 'now', int $firstId, int $lastId): array

@@ -94,4 +94,11 @@ class SlicesModel extends AbstractModel
             'name_crc_32' => $nameCrc32,
         ]);
     }
+
+    public function getAllBySliceIds(array $sliceIds, array $columns = ['*']) : array
+    {
+        return $this->qb()
+            ->whereIn('id', $sliceIds)
+            ->get($columns);
+    }
 }

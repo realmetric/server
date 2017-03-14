@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Commands\Raw\Metrics;
 use App\Models\DailyMetricsModel;
 use App\Models\MetricsModel;
+use Illuminate\Database\QueryException;
 use Psr\Http\Message\ServerRequestInterface;
 
 class MetricsController extends AbstractController
@@ -14,9 +15,16 @@ class MetricsController extends AbstractController
     public function getAll()
     {
         $todayTotals = $this->mysql->dailyMetrics->getAllMetrics();
-        $yesterdayTotals = $this->mysql->dailyMetrics
-            ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
-            ->getAllMetrics();
+        $yesterdayTotals = [];
+        try {
+            $yesterdayTotals = $this->mysql->dailyMetrics
+                ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
+                ->getAllMetrics();
+        } catch (QueryException $exception){
+            if ($exception->getCode() !== '42S02'){ //table does not exists
+                throw $exception;
+            }
+        }
         $metrics = $this->mysql->metrics->getAll();
 
         $metrics = array_column($metrics, 'name', 'id');

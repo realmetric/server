@@ -43,10 +43,19 @@ class DailySlicesModel extends AbstractModel
             ->get(['minute', 'value']);
     }
 
-    public function getByMetricId(int $metricId): array
+    public function getAllByMetricId(int $metricId): array
     {
         return $this->qb()
             ->where('metric_id', '=', $metricId)
             ->get(['slice_id', 'minute', 'value']);
+    }
+
+    public function getTotalsByMetricId(int $metricId): array
+    {
+        return $this->qb()
+            ->selectRaw('slice_id, sum(value) as value')
+            ->where('metric_id', '=', $metricId)
+            ->groupBy('slice_id')
+            ->get();
     }
 }
