@@ -14,6 +14,7 @@
     // Tracking
     ['POST', '/track', 'App\Controllers\TrackController::create'],
 
-    // Show slice values by day
-    ['GET', '/values/day', 'App\Controllers\ValuesDayController::get'],
+    // Show values
+    ['GET', '/values/minutes', 'App\Controllers\ValuesController::minutes'],
+    ['GET', '/values/days', 'App\Controllers\ValuesController::days'],
 ];
