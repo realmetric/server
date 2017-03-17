@@ -51,7 +51,7 @@ class SlicesController extends AbstractController
             ];
             if (!empty($yesterdaySliceTotals[$slice['id']]) && $todaySliceTotals[$slice['id']]>0){
                 $diff = (($todaySliceTotals[$slice['id']]*100)/$yesterdaySliceTotals[$slice['id']]) - 100;
-                $data['diff'] = number_format($diff, 2);
+                $data['diff'] = $diff;
             }
 
             $response[$slice['category']][] = $data;
