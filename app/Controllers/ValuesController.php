@@ -15,7 +15,9 @@ class ValuesController extends AbstractController
         $metricId = isset($queryParams['metric_id']) ? (int)$queryParams['metric_id'] : null;
         $sliceId = isset($queryParams['slice_id']) ? (int)$queryParams['slice_id'] : null;
         $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime('-1 day');
+        $from->setTime(0,0,0);
         $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime();
+        $to->setTime(23,59,59);
         $interval = \DateInterval::createFromDateString('1 day');
         $period = new \DatePeriod($from, $interval, $to);
 
