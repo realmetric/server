@@ -15,9 +15,9 @@ class ValuesController extends AbstractController
         $metricId = isset($queryParams['metric_id']) ? (int)$queryParams['metric_id'] : null;
         $sliceId = isset($queryParams['slice_id']) ? (int)$queryParams['slice_id'] : null;
         $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime('-1 day');
-        $from->setTime(0,0,0);
+        $from->setTime(0, 0, 0);
         $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime();
-        $to->setTime(23,59,59);
+        $to->setTime(23, 59, 59);
         $interval = \DateInterval::createFromDateString('1 day');
         $period = new \DatePeriod($from, $interval, $to);
 
@@ -42,7 +42,7 @@ class ValuesController extends AbstractController
     protected function getMetricValues(int $metricId, \DatePeriod $period) : array
     {
         $result = [];
-        foreach ($period as $dt){
+        foreach ($period as $dt) {
             /**
              * @var \DateTime $dt
              */
@@ -51,7 +51,7 @@ class ValuesController extends AbstractController
                     ->setTable(DailyMetricsModel::TABLE_PREFIX . $dt->format('Y_m_d'))
                     ->getByMetricId($metricId), 'value', 'minute');
             } catch (QueryException $exception) {
-                if ($exception->getCode() !== '42S02'){ //table does not exists
+                if ($exception->getCode() !== '42S02') { //table does not exists
                     throw $exception;
                 }
             }
@@ -63,7 +63,7 @@ class ValuesController extends AbstractController
     protected function getSliceValues(int $metricId, int $sliceId, \DatePeriod $period) : array
     {
         $result = [];
-        foreach ($period as $dt){
+        foreach ($period as $dt) {
             /**
              * @var \DateTime $dt
              */
@@ -72,7 +72,7 @@ class ValuesController extends AbstractController
                     ->setTable(DailySlicesModel::TABLE_PREFIX . $dt->format('Y_m_d'))
                     ->getValues($metricId, $sliceId), 'value', 'minute');
             } catch (QueryException $exception) {
-                if ($exception->getCode() !== '42S02'){ //table does not exists
+                if ($exception->getCode() !== '42S02') { //table does not exists
                     throw $exception;
                 }
             }

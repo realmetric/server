@@ -20,8 +20,8 @@ class MetricsController extends AbstractController
             $yesterdayTotals = $this->mysql->dailyMetrics
                 ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
                 ->getAllMetrics();
-        } catch (QueryException $exception){
-            if ($exception->getCode() !== '42S02'){ //table does not exists
+        } catch (QueryException $exception) {
+            if ($exception->getCode() !== '42S02') { //table does not exists
                 throw $exception;
             }
         }
@@ -61,8 +61,8 @@ class MetricsController extends AbstractController
         }
 
         $values = [
-            date('Y-m-d') => (object) $today,
-            date('Y-m-d', strtotime('-1 day')) => (object) $yesterday,
+            date('Y-m-d') => (object)$today,
+            date('Y-m-d', strtotime('-1 day')) => (object)$yesterday,
         ];
 
         return $this->jsonResponse(['values' => $values]);

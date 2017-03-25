@@ -27,17 +27,17 @@ class SlicesController extends AbstractController
             $yesterdayTotals = $this->mysql->dailySlices
                 ->setTable(DailySlicesModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
                 ->getTotalsByMetricId($attributes['metric_id'], $currTime);
-        } catch (QueryException $exception){
-            if ($exception->getCode() !== '42S02'){ //table does not exists
+        } catch (QueryException $exception) {
+            if ($exception->getCode() !== '42S02') { //table does not exists
                 throw $exception;
             }
         }
 
-        foreach ($totals as $total){
+        foreach ($totals as $total) {
             $todaySliceTotals[$total['slice_id']] = $total['value'];
         }
 
-        foreach ($yesterdayTotals as $total){
+        foreach ($yesterdayTotals as $total) {
             $yesterdaySliceTotals[$total['slice_id']] = $total['value'];
         }
 
@@ -49,8 +49,8 @@ class SlicesController extends AbstractController
                 'name' => $slice['name'],
                 'total' => $todaySliceTotals[$slice['id']],
             ];
-            if (!empty($yesterdaySliceTotals[$slice['id']]) && $todaySliceTotals[$slice['id']]>0){
-                $diff = (($todaySliceTotals[$slice['id']]*100)/$yesterdaySliceTotals[$slice['id']]) - 100;
+            if (!empty($yesterdaySliceTotals[$slice['id']]) && $todaySliceTotals[$slice['id']] > 0) {
+                $diff = (($todaySliceTotals[$slice['id']] * 100) / $yesterdaySliceTotals[$slice['id']]) - 100;
                 $data['diff'] = $diff;
             }
 
