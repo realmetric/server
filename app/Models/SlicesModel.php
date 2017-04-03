@@ -30,7 +30,8 @@ class SlicesModel extends AbstractModel
             $table->unsignedInteger('category_crc_32');
             $table->string('name');
             $table->unsignedInteger('name_crc_32');
-            $table->index(['category_crc_32', 'name_crc_32']);
+
+            $table->unique(['category_crc_32', 'name_crc_32']);
         });
     }
 

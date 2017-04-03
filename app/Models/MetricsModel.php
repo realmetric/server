@@ -28,8 +28,7 @@ class MetricsModel extends AbstractModel
             $table->string('name');
             $table->unsignedInteger('name_crc_32');
 
-            $table->unique('name');
-            $table->index('name_crc_32');
+            $table->unique('name_crc_32');
         });
     }
 
