@@ -8,12 +8,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Raw extends AbstractCommand
 {
-    protected function configure()
-    {
-        $this
-            ->setName('clean:raw');
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 

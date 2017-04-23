@@ -11,23 +11,5 @@ $app->init($config, $dependencies);
 
 
 $cli = new \Symfony\Component\Console\Application();
-addTasks($cli);
+$cli->addCommands(require __DIR__ . '/app/tasks.php');
 $cli->run();
-
-function addTasks(\Symfony\Component\Console\Application $app)
-{
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__ . '/app/Commands',
-        FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_SELF));
-    foreach ($iterator as $file) {
-        if ($file->getSubPathName() !== 'AbstractCommand.php') {
-            $className = substr($file->getPath(), strlen(__DIR__ . 'app/Commands/'));
-            $className = 'App\\Commands' . str_replace('/', '\\', $className) . '\\' . substr($file->getFilename(), 0, -strlen($file->getExtension()) - 1);
-
-            $command = new $className();
-            if ($command instanceof \Symfony\Component\Console\Command\Command) {
-                $app->add($command);
-            }
-        }
-    }
-
-}

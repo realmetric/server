@@ -11,14 +11,6 @@ class Slices extends AbstractCommand
 {
     const COUNTER_NAME = 'raw_slices';
 
-    protected function configure()
-    {
-        $this
-            ->setName('raw:slices')
-            ->setDescription('TBD')
-            ->setHelp('This command allows you to...');
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $time = date('Y-m-d H:i:s');
