@@ -3,4 +3,5 @@
 
     new App\Commands\Raw\Metrics('raw:metrics'),
     new App\Commands\Raw\Slices('raw:slices'),
+    new App\Commands\Raw\Track('raw:track'),
 ];
