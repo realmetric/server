@@ -1,5 +1,6 @@
 {
   "require": {
+    "roave/security-advisories": "dev-master",
     "psr/http-message": "1.0.1",
     "league/container": "2.2",
     "zendframework/zend-diactoros": "1.3.10",
