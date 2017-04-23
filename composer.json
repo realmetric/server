@@ -1,5 +1,7 @@
 {
   "require": {
+    "ext-pdo": "*",
+    "ext-redis": "*",
     "roave/security-advisories": "dev-master",
     "psr/http-message": "1.0.1",
     "league/container": "2.2",
