@@ -24,7 +24,7 @@ class Track extends AbstractCommand
     {
         $rawEvents = [];
         $i = 0;
-        while (($eventPack = $this->redis->sPop(Keys::REDIS_SET_TRACK_QUEUE)) && $i < 1000) {
+        while (($eventPack = $this->redis->sPop(Keys::REDIS_SET_TRACK_QUEUE)) && $i < 500) {
             $pack = json_decode($eventPack, true);
             foreach ($pack as $event) {
                 $rawEvents[] = $event;
