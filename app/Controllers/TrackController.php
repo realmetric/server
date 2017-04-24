@@ -14,7 +14,7 @@ class TrackController extends AbstractController
         $data = $request->getParsedBody();
         $added = 0;
         foreach ($data as $event) {
-            $added += (int)$this->redis->sAdd(Keys::REDIS_SET_TRACK_QUEUE, json_encode($event));
+            $added += (int)$this->redis->sAdd(Keys::REDIS_SET_TRACK_QUEUE, $event);
         }
         return $this->jsonResponse(['createdEvents' => $added]);
     }
