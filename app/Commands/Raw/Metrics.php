@@ -13,6 +13,7 @@ class Metrics extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        sleep(30);
         $time = date('Y-m-d H:i:s');
         $lastCounter = $this->mysql->dailyCounters->getValue(static::COUNTER_NAME);
         $startId = $lastCounter ? $lastCounter + 1 : 0;

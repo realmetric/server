@@ -12,7 +12,6 @@ class Track extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-//        sleep(30);
         $added = 0;
         do {
             $res = (int)$this->track();
