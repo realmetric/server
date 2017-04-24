@@ -12,6 +12,7 @@ class Track extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+//        sleep(30);
         $added = 0;
         do {
             $res = (int)$this->track();
@@ -24,8 +25,11 @@ class Track extends AbstractCommand
     {
         $rawEvents = [];
         $i = 0;
-        while (($event = $this->redis->sPop(Keys::REDIS_SET_TRACK_QUEUE)) && $i < 1000) {
-            $rawEvents[] = json_decode($event, true);
+        while (($eventPack = $this->redis->sPop(Keys::REDIS_SET_TRACK_QUEUE)) && $i < 1000) {
+            $pack = json_decode($eventPack, true);
+            foreach ($pack as $event) {
+                $rawEvents[] = $event;
+            }
             $i++;
         }
 
