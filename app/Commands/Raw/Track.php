@@ -12,11 +12,25 @@ class Track extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $added = 0;
+        do {
+            $res = (int)$this->track();
+            $added += $res;
+        } while ($res);
+        $this->output->writeln('Added: ' . $added);
+    }
+
+    private function track()
+    {
         $rawEvents = [];
         $i = 0;
         while (($event = $this->redis->sPop(Keys::REDIS_SET_TRACK_QUEUE)) && $i < 1000) {
             $rawEvents[] = json_decode($event, true);
             $i++;
+        }
+
+        if (!count($rawEvents)) {
+            return 0;
         }
 
         $events = [];
@@ -68,7 +82,6 @@ class Track extends AbstractCommand
         }
 
         $eventService = new Event();
-        $added = (int)$eventService->saveBatch($events, $metrics, $categories, $slices);
-        $this->output->writeln('Added: ' . $added);
+        return (int)$eventService->saveBatch($events, $metrics, $categories, $slices);
     }
 }
