@@ -18,6 +18,7 @@ class Track extends AbstractCommand
             $rawEvents[] = json_decode($event, true);
             $i++;
         }
+        echo json_encode($rawEvents) . PHP_EOL;
 
         $events = [];
         $metrics = [];
