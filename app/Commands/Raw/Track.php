@@ -23,7 +23,7 @@ class Track extends AbstractCommand
     private function track()
     {
         $eventPack = $this->redis->sPop(Keys::REDIS_SET_TRACK_QUEUE);
-        $rawEvents = json_decode($eventPack, true);
+        $rawEvents = json_decode(gzuncompress($eventPack), true);
 
         if (!count($rawEvents)) {
             return 0;
