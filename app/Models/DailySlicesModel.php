@@ -60,4 +60,10 @@ class DailySlicesModel extends AbstractModel
             ->groupBy('slice_id')
             ->get();
     }
+
+    public function dropTable($datePart)
+    {
+        $name = self::TABLE_PREFIX . $datePart;
+        return $this->shema()->dropIfExists($name);
+    }
 }
