@@ -33,26 +33,6 @@ class MonthlyMetricsModel extends AbstractModel
         });
     }
 
-//    public function getAllMetrics()
-//    {
-//        return $this->qb()->selectRaw('metric_id, sum(value) as value')
-//            ->groupBy('metric_id')
-//            ->get();
-//    }
-//
-//    public function getByMetricId(int $metricId): array
-//    {
-//        return $this->qb()
-//            ->where('metric_id', '=', $metricId)
-//            ->get(['minute', 'value']);
-//    }
-//
-//    public function dropTable($datePart)
-//    {
-//        $name = self::TABLE_PREFIX . $datePart;
-//        return $this->shema()->dropIfExists($name);
-//    }
-
     public function getUnprocessedDailyMetricTableNames($dailyCounterTimestamp = null)
     {
         $q = $this->qb()

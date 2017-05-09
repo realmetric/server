@@ -4,7 +4,6 @@ namespace App\Commands\Daily;
 
 
 use App\Commands\AbstractCommand;
-use App\Models\DailyMetricsModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
