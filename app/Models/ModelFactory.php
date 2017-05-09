@@ -11,6 +11,9 @@ namespace App\Models;
  * @property DailyRawMetricsModel dailyRawMetrics
  * @property DailyRawSlicesModel dailyRawSlices
  * @property DailyCountersModel dailyCounters
+ * @property MonthlyMetricsModel monthlyMetrics
+ * @property MonthlySlicesModel monthlySlices
+ * @property CountersModel counters
  */
 
 class ModelFactory
