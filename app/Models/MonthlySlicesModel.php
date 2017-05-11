@@ -73,4 +73,18 @@ class MonthlySlicesModel extends AbstractModel
     {
         return str_replace('_', '-', str_replace('daily_slices_', '', $dailySlicesTableName));
     }
+
+    public function getValues(int $metricId, int $sliceId, \DateTime $from = null, \DateTime $to = null) : array
+    {
+        $q = $this->qb()
+            ->where('metric_id', '=', $metricId)
+            ->where('slice_id', '=', $sliceId);
+        if ($from) {
+            $q->where('date', '>=', $from->format('Y-m-d'));
+        }
+        if ($to) {
+            $q->where('date', '<=', $to->format('Y-m-d'));
+        }
+        return $q->get(['date', 'value']);
+    }
 }

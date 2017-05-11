@@ -41,7 +41,7 @@ class MonthlyMetricsModel extends AbstractModel
             ->whereRaw('table_schema = DATABASE()')
             ->where('table_name', 'LIKE', 'daily_metrics_%')
             ->orderBy('table_name');
-        if ($dailyCounterTimestamp){
+        if ($dailyCounterTimestamp) {
             $tableName = 'daily_metrics_' . date('Y_m_d', $dailyCounterTimestamp);
             $q->where('table_name', '>', $tableName);
         }
@@ -53,7 +53,7 @@ class MonthlyMetricsModel extends AbstractModel
     {
         $date = $this->getDateFromDailyMetricsTableName($dailyMetricsTableName);
         return $this->qb()
-            ->selectRaw('metric_id, sum(value) value, \''. $date .'\' date')
+            ->selectRaw('metric_id, sum(value) value, \'' . $date . '\' date')
             ->from($dailyMetricsTableName)
             ->groupBy('metric_id')
             ->get();
@@ -67,5 +67,19 @@ class MonthlyMetricsModel extends AbstractModel
     public function getDateFromDailyMetricsTableName($dailyMetricsTableName)
     {
         return str_replace('_', '-', str_replace('daily_metrics_', '', $dailyMetricsTableName));
+    }
+
+    public function getByMetricId(int $metricId, \DateTime $from = null, \DateTime $to = null): array
+    {
+        $q = $this->qb()
+            ->where('metric_id', '=', $metricId);
+        if ($from) {
+            $q->where('date', '>=', $from->format('Y-m-d'));
+        }
+        if ($to) {
+            $q->where('date', '<=', $to->format('Y-m-d'));
+        }
+
+        return $q->get(['date', 'value']);
     }
 }

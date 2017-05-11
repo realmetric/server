@@ -26,9 +26,9 @@ class ValuesController extends AbstractController
         }
 
         if ($sliceId) {
-            $values = $this->getSliceValues($metricId, $sliceId, $period);
+            $values = $this->getSliceValuesByMinutes($metricId, $sliceId, $period);
         } else {
-            $values = $this->getMetricValues($metricId, $period);
+            $values = $this->getMetricValuesByMinutes($metricId, $period);
         }
 
         return $this->jsonResponse(['values' => $values]);
@@ -36,10 +36,26 @@ class ValuesController extends AbstractController
 
     public function days(ServerRequestInterface $request)
     {
-        throw new \Exception('Method was not implemented yet');
+        $queryParams = $request->getQueryParams();
+        $metricId = isset($queryParams['metric_id']) ? (int)$queryParams['metric_id'] : null;
+        $sliceId = isset($queryParams['slice_id']) ? (int)$queryParams['slice_id'] : null;
+        $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime('-30 day');
+        $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime();
+
+        if (!$metricId && !$sliceId) {
+            throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ') or slice_id(' . $sliceId . ') value');
+        }
+
+        if ($sliceId) {
+            $values = $this->getSliceValuesByDays($metricId, $sliceId, $from, $to);
+        } else {
+            $values = $this->getMetricValuesByDays($metricId, $from, $to);
+        }
+
+        return $this->jsonResponse(['values' => $values]);
     }
 
-    protected function getMetricValues(int $metricId, \DatePeriod $period) : array
+    protected function getMetricValuesByMinutes(int $metricId, \DatePeriod $period): array
     {
         $result = [];
         foreach ($period as $dt) {
@@ -60,7 +76,13 @@ class ValuesController extends AbstractController
         return $result;
     }
 
-    protected function getSliceValues(int $metricId, int $sliceId, \DatePeriod $period) : array
+    protected function getMetricValuesByDays(int $metricId, \DateTime $from = null, \DateTime $to = null): array
+    {
+        return array_column($this->mysql->monthlyMetrics
+            ->getByMetricId($metricId, $from, $to), 'value', 'date');
+    }
+
+    protected function getSliceValuesByMinutes(int $metricId, int $sliceId, \DatePeriod $period): array
     {
         $result = [];
         foreach ($period as $dt) {
@@ -79,5 +101,15 @@ class ValuesController extends AbstractController
         }
 
         return $result;
+    }
+
+    protected function getSliceValuesByDays(
+        int $metricId,
+        int $sliceId,
+        \DateTime $from = null,
+        \DateTime $to = null
+    ): array {
+        return array_column($this->mysql->monthlySlices
+            ->getValues($metricId, $sliceId, $from, $to), 'value', 'date');
     }
 }
