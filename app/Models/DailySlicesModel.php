@@ -31,6 +31,7 @@ class DailySlicesModel extends AbstractModel
             $table->float('value');
             $table->unsignedSmallInteger('minute');
             $table->index(['metric_id', 'slice_id']);
+            $table->index(['metric_id', 'date']);
             $table->unique(['metric_id', 'slice_id', 'minute']);
         });
     }
@@ -50,15 +51,24 @@ class DailySlicesModel extends AbstractModel
             ->get(['slice_id', 'minute', 'value']);
     }
 
-    public function getTotalsByMetricId(int $metricId, int $timestamp): array
+    public function getTotalsByMetricId(int $metricId, int $timestamp, $withNamesAndCategories = false): array
     {
         $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
-        return $this->qb()
-            ->selectRaw('slice_id, sum(value) as value')
-            ->where('metric_id', '=', $metricId)
-            ->where('minute', '<', $minute)
-            ->groupBy('slice_id')
-            ->get();
+        $q = $this->qb();
+        if ($withNamesAndCategories){
+            $q->selectRaw($this->getTable() . '.slice_id, slices.name, slices.category, sum(' . $this->getTable() .'.value) as value')
+                ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id')
+                ->groupBy($this->getTable() . '.slice_id', 'slices.name', 'slices.category');
+
+        } else {
+            $q->selectRaw($this->getTable() . '.slice_id, sum(' . $this->getTable() .'.value) as value')
+                ->groupBy($this->getTable() . '.slice_id');
+        }
+            $q->where($this->getTable() . '.metric_id', '=', $metricId)
+            ->where($this->getTable() . '.minute', '<', $minute);
+
+        return $q->get();
+
     }
 
     public function dropTable($datePart)
