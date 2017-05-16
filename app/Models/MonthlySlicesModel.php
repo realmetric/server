@@ -42,7 +42,7 @@ class MonthlySlicesModel extends AbstractModel
             ->whereRaw('table_schema = DATABASE()')
             ->where('table_name', 'LIKE', 'daily_slices_%')
             ->orderBy('table_name');
-        if ($dailyCounterTimestamp){
+        if ($dailyCounterTimestamp) {
             $tableName = 'daily_slices_' . date('Y_m_d', $dailyCounterTimestamp);
             $q->where('table_name', '>', $tableName);
         }
@@ -54,7 +54,7 @@ class MonthlySlicesModel extends AbstractModel
     {
         $date = $this->getDateFromDailySlicesTableName($dailyMetricsTableName);
         return $this->qb()
-            ->selectRaw('metric_id, slice_id, sum(value) value, \''. $date .'\' date')
+            ->selectRaw('metric_id, slice_id, sum(value) value, \'' . $date . '\' date')
             ->from($dailyMetricsTableName)
             ->groupBy('metric_id', 'slice_id')
             ->get();
@@ -74,7 +74,7 @@ class MonthlySlicesModel extends AbstractModel
         return str_replace('_', '-', str_replace('daily_slices_', '', $dailySlicesTableName));
     }
 
-    public function getValues(int $metricId, int $sliceId, \DateTime $from = null, \DateTime $to = null) : array
+    public function getValues(int $metricId, int $sliceId, \DateTime $from = null, \DateTime $to = null): array
     {
         $q = $this->qb()
             ->where('metric_id', '=', $metricId)
@@ -86,5 +86,22 @@ class MonthlySlicesModel extends AbstractModel
             $q->where('date', '<=', $to->format('Y-m-d'));
         }
         return $q->get(['date', 'value']);
+    }
+
+    public function getTotalsByMetricId(int $metricId, \DatePeriod $period, $withNamesAndCategories = false): array
+    {
+        $q = $this->qb();
+        if ($withNamesAndCategories) {
+            $q->selectRaw($this->getTable() . '.slice_id, slices.name, slices.category, ' . $this->getTable() . '.value, ' . $this->getTable() . '.date')
+                ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id');
+        } else {
+            $q->selectRaw($this->getTable() . '.slice_id, ' . $this->getTable() . '.value, ' . $this->getTable() . '.date');
+        }
+        $q->where($this->getTable() . '.metric_id', '=', $metricId);
+        $q->where($this->getTable() . '.date', '>=', $period->getStartDate()->format('Y-m-d'));
+        $q->where($this->getTable() . '.date', '<=', $period->getEndDate()->format('Y-m-d'));
+
+        return $q->get();
+
     }
 }
