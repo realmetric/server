@@ -17,5 +17,4 @@
 
     // Show totals, diffs
     ['GET', '/totals/minutes', 'App\Controllers\TotalsController::minutes'],
-    ['GET', '/totals/days', 'App\Controllers\TotalsController::days'],
 ];
