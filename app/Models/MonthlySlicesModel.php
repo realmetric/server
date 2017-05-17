@@ -88,18 +88,24 @@ class MonthlySlicesModel extends AbstractModel
         return $q->get(['date', 'value']);
     }
 
-    public function getTotalsByMetricId(int $metricId, \DatePeriod $period, $withNamesAndCategories = false): array
-    {
+    public function getTotalsByMetricId(
+        int $metricId,
+        \DateTime $from,
+        \DateTime $to,
+        $withNamesAndCategories = false
+    ): array {
         $q = $this->qb();
         if ($withNamesAndCategories) {
-            $q->selectRaw($this->getTable() . '.slice_id, slices.name, slices.category, ' . $this->getTable() . '.value, ' . $this->getTable() . '.date')
-                ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id');
+            $q->selectRaw($this->getTable() . '.slice_id, slices.name, slices.category, SUM(' . $this->getTable() . '.value) as value')
+                ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id')
+                ->groupBy($this->getTable() . '.slice_id', 'slices.name', 'slices.category');
         } else {
-            $q->selectRaw($this->getTable() . '.slice_id, ' . $this->getTable() . '.value, ' . $this->getTable() . '.date');
+            $q->selectRaw($this->getTable() . '.slice_id, SUM(' . $this->getTable() . '.value) as value')
+                ->groupBy($this->getTable() . '.slice_id');
         }
         $q->where($this->getTable() . '.metric_id', '=', $metricId);
-        $q->where($this->getTable() . '.date', '>=', $period->getStartDate()->format('Y-m-d'));
-        $q->where($this->getTable() . '.date', '<=', $period->getEndDate()->format('Y-m-d'));
+        $q->where($this->getTable() . '.date', '>=', $from->format('Y-m-d'));
+        $q->where($this->getTable() . '.date', '<=', $to->format('Y-m-d'));
 
         return $q->get();
 

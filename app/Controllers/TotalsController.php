@@ -19,45 +19,47 @@ class TotalsController extends AbstractController
         $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime();
         $to->setTime(23, 59, 59);
 
-        $interval = \DateInterval::createFromDateString('1 day');
-        $period = new \DatePeriod($from, $interval, $to);
-
         if (!$metricId) {
             throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ')');
         }
 
-        $values = $this->getSliceValuesByMinutes($metricId, $period);
+        $values = $this->getSliceValues($metricId, $from, $to);
 
         return $this->jsonResponse(['slices' => $values]);
     }
 
-    protected function getSliceValuesByMinutes(int $metricId, \DatePeriod $period)
+    protected function getSliceValues(int $metricId, \DateTime $from, \DateTime $to)
     {
         $result = [];
 
         $todayTimestamp = strtotime(date('Y-m-d'));
-        $tomorrowTimestamp = strtotime('tomorrow');
-        if ($period->getStartDate()->getTimestamp() >= $tomorrowTimestamp){
+        $tomorrowTimestamp = strtotime('tomorrow 00:00:00');
+        $yesterdayTimestamp = strtotime('yesterday 00:00:00');
+        if ($from->getTimestamp() >= $tomorrowTimestamp) {
             return $result;
         }
-        if ($period->getEndDate()->getTimestamp() < $todayTimestamp){
+        if ($to->getTimestamp() < $todayTimestamp) {
             //get data from monthly tables
-            $result = $this->getTotalsFromMonthlySlices($metricId, $period);
+            $result = $this->getFormattedTotalsFromMonthlySlices($metricId, $from, $to);
         } else {
             //get data from daily tables for today due to no data in monthly tables
-            $periodDiff = $period->getStartDate()->diff($period->getEndDate());
+            $periodDiff = $from->diff($to);
             $periodDiffDays = (int)$periodDiff->format('%a') + 1;
             $dt = new \DateTime();
-            $pastDt = clone $dt;
+            $pastDt = new \DateTime();
             $pastDt->modify('-' . $periodDiffDays . ' day');
 
             //select totals from daily tables
-            $result[$dt->format('Y-m-d')] = $this->getTotalsFromDailySlices($metricId, $dt, $pastDt);
-            //select totals from monthly table
-            $interval = \DateInterval::createFromDateString('1 day');
-            $cuttedPeriod = new \DatePeriod($period->getStartDate(), $interval, new \DateTime('yesterday 23:59:59'));
-            $cuttedResult = $this->getTotalsFromMonthlySlices($metricId, $cuttedPeriod);
-            $result = array_merge($result, $cuttedResult);
+            $dailyTotals = $this->getTotalsFromDailySlices($metricId, $dt, $pastDt);
+            if ($from->getTimestamp() > $yesterdayTimestamp) {
+                $result = $this->formatTotals($dailyTotals['currentSubtotals'], $dailyTotals['pastSubtotals']);
+            } else {
+                //select totals from monthly table
+                $monthlyTotals = $this->getTotalsFromMonthlySlices($metricId, $from,
+                    new \DateTime('yesterday 23:59:59'), $periodDiffDays);
+                $mergedTotals = $this->mergeTotals($dailyTotals, $monthlyTotals);
+                $result = $this->formatTotals($mergedTotals['currentSubtotals'], $mergedTotals['pastSubtotals']);
+            }
         }
 
         return $result;
@@ -71,8 +73,7 @@ class TotalsController extends AbstractController
     protected function prepareSubtotals(array $subtotals)
     {
         $result = [];
-        foreach ($subtotals as $subtotal)
-        {
+        foreach ($subtotals as $subtotal) {
             $index = $subtotal['slice_id'];
             unset($subtotal['slice_id']);
             $result[$index] = $subtotal;
@@ -80,56 +81,44 @@ class TotalsController extends AbstractController
         return $result;
     }
 
-    protected function prepareDailySubtotals(array $subtotals)
+    protected function getTotalsFromDailySlices(int $metricId, \DateTime $dt, \DateTime $pastDt): array
     {
-        $result = [];
-        foreach ($subtotals as $subtotal)
-        {
-            $index = $subtotal['slice_id'];
-            $date = $subtotal['date'];
-            unset($subtotal['slice_id'], $subtotal['date']);
-            $result[$date][$index] = $subtotal;
-        }
-        return $result;
-    }
-
-    protected function getTotalsFromDailySlices(int $metricId, \DateTime $dt, \DateTime $pastDt):array
-    {
-        $currentPeriodSubtotals = [];
-        $pastPeriodSubtotals = [];
+        $currentSubtotals = [];
+        $pastSubtotals = [];
         $currentTimestamp = time();
         $currentDailySlicesTableName = DailySlicesModel::TABLE_PREFIX . $dt->format('Y_m_d');
         $pastDailySlicesTableName = DailySlicesModel::TABLE_PREFIX . $pastDt->format('Y_m_d');
         try {
-            $currentPeriodSubtotals = $this->mysql->dailySlices
+            $currentSubtotals = $this->mysql->dailySlices
                 ->setTable($currentDailySlicesTableName)
                 ->getTotalsByMetricId($metricId, $currentTimestamp, true);
-            $currentPeriodSubtotals = $this->prepareSubtotals($currentPeriodSubtotals);
-            $pastPeriodSubtotals = $this->mysql->dailySlices
+            $currentSubtotals = $this->prepareSubtotals($currentSubtotals);
+            $pastSubtotals = $this->mysql->dailySlices
                 ->setTable($pastDailySlicesTableName)
                 ->getTotalsByMetricId($metricId, $currentTimestamp, false);
-            $pastPeriodSubtotals = $this->prepareSubtotals($pastPeriodSubtotals);
-            $result = $this->formatTotals($currentPeriodSubtotals, $pastPeriodSubtotals);
+            $pastSubtotals = $this->prepareSubtotals($pastSubtotals);
         } catch (QueryException $exception) {
             if ($exception->getCode() !== '42S02') { //table does not exists
                 throw $exception;
             }
-            $result = $this->formatTotals($currentPeriodSubtotals, $pastPeriodSubtotals);
         }
-        return $result;
+        return [
+            'currentSubtotals' => $currentSubtotals,
+            'pastSubtotals' => $pastSubtotals,
+        ];
     }
 
-    protected function formatTotals(array $currentPeriodSubtotals, array $pastPeriodSubtotals) : array
+    protected function formatTotals(array $currentPeriodSubtotals, array $pastPeriodSubtotals): array
     {
         $result = [];
-        foreach ($currentPeriodSubtotals as $sliceId => $currentPeriodSubtotal){
+        foreach ($currentPeriodSubtotals as $sliceId => $currentPeriodSubtotal) {
             $data = [
                 'id' => $sliceId,
                 'name' => $currentPeriodSubtotal['name'],
                 'total' => $currentPeriodSubtotal['value'],
             ];
 
-            if (isset($pastPeriodSubtotals[$sliceId])){
+            if (isset($pastPeriodSubtotals[$sliceId])) {
                 $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastPeriodSubtotals[$sliceId]['value']) - 100;
             }
             $result[$currentPeriodSubtotal['category']][] = $data;
@@ -137,45 +126,49 @@ class TotalsController extends AbstractController
         return $result;
     }
 
-    protected function formatDailyTotals(array $currentPeriodDailySubtotals, array $pastPeriodDailySubtotals, int $diffDays) : array
+    protected function getTotalsFromMonthlySlices(
+        int $metricId,
+        \DateTime $from,
+        \DateTime $to,
+        int $periodDiffDays
+    ): array {
+        $pastFrom = clone $from;
+        $pastTo = clone $to;
+        $pastFrom = $pastFrom->modify('-' . $periodDiffDays . ' day');
+        $pastTo = $pastTo->modify('-' . $periodDiffDays . ' day');
+        $currentSubtotals = $this->mysql->monthlySlices
+            ->getTotalsByMetricId($metricId, $from, $to, true);
+        $currentSubtotals = $this->prepareSubtotals($currentSubtotals);
+        $pastSubtotals = $this->mysql->monthlySlices
+            ->getTotalsByMetricId($metricId, $pastFrom, $pastTo, false);
+        $pastSubtotals = $this->prepareSubtotals($pastSubtotals);
+        return [
+            'currentSubtotals' => $currentSubtotals,
+            'pastSubtotals' => $pastSubtotals,
+        ];
+    }
+
+    protected function getFormattedTotalsFromMonthlySlices(int $metricId, \DateTime $from, \DateTime $to): array
+    {
+        $totals = $this->getTotalsFromMonthlySlices($metricId, $from, $to);
+        $result = $this->formatTotals($totals['currentSubtotals'], $totals['pastSubtotals']);
+        return $result;
+    }
+
+    protected function mergeTotals(array $dailyTotals, array $monthlyTotals): array
     {
         $result = [];
-        foreach ($currentPeriodDailySubtotals as $date => $values){
-            $pastDate = date('Y-m-d', strtotime('-' . $diffDays . ' day', strtotime($date)));
-            foreach ($values as $sliceId => $currentPeriodSubtotal){
-                $data = [
-                    'id' => $sliceId,
-                    'name' => $currentPeriodSubtotal['name'],
-                    'total' => $currentPeriodSubtotal['value'],
-                ];
-
-                if (isset($pastPeriodDailySubtotals[$pastDate][$sliceId])){
-                    $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastPeriodDailySubtotals[$pastDate][$sliceId]['value']) - 100;
+        foreach ($monthlyTotals as $key => $monthlyTotal) {
+            foreach ($monthlyTotal as $sliceId => $value) {
+                if (!isset($dailyTotals[$key][$sliceId])) {
+                    continue;
                 }
-                $result[$date][$currentPeriodSubtotal['category']][] = $data;
+                $value['value'] += $dailyTotals[$key][$sliceId]['value'];
+                $result[$key][$sliceId] = $value;
             }
         }
+
         return $result;
     }
 
-    protected function getTotalsFromMonthlySlices(int $metricId, \DatePeriod $period):array
-    {
-        $periodDiff = $period->getStartDate()->diff($period->getEndDate());
-        /**
-         * @var $periodClone \DatePeriod
-         */
-        $periodDiffDays = (int)$periodDiff->format('%a') + 1;
-        $pastStartDate = $period->getStartDate()->modify('-' . $periodDiffDays . ' day');
-        $pastEndDate = $period->getEndDate()->modify('-' . $periodDiffDays . ' day');
-        $interval = \DateInterval::createFromDateString('1 day');
-        $pastPeriod = new \DatePeriod($pastStartDate, $interval, $pastEndDate);
-        $currentPeriodSubtotals = $this->mysql->monthlySlices
-            ->getTotalsByMetricId($metricId, $period, true);
-        $currentPeriodSubtotals = $this->prepareDailySubtotals($currentPeriodSubtotals);
-        $pastPeriodSubtotals = $this->mysql->monthlySlices
-            ->getTotalsByMetricId($metricId, $pastPeriod, false);
-        $pastPeriodSubtotals = $this->prepareDailySubtotals($pastPeriodSubtotals);
-        $result = $this->formatDailyTotals($currentPeriodSubtotals, $pastPeriodSubtotals, $periodDiffDays);
-        return $result;
-    }
 }
