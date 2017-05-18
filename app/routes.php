@@ -14,7 +14,4 @@
     // Show values
     ['GET', '/values/minutes', 'App\Controllers\ValuesController::minutes'],
     ['GET', '/values/days', 'App\Controllers\ValuesController::days'],
-
-    // Show totals, diffs
-    ['GET', '/totals/minutes', 'App\Controllers\TotalsController::minutes'],
 ];
