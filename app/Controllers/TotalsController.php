@@ -38,13 +38,15 @@ class TotalsController extends AbstractController
         if ($from->getTimestamp() >= $tomorrowTimestamp) {
             return $result;
         }
+        $periodDiff = $from->diff($to);
+        $periodDiffDays = (int)$periodDiff->format('%a') + 1;
+
         if ($to->getTimestamp() < $todayTimestamp) {
             //get data from monthly tables
-            $result = $this->getFormattedTotalsFromMonthlySlices($metricId, $from, $to);
+            $result = $this->getFormattedTotalsFromMonthlySlices($metricId, $from, $to, $periodDiffDays);
         } else {
             //get data from daily tables for today due to no data in monthly tables
-            $periodDiff = $from->diff($to);
-            $periodDiffDays = (int)$periodDiff->format('%a') + 1;
+
             $dt = new \DateTime();
             $pastDt = new \DateTime();
             $pastDt->modify('-' . $periodDiffDays . ' day');
@@ -119,6 +121,7 @@ class TotalsController extends AbstractController
             ];
 
             if (isset($pastPeriodSubtotals[$sliceId])) {
+//                $data['pastTotal'] = $pastPeriodSubtotals[$sliceId]['value'];
                 $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastPeriodSubtotals[$sliceId]['value']) - 100;
             }
             $result[$currentPeriodSubtotal['category']][] = $data;
@@ -148,9 +151,9 @@ class TotalsController extends AbstractController
         ];
     }
 
-    protected function getFormattedTotalsFromMonthlySlices(int $metricId, \DateTime $from, \DateTime $to): array
+    protected function getFormattedTotalsFromMonthlySlices(int $metricId, \DateTime $from, \DateTime $to, int $periodDiffDays): array
     {
-        $totals = $this->getTotalsFromMonthlySlices($metricId, $from, $to);
+        $totals = $this->getTotalsFromMonthlySlices($metricId, $from, $to, $periodDiffDays);
         $result = $this->formatTotals($totals['currentSubtotals'], $totals['pastSubtotals']);
         return $result;
     }
