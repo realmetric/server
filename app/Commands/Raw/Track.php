@@ -12,10 +12,15 @@ class Track extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $startTime = microtime(true);
         $added = 0;
         do {
             $res = (int)$this->track();
             $added += $res;
+            if (microtime(true) - $startTime > 59) {
+                $this->output->writeln('Not enough time. ' . ($this->redis->sCard(Keys::REDIS_SET_TRACK_QUEUE)) . ' left');
+                break;
+            }
         } while ($res);
         $this->output->writeln('Added: ' . $added);
     }
