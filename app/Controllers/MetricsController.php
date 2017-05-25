@@ -26,7 +26,7 @@ class MetricsController extends AbstractController
         foreach ($todayTotals as $total) {
             $metricName = $metrics[$total['metric_id']];
             $nameParts = explode('.', $metricName);
-            $catName = count($nameParts) > 1 ? strtolower($nameParts[0]) : 'other';
+            $catName = count($nameParts) > 1 ? $nameParts[0] : 'Other';
 
             $result[$catName][] = [
                 'id' => $total['metric_id'],
