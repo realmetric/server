@@ -15,25 +15,28 @@ class MetricsController extends AbstractController
     public function getAll()
     {
         $todayTotals = $this->mysql->dailyMetrics->getAllMetrics();
-        $yesterdayTotals = $this->mysql->dailyMetrics
-            ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
-            ->getAllMetrics();
+//        $yesterdayTotals = $this->mysql->dailyMetrics
+//            ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
+//            ->getAllMetrics();
+
         $metrics = $this->mysql->metrics->getAll();
-
         $metrics = array_column($metrics, 'name', 'id');
-        foreach ($todayTotals as &$record) {
-            $record['name'] = $metrics[$record['metric_id']];
-        }
-        foreach ($yesterdayTotals as &$record) {
-            $record['name'] = $metrics[$record['metric_id']];
+
+        $result = [];
+        foreach ($todayTotals as $total) {
+            $metricName = $metrics[$total['metric_id']];
+            $nameParts = explode('.', $metricName);
+            $catName = count($nameParts) > 1 ? strtolower($nameParts[0]) : 'other';
+
+            $result[$catName][] = [
+                'id' => $metrics[$total['metric_id']],
+                'name' => $metricName,
+                'diff' => 123,
+                'total' => $total['value'],
+            ];
         }
 
-        return $this->jsonResponse([
-            'metrics' => [
-                date('Y-m-d') => $todayTotals,
-                date('Y-m-d', strtotime('-1 day')) => $yesterdayTotals
-            ],
-        ]);
+        return $this->jsonResponse(['metrics' => $result]);
     }
 
     public function getByMetricId(ServerRequestInterface $request)
