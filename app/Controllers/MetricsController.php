@@ -15,16 +15,9 @@ class MetricsController extends AbstractController
     public function getAll()
     {
         $todayTotals = $this->mysql->dailyMetrics->getAllMetrics();
-        $yesterdayTotals = [];
-        try {
-            $yesterdayTotals = $this->mysql->dailyMetrics
-                ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
-                ->getAllMetrics();
-        } catch (QueryException $exception) {
-            if ($exception->getCode() !== '42S02') { //table does not exists
-                throw $exception;
-            }
-        }
+        $yesterdayTotals = $this->mysql->dailyMetrics
+            ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
+            ->getAllMetrics();
         $metrics = $this->mysql->metrics->getAll();
 
         $metrics = array_column($metrics, 'name', 'id');
