@@ -9,6 +9,28 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class SlicesController extends AbstractController
 {
+    public function getAll()
+    {
+        $result = [];
+        $todayTotals = $this->mysql->dailySlices->getAllSlices();
+
+        $names = $this->mysql->slices->getAll();
+
+        foreach ($todayTotals as $total) {
+            $slice = $names[$total['id']];
+            $catName = $slice['category'];
+
+            $result[$catName][] = [
+                'id' => $total['id'],
+                'name' => $slice['name'],
+                'diff' => 123,
+                'total' => $total['value'],
+            ];
+        }
+
+        return $this->jsonResponse(['slices' => $result]);
+    }
+
     public function getByMetricId(ServerRequestInterface $request)
     {
         $attributes = $request->getAttributes();
@@ -136,7 +158,8 @@ class SlicesController extends AbstractController
         \DateTime $from,
         \DateTime $to,
         int $periodDiffDays
-    ): array {
+    ): array
+    {
         $pastFrom = clone $from;
         $pastTo = clone $to;
         $pastFrom = $pastFrom->modify('-' . $periodDiffDays . ' day');

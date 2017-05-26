@@ -44,6 +44,13 @@ class DailySlicesModel extends AbstractModel
             ->get(['minute', 'value']);
     }
 
+    public function getAllSlices()
+    {
+        return $this->qb()->selectRaw('slice_id as id, sum(value) as value')
+            ->groupBy('id')
+            ->get();
+    }
+
     public function getAllByMetricId(int $metricId): array
     {
         return $this->qb()
@@ -55,16 +62,16 @@ class DailySlicesModel extends AbstractModel
     {
         $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
         $q = $this->qb();
-        if ($withNamesAndCategories){
-            $q->selectRaw($this->getTable() . '.slice_id, slices.name, slices.category, sum(' . $this->getTable() .'.value) as value')
+        if ($withNamesAndCategories) {
+            $q->selectRaw($this->getTable() . '.slice_id, slices.name, slices.category, sum(' . $this->getTable() . '.value) as value')
                 ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id')
                 ->groupBy($this->getTable() . '.slice_id', 'slices.name', 'slices.category');
 
         } else {
-            $q->selectRaw($this->getTable() . '.slice_id, sum(' . $this->getTable() .'.value) as value')
+            $q->selectRaw($this->getTable() . '.slice_id, sum(' . $this->getTable() . '.value) as value')
                 ->groupBy($this->getTable() . '.slice_id');
         }
-            $q->where($this->getTable() . '.metric_id', '=', $metricId)
+        $q->where($this->getTable() . '.metric_id', '=', $metricId)
             ->where($this->getTable() . '.minute', '<', $minute);
 
         return $q->get();

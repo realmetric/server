@@ -1,17 +1,17 @@
 <?php return [
-    // Metrics on the start
+    // Metrics
     ['GET', '/metrics', 'App\Controllers\MetricsController::getAll'],
-
-    // Metrics by metric id
     ['GET', '/metrics/{metric_id:\d+}', 'App\Controllers\MetricsController::getByMetricId'],
 
-    // Slices by metric id
+    // Slices
+    ['GET', '/slices', 'App\Controllers\SlicesController::getAll'],
     ['GET', '/slices/{metric_id:\d+}', 'App\Controllers\SlicesController::getByMetricId'],
 
-    // Tracking
+    // Track new data
+    ['GET', '/track/testdata', 'App\Controllers\TrackController::createTest'],
     ['POST', '/track', 'App\Controllers\TrackController::create'],
 
-    // Show values
+    // Values for graph
     ['GET', '/values/minutes', 'App\Controllers\ValuesController::minutes'],
     ['GET', '/values/days', 'App\Controllers\ValuesController::days'],
 ];

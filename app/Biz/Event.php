@@ -23,7 +23,7 @@ class Event
 
         // --------------- Saving slices ---------------------
         $insertData = $this->getSlicesInsertData($slices, $metricId, $value, $minute);
-        $this->mysql->dailyRawSlices->insertBatch($insertData);
+        $this->mysql->dailyRawSlices->insertBatch(['metric_id', 'slice_id', 'value', 'minute'], $insertData);
 
         return $eventId;
     }
