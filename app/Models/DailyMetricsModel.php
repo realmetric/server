@@ -44,9 +44,9 @@ class DailyMetricsModel extends AbstractModel
 //        ]);
 //    }
 
-    public function getAllMetrics()
+    public function getTotals()
     {
-        return $this->qb()->selectRaw('metric_id, sum(value) as value')
+        return $this->qb()->selectRaw('metric_id as id, sum(value) as value')
             ->groupBy('metric_id')
             ->get();
     }

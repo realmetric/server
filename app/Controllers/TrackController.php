@@ -17,7 +17,7 @@ class TrackController extends AbstractController
     public function createTest()
     {
         $eventService = new Event();
-        $eventService->save('Test', 1, time(), ['some' => 'val', 'other' => 12]);
-        return $this->jsonResponse([]);
+        $id = $eventService->save('Test', 1, time(), ['some' => 'val', 'other' => 12]);
+        return $this->jsonResponse([$id]);
     }
 }

@@ -12,30 +12,41 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class MetricsController extends AbstractController
 {
-    public function getAll()
+    public function getAll(ServerRequestInterface $request)
     {
-        $todayTotals = $this->mysql->dailyMetrics->getAllMetrics();
-//        $yesterdayTotals = $this->mysql->dailyMetrics
-//            ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
-//            ->getAllMetrics();
+        // Total values by day
+        $todayTotals = $this->mysql->dailyMetrics->getTotals();
+        $todayTotals = array_column($todayTotals, 'value', 'id');
 
+        // Filter by slice
+        $sliceId = (int)$request->getAttribute('slice_id', 0);
+        if ($sliceId) {
+            $metricsBySlice = $this->mysql->dailySlices->getMetricsBySlice($sliceId);
+            $newTotals = [];
+            foreach ($metricsBySlice as $metricId) {
+                $newTotals[$metricId] = $todayTotals[$metricId];
+            }
+            $todayTotals = $newTotals;
+        }
+
+        // All metric names
         $metrics = $this->mysql->metrics->getAll();
         $metrics = array_column($metrics, 'name', 'id');
 
+        // Build Result
         $result = [];
-        foreach ($todayTotals as $total) {
-            $metricName = $metrics[$total['metric_id']];
+        foreach ($todayTotals as $metricId => $value) {
+            $metricName = $metrics[$metricId];
             $nameParts = explode('.', $metricName);
             $catName = count($nameParts) > 1 ? $nameParts[0] : 'Other';
 
             $result[$catName][] = [
-                'id' => $total['metric_id'],
+                'id' => $metricId,
                 'name' => $metricName,
                 'diff' => 123,
-                'total' => $total['value'],
+                'total' => $value,
             ];
         }
-
         return $this->jsonResponse(['metrics' => $result]);
     }
 

@@ -1,6 +1,7 @@
 <?php return [
     // Metrics
     ['GET', '/metrics', 'App\Controllers\MetricsController::getAll'],
+    ['GET', '/metrics/slice/{slice_id:\d+}', 'App\Controllers\MetricsController::getAll'],
     ['GET', '/metrics/{metric_id:\d+}', 'App\Controllers\MetricsController::getByMetricId'],
 
     // Slices
