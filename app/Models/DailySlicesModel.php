@@ -48,7 +48,7 @@ class DailySlicesModel extends AbstractModel
     public function getAllSlices()
     {
         return $this->qb()->selectRaw('slice_id as id, sum(value) as value')
-            ->groupBy('id')
+            ->groupBy('slice_id')
             ->get();
     }
 
