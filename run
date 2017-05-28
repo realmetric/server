@@ -5,7 +5,7 @@ define('APP_START_TIME', microtime(true));
 require __DIR__ . '/vendor/autoload.php';
 
 $config = require __DIR__ . '/config/env.php';
-$dependencies = require __DIR__ . '/app/dependencies.php';
+$services = require __DIR__ . '/config/services.php';
 
 // Config to ENV
 foreach ($config as $name => $value) {
@@ -13,10 +13,10 @@ foreach ($config as $name => $value) {
 }
 
 // Services container
-$container = \Injectable\Factories\LeagueFactory::fromConfig($dependencies);
+$container = \Injectable\Factories\LeagueFactory::fromConfig($services);
 \Injectable\ContainerSingleton::setContainer($container);
 
 // Init console tasks
 $cli = new \Symfony\Component\Console\Application();
-$cli->addCommands(require __DIR__ . '/app/tasks.php');
+$cli->addCommands(require __DIR__ . '/config/tasks.php');
 $cli->run();

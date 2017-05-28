@@ -6,9 +6,9 @@ require __DIR__ . '../../app/Timer.php';
 require __DIR__ . '../../vendor/autoload.php';
 
 $config = require __DIR__ . '/../config/env.php';
-$dependencies = require __DIR__ . '/../app/dependencies.php';
-$middleware = require __DIR__ . '/../app/middleware.php';
-$routes = require __DIR__ . '/../app/routes.php';
+$services = require __DIR__ . '/../config/services.php';
+$middleware = require __DIR__ . '/../config/middleware.php';
+$routes = require __DIR__ . '/../config/routes.php';
 
 // Config to ENV
 foreach ($config as $name => $value) {
@@ -16,9 +16,8 @@ foreach ($config as $name => $value) {
 }
 
 // Services container
-$container = \Injectable\Factories\LeagueFactory::fromConfig($dependencies);
+$container = \Injectable\Factories\LeagueFactory::fromConfig($services);
 \Injectable\ContainerSingleton::setContainer($container);
-
 \App\Timer::endPointStatic('init');
 
 // Process HTTP
