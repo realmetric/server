@@ -6,10 +6,17 @@ require __DIR__ . '/vendor/autoload.php';
 
 $config = require __DIR__ . '/config/env.php';
 $dependencies = require __DIR__ . '/app/dependencies.php';
-$app = new \App\App();
-$app->init($config, $dependencies);
 
+// Config to ENV
+foreach ($config as $name => $value) {
+    putenv($name . '=' . $value);
+}
 
+// Services container
+$container = \Injectable\Factories\LeagueFactory::fromConfig($dependencies);
+\Injectable\ContainerSingleton::setContainer($container);
+
+// Init console tasks
 $cli = new \Symfony\Component\Console\Application();
 $cli->addCommands(require __DIR__ . '/app/tasks.php');
 $cli->run();

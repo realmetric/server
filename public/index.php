@@ -10,8 +10,18 @@ $dependencies = require __DIR__ . '/../app/dependencies.php';
 $middleware = require __DIR__ . '/../app/middleware.php';
 $routes = require __DIR__ . '/../app/routes.php';
 
-$app = new \App\App();
-$app->init($config, $dependencies);
+// Config to ENV
+foreach ($config as $name => $value) {
+    putenv($name . '=' . $value);
+}
+
+// Services container
+$container = \Injectable\Factories\LeagueFactory::fromConfig($dependencies);
+\Injectable\ContainerSingleton::setContainer($container);
+
 \App\Timer::endPointStatic('init');
+
+// Process HTTP
 \App\Timer::startPointStatic('middleware');
-$app->runHttp($middleware, $routes);
+$http = new \App\Http();
+$http->runHttp($middleware, $routes);

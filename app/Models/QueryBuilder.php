@@ -14,7 +14,7 @@ class QueryBuilder extends Builder
 
     public function __construct($connection, $grammar, $processor)
     {
-        $this->timer = (\App\App::getContainer())->get('timer');
+        $this->timer = \Injectable\ContainerSingleton::get('timer');
         parent::__construct($connection, $grammar, $processor);
     }
 

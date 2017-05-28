@@ -7,19 +7,8 @@ use Middleland\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\ServerRequestFactory;
 
-class App
+class Http
 {
-    private static $container;
-
-    public function init(array $config, array $dependencies)
-    {
-        // Env
-        $this->loadEnv($config);
-
-        // Container
-        self::$container = $this->buildContainer($dependencies);
-    }
-
     public function runHttp(array $middleware, array $routes)
     {
         // Request
@@ -36,11 +25,6 @@ class App
 
         // Response
         $this->sendGlobalResponse($response);
-    }
-
-    public static function getContainer()
-    {
-        return self::$container;
     }
 
     private function getRequest()
@@ -71,28 +55,7 @@ class App
         }
     }
 
-    private function loadEnv(array $config)
-    {
-        $hasPutenv = function_exists('putenv');
-        foreach ($config as $name => $value) {
-            if ($hasPutenv) {
-                putenv($name . '=' . $value);
-            }
-            $_ENV[$name] = $value;
-            $_SERVER[$name] = $value;
-        }
-    }
-
-    private function buildContainer($dependencies)
-    {
-        $container = new Container();
-        foreach ($dependencies as $name => $callable) {
-            $container->share($name, $callable);
-        }
-        return $container;
-    }
-
-    private function routerMiddleware( $routes)
+    private function routerMiddleware($routes)
     {
         $dispatcher = \Fastroute\simpleDispatcher(function (\FastRoute\RouteCollector $r) use ($routes) {
             foreach ($routes as $route) {
