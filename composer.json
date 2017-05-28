@@ -4,7 +4,7 @@
     "ext-redis": "*",
     "roave/security-advisories": "dev-master",
     "psr/http-message": "1.0.1",
-    "league/container": "2.2",
+    "phpset/injectable": "dev-master",
     "zendframework/zend-diactoros": "1.3.10",
     "oscarotero/middleland": "0.3.0",
     "middlewares/utils": "0.8.0",
