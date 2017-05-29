@@ -2,8 +2,9 @@
 
 namespace App\Controllers;
 
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Stream;
 use Lukasoppermann\Httpstatus\Httpstatuscodes;
-use Zend\Diactoros\Response\JsonResponse;
 
 abstract class AbstractController
 {
@@ -20,6 +21,6 @@ abstract class AbstractController
         $this->timer->endPoint('controller');
         $this->timer->endPoint('TOTAL');
         $data['_timing'] = $this->timer->getResults();
-        return new JsonResponse($data, $status);
+        return $data;
     }
 }

@@ -1,9 +1,9 @@
 <?php return [
     // CORS
     function ($request, $delegate) {
-        /* @var \Zend\Diactoros\Response $response */
-        if ($request->getMethod() === 'OPTIONS'){
-            $response = new \Zend\Diactoros\Response();
+        /* @var \Psr\Http\Message\ResponseInterface $response */
+        if ($request->getMethod() === 'OPTIONS') {
+            $response = new \GuzzleHttp\Psr7\Response();
         } else {
             $response = $delegate->process($request);
         }
@@ -47,4 +47,7 @@
 
         return $delegate->process($request);
     },
+
+    new FastRouteMiddleware(require __DIR__ . '/routes.php', '\App\Http\Controllers\NotFoundController::showMessage'),
+    new \App\Http\Middleware\RequestHandlerMiddleware(),
 ];
