@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
 use Lukasoppermann\Httpstatus\Httpstatuscodes;
 
 abstract class AbstractController

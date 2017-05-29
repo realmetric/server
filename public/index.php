@@ -9,7 +9,6 @@ $routes = require __DIR__ . '/../config/routes.php';
 // Services container
 $container = \Injectable\Factories\LeagueFactory::fromConfig($services);
 \Injectable\ContainerSingleton::setContainer($container);
-\App\Timer::endPointStatic('init');
 
 // Config to ENV
 foreach ($config as $name => $value) {

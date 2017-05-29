@@ -1,4 +1,6 @@
 <?php return [
+    new \App\Http\Middleware\TimerMiddleware(),
+
     // CORS
     function ($request, $delegate) {
         /* @var \Psr\Http\Message\ResponseInterface $response */

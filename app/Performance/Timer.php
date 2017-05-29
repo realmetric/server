@@ -1,29 +1,19 @@
 <?php
 
 
-namespace App;
+namespace App\Performance;
 
 class Timer
 {
-    private static $startPointsStatic = [];
-    private static $endPointsStatic = [];
     private $startPoints = [];
     private $endPoints = [];
 
     public function __construct()
     {
-        $this->startPoints = self::$startPointsStatic;
-        $this->endPoints = self::$endPointsStatic;
-    }
-
-    public static function startPointStatic($name, $context = null)
-    {
-        self::$startPointsStatic[] = [$name, $context, microtime(true)];
-    }
-
-    public static function endPointStatic($name)
-    {
-        self::$endPointsStatic[] = [$name, microtime(true)];
+        if (defined('APP_START_TIME')) {
+            $this->startPoints[] = ['init', null, APP_START_TIME];
+            $this->endPoint('init');
+        }
     }
 
     public function startPoint($name, $context = null)

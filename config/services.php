@@ -19,7 +19,7 @@
     },
 
     'timer' => function () {
-        return new \App\Timer();
+        return new \App\Performance\Timer();
     },
 
     'redis' => function () {
