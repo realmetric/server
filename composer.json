@@ -4,7 +4,7 @@
     "ext-redis": "*",
     "roave/security-advisories": "dev-master",
     "phpset/injectable": "dev-master",
-    "phpset/fastroute-middleware": "dev-master#d172e04",
+    "phpset/fastroute-middleware": "dev-master#e5dc0ff",
     "oscarotero/middleland": "0.4.0",
     "guzzlehttp/psr7": "*",
     "lukasoppermann/http-status": "2.0.1",
