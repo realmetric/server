@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4d11fe2d6f46560260beb9de8bb46f2",
+    "content-hash": "b52008f1c18c703f1a62b389db57449d",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -806,12 +806,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpset/fastroute-middleware.git",
-                "reference": "5c5d197"
+                "reference": "d172e04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpset/fastroute-middleware/zipball/5c5d197",
-                "reference": "5c5d197",
+                "url": "https://api.github.com/repos/phpset/fastroute-middleware/zipball/d172e04",
+                "reference": "d172e04",
                 "shasum": ""
             },
             "require": {
