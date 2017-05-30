@@ -86,6 +86,11 @@ abstract class AbstractModel
             ->execute($values);
     }
 
+    public function increment(int $id, string $column, $amount = 1)
+    {
+        $this->qb()->where('id', $id)->increment($column, $amount);
+    }
+
     public function getAll($columns = ['*']): array
     {
         return $this->qb()->get($columns);

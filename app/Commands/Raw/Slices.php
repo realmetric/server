@@ -39,6 +39,7 @@ class Slices extends AbstractCommand
             $res = false;
             try {
                 $res = $this->mysql->dailySlices->insert($row);
+                $this->mysql->dailySliceTotals->addValue($row['metric_id'], $row['slice_id'], $row['value']);
             } catch (\Exception $e) {
                 $output->writeln($e->getMessage());
             }
