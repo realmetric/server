@@ -13,7 +13,8 @@ class SlicesController extends AbstractController
     {
         $result = [];
         $values = $this->mysql->dailySliceTotals->getAllValues();
-        array_column($values, 'value', 'id');
+        $values = array_column($values, 'value', 'id');
+
         $slices = $this->mysql->slices->getAll();
         foreach ($slices as $slice) {
             if (!in_array($slice['id'], $values)) {
