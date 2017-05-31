@@ -51,6 +51,13 @@ class DailySliceTotalsModel extends AbstractModel
         return true;
     }
 
+    public function getAllValues()
+    {
+        return $this->qb()->selectRaw('slice_id as id, sum(value) as value')
+            ->groupBy('slice_id')
+            ->get();
+    }
+
     public function dropTable($datePart)
     {
         $name = self::TABLE_PREFIX . $datePart;

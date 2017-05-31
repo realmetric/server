@@ -12,10 +12,11 @@ class SlicesController extends AbstractController
     public function getAll()
     {
         $result = [];
-        $dailySlices = $this->mysql->dailySlices->getAllSlices();
+        $values = $this->mysql->dailySliceTotals->getAllValues();
+        array_column($values, 'value', 'id');
         $slices = $this->mysql->slices->getAll();
         foreach ($slices as $slice) {
-            if (!in_array($slice['id'], $dailySlices)) {
+            if (!in_array($slice['id'], $values)) {
                 continue;
             }
             $catName = $slice['category'];

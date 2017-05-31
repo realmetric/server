@@ -44,12 +44,6 @@ class DailySlicesModel extends AbstractModel
             ->get(['minute', 'value']);
     }
 
-    public function getAllSlices()
-    {
-        return $this->qb()->groupBy('slice_id')
-            ->pluck('slice_id');
-    }
-
     public function getAllByMetricId(int $metricId): array
     {
         return $this->qb()
