@@ -20,14 +20,15 @@ class SlicesController extends AbstractController
 
         $slices = $this->mysql->slices->getAll();
         foreach ($slices as $slice) {
-            if (!in_array($slice['id'], $values)) {
+            $sliceId = $slice['id'];
+            if (!in_array($sliceId, $values) || !$values[$sliceId]) {
                 continue;
             }
             $catName = $slice['category'];
             $result[$catName][] = [
-                'id' => $slice['id'],
+                'id' => $sliceId,
                 'name' => $slice['name'],
-                'total' => $format->shorten($values[$slice['id']]),
+                'total' => $format->shorten($values[$sliceId]),
             ];
         }
 
