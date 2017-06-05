@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Commands\Raw\Metrics;
 use App\Models\DailyMetricsModel;
 use App\Models\MetricsModel;
+use App\Values\Format;
 use Illuminate\Database\QueryException;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -33,6 +34,8 @@ class MetricsController extends AbstractController
         $metrics = $this->mysql->metrics->getAll();
         $metrics = array_column($metrics, 'name', 'id');
 
+        $format = new Format();
+
         // Build Result
         $result = [];
         foreach ($todayTotals as $metricId => $value) {
@@ -44,7 +47,7 @@ class MetricsController extends AbstractController
                 'id' => $metricId,
                 'name' => $metricName,
                 'diff' => 123,
-                'total' => $value,
+                'total' => $format->shorten($value),
             ];
         }
         return $this->jsonResponse(['metrics' => $result]);
