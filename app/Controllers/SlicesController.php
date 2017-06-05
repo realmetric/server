@@ -56,7 +56,9 @@ class SlicesController extends AbstractController
         $values = $this->getSliceValues($metricId, $from, $to);
 
         foreach ($values as &$value) {
-            $value['total'] = $format->shorten($value['total']);
+            foreach ($value as &$rec) {
+                $rec['total'] = $format->shorten($rec['total']);
+            }
         }
         return $this->jsonResponse(['slices' => $values]);
     }
