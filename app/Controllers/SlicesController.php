@@ -56,7 +56,7 @@ class SlicesController extends AbstractController
         return $this->jsonResponse(['slices' => $values]);
     }
 
-    protected function getSliceValues(int $metricId, \DateTime $from, \DateTime $to)
+    private function getSliceValues(int $metricId, \DateTime $from, \DateTime $to)
     {
         $result = [];
 
@@ -100,7 +100,7 @@ class SlicesController extends AbstractController
      * @param array $subtotals
      * @return array
      */
-    protected function prepareSubtotals(array $subtotals)
+    private function prepareSubtotals(array $subtotals)
     {
         $result = [];
         foreach ($subtotals as $subtotal) {
@@ -111,7 +111,7 @@ class SlicesController extends AbstractController
         return $result;
     }
 
-    protected function getTotalsFromDailySlices(int $metricId, \DateTime $dt, \DateTime $pastDt): array
+    private function getTotalsFromDailySlices(int $metricId, \DateTime $dt, \DateTime $pastDt): array
     {
         $currentSubtotals = [];
         $pastSubtotals = [];
@@ -138,7 +138,7 @@ class SlicesController extends AbstractController
         ];
     }
 
-    protected function formatTotals(array $currentPeriodSubtotals, array $pastPeriodSubtotals): array
+    private function formatTotals(array $currentPeriodSubtotals, array $pastPeriodSubtotals): array
     {
         $result = [];
         foreach ($currentPeriodSubtotals as $sliceId => $currentPeriodSubtotal) {
@@ -157,7 +157,7 @@ class SlicesController extends AbstractController
         return $result;
     }
 
-    protected function getTotalsFromMonthlySlices(
+    private function getTotalsFromMonthlySlices(
         int $metricId,
         \DateTime $from,
         \DateTime $to,
@@ -180,14 +180,14 @@ class SlicesController extends AbstractController
         ];
     }
 
-    protected function getFormattedTotalsFromMonthlySlices(int $metricId, \DateTime $from, \DateTime $to, int $periodDiffDays): array
+    private function getFormattedTotalsFromMonthlySlices(int $metricId, \DateTime $from, \DateTime $to, int $periodDiffDays): array
     {
         $totals = $this->getTotalsFromMonthlySlices($metricId, $from, $to, $periodDiffDays);
         $result = $this->formatTotals($totals['currentSubtotals'], $totals['pastSubtotals']);
         return $result;
     }
 
-    protected function mergeTotals(array $dailyTotals, array $monthlyTotals): array
+    private function mergeTotals(array $dailyTotals, array $monthlyTotals): array
     {
         $result = [];
         foreach ($monthlyTotals as $key => $monthlyTotal) {

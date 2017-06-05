@@ -55,7 +55,7 @@ class ValuesController extends AbstractController
         return $this->jsonResponse(['values' => $values]);
     }
 
-    protected function getMetricValuesByMinutes(int $metricId, \DatePeriod $period): array
+    private function getMetricValuesByMinutes(int $metricId, \DatePeriod $period): array
     {
         $result = [];
         foreach ($period as $dt) {
@@ -76,13 +76,13 @@ class ValuesController extends AbstractController
         return $result;
     }
 
-    protected function getMetricValuesByDays(int $metricId, \DateTime $from = null, \DateTime $to = null): array
+    private function getMetricValuesByDays(int $metricId, \DateTime $from = null, \DateTime $to = null): array
     {
         return array_column($this->mysql->monthlyMetrics
             ->getByMetricId($metricId, $from, $to), 'value', 'date');
     }
 
-    protected function getSliceValuesByMinutes(int $metricId, int $sliceId, \DatePeriod $period): array
+    private function getSliceValuesByMinutes(int $metricId, int $sliceId, \DatePeriod $period): array
     {
         $result = [];
         foreach ($period as $dt) {
@@ -103,12 +103,13 @@ class ValuesController extends AbstractController
         return $result;
     }
 
-    protected function getSliceValuesByDays(
+    private function getSliceValuesByDays(
         int $metricId,
         int $sliceId,
         \DateTime $from = null,
         \DateTime $to = null
-    ): array {
+    ): array
+    {
         return array_column($this->mysql->monthlySlices
             ->getValues($metricId, $sliceId, $from, $to), 'value', 'date');
     }

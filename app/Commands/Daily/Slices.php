@@ -34,7 +34,7 @@ class Slices extends AbstractCommand
         }
     }
 
-    protected function getTableNamesByCounter($dailyCounterTimestamp = null){
+    private function getTableNamesByCounter($dailyCounterTimestamp = null){
         return $this->mysql->monthlySlices->getUnprocessedDailySlicesTableNames($dailyCounterTimestamp);
     }
 
