@@ -21,6 +21,6 @@ class Format
         }
 
         $count = round($remainder * 100) / 100;
-        return $count . $suffixes[$suffixIndex];
+        return $count . ' ' . $suffixes[$suffixIndex];
     }
 }
