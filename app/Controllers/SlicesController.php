@@ -4,6 +4,7 @@
 namespace App\Controllers;
 
 use App\Models\DailySlicesModel;
+use App\Values\Format;
 use Illuminate\Database\QueryException;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -15,6 +16,8 @@ class SlicesController extends AbstractController
         $values = $this->mysql->dailySliceTotals->getAllValues();
         $values = array_column($values, 'value', 'id');
 
+        $format = new Format();
+
         $slices = $this->mysql->slices->getAll();
         foreach ($slices as $slice) {
             if (!in_array($slice['id'], $values)) {
@@ -24,6 +27,7 @@ class SlicesController extends AbstractController
             $result[$catName][] = [
                 'id' => $slice['id'],
                 'name' => $slice['name'],
+                'total' => $format->shorten($values[$slice['id']]),
             ];
         }
 
