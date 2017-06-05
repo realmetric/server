@@ -42,6 +42,8 @@ class SlicesController extends AbstractController
         $queryParams = $request->getQueryParams();
         $metricId = isset($attributes['metric_id']) ? (int)$attributes['metric_id'] : null;
 
+        $format = new Format();
+
         $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime('-1 day');
         $from->setTime(0, 0, 0);
         $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime();
@@ -53,6 +55,9 @@ class SlicesController extends AbstractController
 
         $values = $this->getSliceValues($metricId, $from, $to);
 
+        foreach ($values as &$value) {
+            $value['total'] = $format->shorten($value['total']);
+        }
         return $this->jsonResponse(['slices' => $values]);
     }
 
