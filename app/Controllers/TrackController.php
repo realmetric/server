@@ -10,7 +10,7 @@ class TrackController extends AbstractController
 {
     public function create()
     {
-        $added = (int)$this->redis->sAdd(Keys::REDIS_SET_TRACK_QUEUE, file_get_contents('php://input'));
+        $added = (int)$this->redis->track_raw->sAdd(file_get_contents('php://input'));
         return $this->jsonResponse(['createdEvents' => $added]);
     }
 

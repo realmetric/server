@@ -18,7 +18,7 @@ class Track extends AbstractCommand
             $res = (int)$this->track();
             $added += $res;
             if (microtime(true) - $startTime > 59) {
-                $this->output->writeln('Not enough time. ' . ($this->redis->sCard(Keys::REDIS_SET_TRACK_QUEUE)) . ' left');
+                $this->output->writeln('Not enough time. ' . $this->redis->track_raw->sCard() . ' left');
                 break;
             }
         } while ($res);
@@ -27,7 +27,7 @@ class Track extends AbstractCommand
 
     private function track()
     {
-        $eventPack = $this->redis->sPop(Keys::REDIS_SET_TRACK_QUEUE);
+        $eventPack = $this->redis->track_raw->sPop();
         if (!$eventPack) {
             return 0;
         }

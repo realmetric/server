@@ -4,11 +4,11 @@ namespace App;
 
 /**
  * @property \App\Models\ModelFactory mysql
- * @property Timer timer
- * @property \Redis redis
+ * @property \App\Performance\Timer timer
+ * @property \App\Redis\KeyLocator redis
  */
 
 trait Injectable
 {
-    use \Injectable\Injectable;
+    use \Injectable\BaseInjectable;
 }

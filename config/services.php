@@ -28,6 +28,6 @@
         $redis->select(getenv('REDIS_DBINDEX'));
         $redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_NONE);
         $redis->setOption(\Redis::OPT_PREFIX, getenv('REDIS_PREFIX'));
-        return $redis;
+        return new \App\Redis\KeyLocator($redis);
     }
 ];
