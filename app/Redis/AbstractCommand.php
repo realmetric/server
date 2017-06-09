@@ -14,4 +14,9 @@ abstract class AbstractCommand
         $this->key = $key;
         $this->connection = $connection;
     }
+
+    public function del():int
+    {
+        return $this->connection->del($this->key);
+    }
 }
