@@ -33,16 +33,28 @@ class DailyMetricsModel extends AbstractModel
         });
     }
 
-//    public function create(int $metricId, float $value, string $time): int
-//    {
-//        $ts = strtotime($time);
-//        $minutes = date('H', $ts) * 60 + date('i', $ts);
-//        return $this->insert([
-//            'metric_id' => $metricId,
-//            'value' => $value,
-//            'minute' => $minutes,
-//        ]);
-//    }
+    public function createOrIncrement(int $metricId, int $value, string $date) : int
+    {
+        $minute = $this->minuteFromDate($date);
+
+        // Check exist
+        $id = $this->qb()->where('metric_id', $metricId)
+            ->where('minute', $minute)
+            ->value('id');
+
+        // Increment instead Insert
+        if ($id) {
+            $this->increment($id, 'value', $value);
+            return $id;
+        }
+
+        $data = [
+            'metric_id' => $metricId,
+            'value' => $value,
+            'minute' => $this->minuteFromDate($date),
+        ];
+        return $this->insert($data);
+    }
 
     public function getTotals()
     {

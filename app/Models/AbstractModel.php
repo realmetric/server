@@ -18,6 +18,12 @@ abstract class AbstractModel
         $this->queryBuilder = $queryBuilder;
     }
 
+    public function minuteFromDate(string $date)
+    {
+        $ts = strtotime($date);
+        return date('H', $ts) * 60 + date('i', $ts);
+    }
+
     /**
      * @return \Illuminate\Database\Query\Builder
      */

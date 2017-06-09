@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -58,6 +58,30 @@ class DailySlicesModel extends AbstractModel
             ->pluck('metric_id');
     }
 
+    public function createOrIncrement(int $metricId, int $sliceId, int $value, string $date) : int
+    {
+        $minute = $this->minuteFromDate($date);
+
+        // Check exist
+        $id = $this->qb()->where('metric_id', $metricId)
+            ->where('slice_id', $sliceId)
+            ->where('minute', $minute)
+            ->value('id');
+
+        // Increment instead Insert
+        if ($id) {
+            $this->increment($id, 'value', $value);
+            return $id;
+        }
+
+        $data = [
+            'metric_id' => $metricId,
+            'slice_id' => $sliceId,
+            'value' => $value,
+            'minute' => $this->minuteFromDate($date),
+        ];
+        return $this->insert($data);
+    }
 
     public function getTotalsByMetricId(int $metricId, int $timestamp, $withNamesAndCategories = false): array
     {
