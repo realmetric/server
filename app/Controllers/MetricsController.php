@@ -54,7 +54,7 @@ class MetricsController extends AbstractController
         // Sort by value
         foreach ($result as &$values) {
             usort($values, function ($a, $b) {
-                return $a['total'] - $b['total'];
+                return $b['total'] - $a['total'];
             });
             foreach ($values as &$value) {
                 $value['total'] = $format->shorten($value['total']);
