@@ -28,8 +28,18 @@ class SlicesController extends AbstractController
             $result[$catName][] = [
                 'id' => $sliceId,
                 'name' => $slice['name'],
-                'total' => $format->shorten($values[$sliceId]),
+                'total' => $values[$sliceId],
             ];
+        }
+
+        // Sort by value
+        foreach ($result as &$values) {
+            usort($values, function ($a, $b) {
+                return $b['total'] - $a['total'];
+            });
+            foreach ($values as &$value) {
+                $value['total'] = $format->shorten($value['total']);
+            }
         }
 
         return $this->jsonResponse(['slices' => $result]);
