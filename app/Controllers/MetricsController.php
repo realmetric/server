@@ -47,9 +47,20 @@ class MetricsController extends AbstractController
                 'id' => $metricId,
                 'name' => $metricName,
                 'diff' => 123,
-                'total' => $format->shorten($value),
+                'total' => $value,
             ];
         }
+
+        // Sort by value
+        foreach ($result as &$values) {
+            usort($values, function ($a, $b) {
+                return $a['total'] - $b['total'];
+            });
+            foreach ($values as &$value) {
+                $value['total'] = $format->shorten($value['total']);
+            }
+        }
+
         return $this->jsonResponse(['metrics' => $result]);
     }
 
