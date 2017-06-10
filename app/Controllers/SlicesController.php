@@ -63,14 +63,19 @@ class SlicesController extends AbstractController
             throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ')');
         }
 
-        $values = $this->getSliceValues($metricId, $from, $to);
+        $result = $this->getSliceValues($metricId, $from, $to);
 
-        foreach ($values as &$value) {
-            foreach ($value as &$rec) {
-                $rec['total'] = $format->shorten($rec['total']);
+        // Sort by value
+        foreach ($result as &$group) {
+            usort($group, function ($a, $b) {
+                return $b['total'] - $a['total'];
+            });
+            foreach ($group as &$value) {
+                $value['total'] = $format->shorten($value['total']);
             }
         }
-        return $this->jsonResponse(['slices' => $values]);
+
+        return $this->jsonResponse(['slices' => $result]);
     }
 
     private function getSliceValues(int $metricId, \DateTime $from, \DateTime $to)
