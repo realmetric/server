@@ -41,14 +41,15 @@ class Track extends AbstractCommand
         }
 
         foreach ($rawEvents as $data) {
+            $date = date('Y-m-d H:i:s', $data['time']);
             $value = (int)$data['value'];
-            $packer->addMetric($data['metric'], $data['time'], $value);
+            $packer->addMetric($data['metric'], $date, $value);
 
             if (!isset($data['slices'])) {
                 continue;
             }
             foreach ($data['slices'] as $category => $slice) {
-                $packer->addSlice($data['metric'], $category, $slice, $data['time'], $value);
+                $packer->addSlice($data['metric'], $category, $slice, $date, $value);
             }
         }
         return count($rawEvents);
