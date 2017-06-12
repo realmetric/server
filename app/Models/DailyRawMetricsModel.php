@@ -25,7 +25,7 @@ class DailyRawMetricsModel extends AbstractModel
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->unsignedSmallInteger('metric_id');
-            $table->float('value');
+            $table->integer('value');
             $table->unsignedSmallInteger('minute');
         });
     }
