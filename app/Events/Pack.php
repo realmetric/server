@@ -57,9 +57,8 @@ class Pack
             $date = $memberData[3];
             $value = (int)$value;
 
-            if ($category === null || $sliceName === null) {
-                continue;
-            }
+            $category = (string)$category;
+            $sliceName = (string)$sliceName;
 
             // Find metrics and slices
             $metricId = $this->mysql->metrics->getId($metricName);
