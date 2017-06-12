@@ -20,7 +20,7 @@ class Track extends AbstractCommand
                 $this->output->writeln('Not enough time. ' . $this->redis->track_raw->sCard() . ' left');
                 break;
             }
-        } while ($res && $added < 3);
+        } while ($res);
         $this->output->writeln('Packed: ' . $added);
 
         $saved = $this->flush();
