@@ -22,9 +22,6 @@ class Track extends AbstractCommand
             }
         } while ($res);
         $this->output->writeln('Packed: ' . $added);
-
-        $saved = $this->flush();
-        $this->output->writeln("Saved: $saved[1] from $saved[0]");
     }
 
     private function pack()
@@ -53,13 +50,5 @@ class Track extends AbstractCommand
             }
         }
         return count($rawEvents);
-    }
-
-    private function flush()
-    {
-        $packer = new Pack();
-        $count = $packer->flushMetrics();
-        $packer->flushSlices();
-        return $count;
     }
 }
