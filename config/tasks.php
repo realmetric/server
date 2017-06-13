@@ -9,5 +9,4 @@
     new App\Commands\Daily\Slices('daily:slices'),
 
     new App\Commands\Track('track'),
-    new App\Commands\Flush('flush'),
 ];

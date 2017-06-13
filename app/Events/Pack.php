@@ -11,13 +11,13 @@ class Pack
 
     public function addSlice($metricId, $categoryId, $sliceId, int $minute, int $value)
     {
-        $member = json_encode([$metricId, $categoryId, $sliceId, $minute]);
+        $member = json_encode([$metricId, $categoryId, $sliceId]);
         $this->redis->track_aggr_slices->zIncrBy($member, $value);
     }
 
     public function addMetric($metricId, int $minute, int $value)
     {
-        $member = json_encode([$metricId, $minute]);
+        $member = json_encode([$metricId]);
         $this->redis->track_aggr_metrics->zIncrBy($member, $value);
     }
 
@@ -29,7 +29,7 @@ class Pack
         foreach ($metrics as $member => $value) {
             $memberData = json_decode($member, true);
             $metricName = $memberData[0];
-            $minute = $memberData[1];
+//            $minute = $memberData[1];
             $value = (int)$value;
 
             $minute = (int)(date('H') * 60 + date('i'));
@@ -56,7 +56,7 @@ class Pack
             $metricName = $memberData[0];
             $category = $memberData[1];
             $sliceName = $memberData[2];
-            $minute = $memberData[3];
+//            $minute = $memberData[3];
             $value = (int)$value;
 
             $category = (string)$category;
