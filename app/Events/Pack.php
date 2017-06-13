@@ -32,6 +32,7 @@ class Pack
             $minute = $memberData[1];
             $value = (int)$value;
 
+            $minute = (int)(date('H') * 60 + date('i'));
             // Find metric
             $metricId = $this->mysql->metrics->getId($metricName);
 
@@ -61,6 +62,7 @@ class Pack
             $category = (string)$category;
             $sliceName = (string)$sliceName;
 
+            $minute = (int)(date('H') * 60 + date('i'));
             // Find metrics and slices
             $metricId = $this->mysql->metrics->getId($metricName);
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
