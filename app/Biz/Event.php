@@ -23,7 +23,7 @@ class Event
 
         // --------------- Saving slices ---------------------
         $insertData = $this->getSlicesInsertData($slices, $metricId, $value, $minute);
-        $this->mysql->dailyRawSlices->insertBatch(['metric_id', 'slice_id', 'value', 'minute'], $insertData);
+        $this->mysql->dailyRawSlices->insertBatchRaw(['metric_id', 'slice_id', 'value', 'minute'], $insertData);
 
         return $eventId;
     }
@@ -89,8 +89,8 @@ class Event
         $this->timer->endPoint('events prepare');
 
         $this->timer->startPoint('events saving');
-        $this->mysql->dailyRawMetrics->insertBatch(['metric_id', 'value', 'minute'], $metricsResult);
-        $this->mysql->dailyRawSlices->insertBatch(['metric_id', 'slice_id', 'value', 'minute'], $slicesResult);
+        $this->mysql->dailyRawMetrics->insertBatchRaw(['metric_id', 'value', 'minute'], $metricsResult);
+        $this->mysql->dailyRawSlices->insertBatchRaw(['metric_id', 'slice_id', 'value', 'minute'], $slicesResult);
         $this->timer->endPoint('events saving');
 
         return count($events);

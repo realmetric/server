@@ -75,7 +75,33 @@ abstract class AbstractModel
         return $insertId;
     }
 
-    public function insertBatch(array $keys, array $values)
+    public function insertBatch(array $arraysOfData)
+    {
+        $keys = [];
+        $values = [];
+        foreach ($arraysOfData as $data) {
+            foreach ($data as $key => $value) {
+                $keys[] = $key;
+                $values[] = $value;
+            }
+        }
+
+        // Hard but fast
+        $placeHolders = array_fill(0, count($keys), '?');
+        $placeHolders = implode(',', $placeHolders);
+        $valuesSql = array_fill(0, count($values) / count($keys), '(' . $placeHolders . ')');
+        $valuesSql = implode(',', $valuesSql);
+        $keys = implode(',', $keys);
+
+        $table = $this->getTable();
+        $sql = "insert into `{$table}` ({$keys}) values {$valuesSql}";
+
+        $this->queryBuilder->getPdo()
+            ->prepare($sql)
+            ->execute($values);
+    }
+
+    public function insertBatchRaw(array $keys, array $values)
     {
         // Hard but fast
         $placeHolders = array_fill(0, count($keys), '?');
