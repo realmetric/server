@@ -42,18 +42,18 @@ class Track extends AbstractCommand
         if (!$eventPack) {
             return 0;
         }
-        $rawEvents = json_decode(gzuncompress($eventPack), true);
+        $rawEvents = json_decode($eventPack, true);
 
         if (!count($rawEvents) || !count($rawEvents[0])) {
             return 0;
         }
 
+        $minute = (int)(date('H') * 60 + date('i'));
         foreach ($rawEvents as $data) {
 //            $ts = strtotime($date);
 //            $minute = date('H', $ts) * 60 + date('i', $ts);
 
             // Force current minute
-            $minute = (int)(date('H') * 60 + date('i'));
             $value = (int)$data['value'];
             $packer->addMetric($data['metric'], $minute, $value);
 

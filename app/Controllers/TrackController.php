@@ -10,13 +10,14 @@ class TrackController extends AbstractController
 {
     public function create()
     {
-        $added = (int)$this->redis->track_raw->sAdd(file_get_contents('php://input'));
+        $data = gzuncompress(file_get_contents('php://input'));
+        $added = (int)$this->redis->track_raw->sAdd($data);
         return $this->jsonResponse(['createdEvents' => $added]);
     }
 
     public function createTest()
     {
-        $data = gzcompress(json_encode([[
+        $data = json_encode([[
             'metric' => 'test',
             'value' => '3',
             'time' => time(),
@@ -24,7 +25,7 @@ class TrackController extends AbstractController
                 'some' => 'val',
                 'other' => 12
             ],
-        ]]));
+        ]]);
         $added = (int)$this->redis->track_raw->sAdd($data);
         return $this->jsonResponse(['createdEvents' => $added]);
     }
