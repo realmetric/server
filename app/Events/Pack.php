@@ -9,15 +9,15 @@ class Pack
 {
     use Injectable;
 
-    public function addSlice($metricId, $categoryId, $sliceId, string $time, int $value)
+    public function addSlice($metricId, $categoryId, $sliceId, int $minute, int $value)
     {
-        $member = json_encode([$metricId, $categoryId, $sliceId, $time]);
+        $member = json_encode([$metricId, $categoryId, $sliceId, $minute]);
         $this->redis->track_aggr_slices->zIncrBy($member, $value);
     }
 
-    public function addMetric($metricId, string $time, int $value)
+    public function addMetric($metricId, int $minute, int $value)
     {
-        $member = json_encode([$metricId, $time]);
+        $member = json_encode([$metricId, $minute]);
         $this->redis->track_aggr_metrics->zIncrBy($member, $value);
     }
 
@@ -29,16 +29,12 @@ class Pack
         foreach ($metrics as $member => $value) {
             $memberData = json_decode($member, true);
             $metricName = $memberData[0];
-            $date = $memberData[1];
+            $minute = $memberData[1];
             $value = (int)$value;
 
             // Find metric
             $metricId = $this->mysql->metrics->getId($metricName);
 
-//            $ts = strtotime($date);
-//            $minute = date('H', $ts) * 60 + date('i', $ts);
-            // Force current minute
-            $minute = date('H') * 60 + date('i');
             $records[] = ['metric_id' => $metricId, 'value' => $value, 'minute' => $minute];
 
         }
@@ -59,7 +55,7 @@ class Pack
             $metricName = $memberData[0];
             $category = $memberData[1];
             $sliceName = $memberData[2];
-            $date = $memberData[3];
+            $minute = $memberData[3];
             $value = (int)$value;
 
             $category = (string)$category;
@@ -69,11 +65,6 @@ class Pack
             $metricId = $this->mysql->metrics->getId($metricName);
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
 
-
-//            $ts = strtotime($date);
-//            $minute = date('H', $ts) * 60 + date('i', $ts);
-            // Force current minute
-            $minute = date('H') * 60 + date('i');
             $records[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'minute' => $minute];
             $this->mysql->dailySliceTotals->addValue($metricId, $sliceId, $value);
         }

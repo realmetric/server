@@ -38,15 +38,19 @@ class Track extends AbstractCommand
         }
 
         foreach ($rawEvents as $data) {
-            $date = date('Y-m-d H:i:s', $data['time']);
+//            $ts = strtotime($date);
+//            $minute = date('H', $ts) * 60 + date('i', $ts);
+
+            // Force current minute
+            $minute = (int)(date('H') * 60 + date('i'));
             $value = (int)$data['value'];
-            $packer->addMetric($data['metric'], $date, $value);
+            $packer->addMetric($data['metric'], $minute, $value);
 
             if (!isset($data['slices'])) {
                 continue;
             }
             foreach ($data['slices'] as $category => $slice) {
-                $packer->addSlice($data['metric'], $category, $slice, $date, $value);
+                $packer->addSlice($data['metric'], $category, $slice, $minute, $value);
             }
         }
         return count($rawEvents);
