@@ -22,6 +22,17 @@ class Track extends AbstractCommand
             }
         } while ($res);
         $this->output->writeln('Packed: ' . $added);
+
+        $saved = $this->flush();
+        $this->output->writeln("Saved: $saved");
+    }
+
+    private function flush()
+    {
+        $packer = new Pack();
+        $count = $packer->flushMetrics();
+        $packer->flushSlices();
+        return $count;
     }
 
     private function pack()
