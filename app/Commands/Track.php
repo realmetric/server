@@ -33,7 +33,7 @@ class Track extends AbstractCommand
         }
         $rawEvents = json_decode(gzuncompress($eventPack), true);
 
-        if (!count($rawEvents)) {
+        if (!count($rawEvents) || !count($rawEvents[0])) {
             return 0;
         }
 

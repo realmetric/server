@@ -79,9 +79,11 @@ abstract class AbstractModel
     {
         $keys = [];
         $values = [];
+        foreach ($arraysOfData[0] as $key => $value) {
+            $keys[] = $key;
+        }
         foreach ($arraysOfData as $data) {
             foreach ($data as $key => $value) {
-                $keys[] = $key;
                 $values[] = $value;
             }
         }

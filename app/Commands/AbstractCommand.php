@@ -23,7 +23,11 @@ abstract class AbstractCommand extends \Symfony\Component\Console\Command\Comman
     public function run(InputInterface $input, OutputInterface $output)
     {
         $timeStart = microtime(true);
-        parent::run($input, $output);
+        try {
+            parent::run($input, $output);
+        } catch (\Exception $e) {
+            $output->writeln($e->getMessage() . ' ' . json_encode(debug_backtrace()));
+        }
         $output->writeln('Done in ' . number_format(microtime(true) - $timeStart, 3));
     }
 }

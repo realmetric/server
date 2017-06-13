@@ -12,7 +12,7 @@ class Flush extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $saved = $this->flush();
-        $this->output->writeln("Saved: $saved[1] from $saved[0]");
+        $this->output->writeln("Saved: $saved");
     }
 
     private function flush()

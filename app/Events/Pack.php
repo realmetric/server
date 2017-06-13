@@ -25,7 +25,7 @@ class Pack
     {
         $metrics = $this->redis->track_aggr_metrics->getAll();
         $this->redis->track_aggr_metrics->del();
-        $saved = 0;
+        $records = [];
         foreach ($metrics as $member => $value) {
             $memberData = json_decode($member, true);
             $metricName = $memberData[0];
@@ -35,20 +35,25 @@ class Pack
             // Find metric
             $metricId = $this->mysql->metrics->getId($metricName);
 
-            $id = $this->mysql->dailyMetrics->createOrIncrement($metricId, $value, $date);
+//            $ts = strtotime($date);
+//            $minute = date('H', $ts) * 60 + date('i', $ts);
+            // Force current minute
+            $minute = date('H') * 60 + date('i');
+            $records[] = ['metric_id' => $metricId, 'value' => $value, 'minute' => $minute];
 
-            if ($id) {
-                $saved++;
-            }
         }
-        return [count($metrics), $saved];
+        if (!count($records)) {
+            return 0;
+        }
+        $this->mysql->dailyMetrics->insertBatch($records);
+        return count($records);
     }
 
     public function flushSlices()
     {
         $slices = $this->redis->track_aggr_slices->getAll();
         $this->redis->track_aggr_slices->del();
-        $saved = 0;
+        $records = [];
         foreach ($slices as $member => $value) {
             $memberData = json_decode($member, true);
             $metricName = $memberData[0];
@@ -64,14 +69,19 @@ class Pack
             $metricId = $this->mysql->metrics->getId($metricName);
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
 
-            $id = $this->mysql->dailySlices->createOrIncrement($metricId, $sliceId, $value, $date);
+
+//            $ts = strtotime($date);
+//            $minute = date('H', $ts) * 60 + date('i', $ts);
+            // Force current minute
+            $minute = date('H') * 60 + date('i');
+            $records[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'minute' => $minute];
             $this->mysql->dailySliceTotals->addValue($metricId, $sliceId, $value);
-
-            if ($id) {
-                $saved++;
-            }
         }
+        if (!count($records)) {
+            return 0;
+        }
+        $this->mysql->dailySlices->insertBatch($records);
 
-        return [count($slices), $saved];
+        return count($slices);
     }
 }
