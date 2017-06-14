@@ -63,7 +63,7 @@ class Track extends AbstractCommand
             }
 
             foreach ($data['slices'] as $category => $slice) {
-                if ($category === null || $slice === null) {
+                if ($category === null || $slice === null || is_array($slice)) {
                     continue;
                 }
 
