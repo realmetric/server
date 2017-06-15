@@ -38,6 +38,7 @@ class Slices extends AbstractCommand
         foreach ($aggregatedData as $row) {
             $res = false;
             try {
+                $row['minute'] = date('H') * 60 + date('i');
                 $res = $this->mysql->dailySlices->insert($row);
                 $this->mysql->dailySliceTotals->addValue($row['metric_id'], $row['slice_id'], $row['value']);
             } catch (\Exception $e) {

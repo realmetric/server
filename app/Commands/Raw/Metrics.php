@@ -38,6 +38,7 @@ class Metrics extends AbstractCommand
         foreach ($aggregatedData as $row) {
             $res = false;
             try {
+                $row['minute'] = date('H') * 60 + date('i');
                 $res = $this->mysql->dailyMetrics->insert($row);
             } catch (\Exception $e) {
                 $output->writeln($e->getMessage());
