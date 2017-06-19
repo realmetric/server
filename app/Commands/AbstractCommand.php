@@ -30,6 +30,6 @@ abstract class AbstractCommand extends \Symfony\Component\Console\Command\Comman
 
     public function out($message)
     {
-        $this->output->writeln(date('m.d H:i [') . $this->getName() . '] ' . $message);
+        $this->output->writeln(date('[m.d H:i] [') . $this->getName() . '] ' . $message);
     }
 }
