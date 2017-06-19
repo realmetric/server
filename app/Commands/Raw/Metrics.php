@@ -22,7 +22,7 @@ class Metrics extends AbstractCommand
             // Getting maxId bc no order in aggr result
             $maxId = $this->mysql->dailyRawMetrics->getMaxIdForTime($time);
             if ($maxId < $startId) {
-                $output->writeln('No new records in dailyRawMetrics from startId ' . $startId);
+                $this->out('No new records in dailyRawMetrics from startId ' . $startId);
                 sleep(5);
                 continue;
             }
@@ -31,10 +31,11 @@ class Metrics extends AbstractCommand
             // Getting grouped data form RAW
             $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($time, $startId, $maxId);
             if (!count($aggregatedData)) {
-                $output->writeln('No raw data in dailyRawMetrics from startId ' . $startId);
+                $this->out('No raw data in dailyRawMetrics from startId ' . $startId);
                 sleep(5);
                 continue;
             }
+
 
             // Saving into aggr table
             $saved = 0;
@@ -44,7 +45,7 @@ class Metrics extends AbstractCommand
                     $row['minute'] = date('H') * 60 + date('i');
                     $res = $this->mysql->dailyMetrics->insert($row);
                 } catch (\Exception $e) {
-                    $output->writeln($e->getMessage());
+                    $this->out($e->getMessage());
                 }
 
                 if ($res) {
@@ -52,7 +53,7 @@ class Metrics extends AbstractCommand
                 }
             }
 
-            $output->writeln("Saved {$saved} daily metrics. MaxId: {$maxId}");
+            $this->out("Saved {$saved} daily metrics. MaxId: {$maxId}");
             sleep(5);
         }
     }

@@ -5,19 +5,16 @@ namespace App\Commands;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @property OutputInterface output
- */
 abstract class AbstractCommand extends \Symfony\Component\Console\Command\Command
 {
-    protected $output;
+    private $output;
 
     use \App\Injectable;
 
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
-        $this->output->writeln(PHP_EOL . 'Start at ' . date('Y-m-d H:i:s'));
+        $this->out('Started');
     }
 
     public function run(InputInterface $input, OutputInterface $output)
@@ -29,5 +26,10 @@ abstract class AbstractCommand extends \Symfony\Component\Console\Command\Comman
             $output->writeln($e->getMessage() . ' ' . json_encode(debug_backtrace()));
         }
         $output->writeln('Done in ' . number_format(microtime(true) - $timeStart, 3));
+    }
+
+    public function out($message)
+    {
+        $this->output->writeln(date('Y-m-d H:i:s [') . $this->getName() . '] ' . $message);
     }
 }

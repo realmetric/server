@@ -22,7 +22,7 @@ class Slices extends AbstractCommand
             // Getting maxId bc no order in aggr result
             $maxId = $this->mysql->dailyRawSlices->getMaxIdForTime($time);
             if ($maxId < $startId) {
-                $output->writeln('No new records in dailyRawSlices from startId ' . $startId);
+                $this->out('No new records in dailyRawSlices from startId ' . $startId);
                 sleep(5);
                 continue;
             }
@@ -31,7 +31,7 @@ class Slices extends AbstractCommand
             // Getting grouped data form RAW
             $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $startId, $maxId);
             if (!$aggregatedData) {
-                $output->writeln('No raw data in dailyRawSlices from startId ' . $startId);
+                $this->out('No raw data in dailyRawSlices from startId ' . $startId);
                 sleep(5);
                 continue;
             }
@@ -45,7 +45,7 @@ class Slices extends AbstractCommand
                     $res = $this->mysql->dailySlices->insert($row);
                     $this->mysql->dailySliceTotals->addValue($row['metric_id'], $row['slice_id'], $row['value']);
                 } catch (\Exception $e) {
-                    $output->writeln($e->getMessage());
+                    $this->out($e->getMessage());
                 }
 
                 if ($res) {
@@ -53,7 +53,7 @@ class Slices extends AbstractCommand
                 }
             }
 
-            $output->writeln("Saved {$saved} daily slices. MaxId: {$maxId}");
+            $this->out("Saved {$saved} daily slices. MaxId: {$maxId}");
 
             sleep(5);
         }

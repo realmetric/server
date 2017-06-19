@@ -18,7 +18,7 @@ class Track extends AbstractCommand
                 $res = (int)$this->track();
                 $added += $res;
             } while ($res);
-            $this->output->writeln(':time Added: ' . $added . ' Left: ' . $this->redis->track_raw->sCard());
+            $this->out('Added: ' . $added . ' Left: ' . $this->redis->track_raw->sCard());
             sleep(5);
         }
     }
