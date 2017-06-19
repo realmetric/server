@@ -8,6 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractCommand extends \Symfony\Component\Console\Command\Command
 {
     private $output;
+    private $lastOut;
 
     use \App\Injectable;
 
@@ -30,6 +31,11 @@ abstract class AbstractCommand extends \Symfony\Component\Console\Command\Comman
 
     public function out($message)
     {
-        $this->output->writeln(date('[m.d H:i] [') . $this->getName() . '] ' . $message);
+        if (!$this->lastOut) {
+            $this->lastOut = time();
+        }
+        $fromLast = time() - $this->lastOut;
+        $this->output->writeln(date('[m.d H:i ') . "+{$fromLast}s] [" . $this->getName() . '] ' . $message);
+        $this->lastOut = time();
     }
 }
