@@ -23,7 +23,8 @@ class Slices extends AbstractCommand
             $maxId = $this->mysql->dailyRawSlices->getMaxIdForTime($time);
             if ($maxId < $startId) {
                 $output->writeln('No new records in dailyRawSlices from startId ' . $startId);
-                return;
+                sleep(5);
+                continue;
             }
             $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
 
@@ -31,7 +32,8 @@ class Slices extends AbstractCommand
             $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $startId, $maxId);
             if (!$aggregatedData) {
                 $output->writeln('No raw data in dailyRawSlices from startId ' . $startId);
-                return;
+                sleep(5);
+                continue;
             }
 
             // Saving into aggr table

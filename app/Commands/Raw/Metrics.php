@@ -23,7 +23,8 @@ class Metrics extends AbstractCommand
             $maxId = $this->mysql->dailyRawMetrics->getMaxIdForTime($time);
             if ($maxId < $startId) {
                 $output->writeln('No new records in dailyRawMetrics from startId ' . $startId);
-                return;
+                sleep(5);
+                continue;
             }
             $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
 
@@ -31,7 +32,8 @@ class Metrics extends AbstractCommand
             $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($time, $startId, $maxId);
             if (!count($aggregatedData)) {
                 $output->writeln('No raw data in dailyRawMetrics from startId ' . $startId);
-                return;
+                sleep(5);
+                continue;
             }
 
             // Saving into aggr table
