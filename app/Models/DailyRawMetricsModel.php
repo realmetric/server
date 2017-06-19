@@ -74,7 +74,6 @@ class DailyRawMetricsModel extends AbstractModel
             ->where('id', '<=', $lastId)
             ->where('minute', '<', $minutes)
             ->groupBy('metric_id')
-            ->groupBy('minute')
             ->get();
     }
 
