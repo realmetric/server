@@ -12,13 +12,15 @@ class Track extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $startTime = microtime(true);
-        $added = 0;
-        do {
-            $res = (int)$this->track();
-            $added += $res;
-        } while ($res || microtime(true) - $startTime < 29);
-        $this->output->writeln('Added: ' . $added . ' Left: ' . $this->redis->track_raw->sCard());
+        while (1) {
+            $added = 0;
+            do {
+                $res = (int)$this->track();
+                $added += $res;
+            } while ($res);
+            $this->output->writeln(':time Added: ' . $added . ' Left: ' . $this->redis->track_raw->sCard());
+            sleep(5);
+        }
     }
 
     private function track()

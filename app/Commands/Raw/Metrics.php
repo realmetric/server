@@ -13,42 +13,45 @@ class Metrics extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $time = date('Y-m-d H:i:s');
-        $lastCounter = $this->mysql->dailyCounters->getValue(static::COUNTER_NAME);
-        $startId = $lastCounter ? $lastCounter + 1 : 0;
+        while (1) {
 
-        // Getting maxId bc no order in aggr result
-        $maxId = $this->mysql->dailyRawMetrics->getMaxIdForTime($time);
-        if ($maxId < $startId) {
-            $output->writeln('No new records in dailyRawMetrics from startId ' . $startId);
-            return;
-        }
-        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
+            $time = date('Y-m-d H:i:s');
+            $lastCounter = $this->mysql->dailyCounters->getValue(static::COUNTER_NAME);
+            $startId = $lastCounter ? $lastCounter + 1 : 0;
 
-        // Getting grouped data form RAW
-        $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($time, $startId, $maxId);
-        if (!count($aggregatedData)) {
-            $output->writeln('No raw data in dailyRawMetrics from startId ' . $startId);
-            return;
-        }
+            // Getting maxId bc no order in aggr result
+            $maxId = $this->mysql->dailyRawMetrics->getMaxIdForTime($time);
+            if ($maxId < $startId) {
+                $output->writeln('No new records in dailyRawMetrics from startId ' . $startId);
+                return;
+            }
+            $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
 
-        // Saving into aggr table
-        $saved = 0;
-        foreach ($aggregatedData as $row) {
-            $res = false;
-            try {
-                $row['minute'] = date('H') * 60 + date('i');
-                $res = $this->mysql->dailyMetrics->insert($row);
-            } catch (\Exception $e) {
-                $output->writeln($e->getMessage());
+            // Getting grouped data form RAW
+            $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($time, $startId, $maxId);
+            if (!count($aggregatedData)) {
+                $output->writeln('No raw data in dailyRawMetrics from startId ' . $startId);
+                return;
             }
 
-            if ($res) {
-                $saved++;
-            }
-        }
+            // Saving into aggr table
+            $saved = 0;
+            foreach ($aggregatedData as $row) {
+                $res = false;
+                try {
+                    $row['minute'] = date('H') * 60 + date('i');
+                    $res = $this->mysql->dailyMetrics->insert($row);
+                } catch (\Exception $e) {
+                    $output->writeln($e->getMessage());
+                }
 
-        $output->writeln("Saved {$saved} daily metrics. MaxId: {$maxId}");
+                if ($res) {
+                    $saved++;
+                }
+            }
+
+            $output->writeln("Saved {$saved} daily metrics. MaxId: {$maxId}");
+            sleep(5);
+        }
     }
-
 }
