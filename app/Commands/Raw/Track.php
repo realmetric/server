@@ -18,8 +18,8 @@ class Track extends AbstractCommand
                 $res = (int)$this->track();
                 $added += $res;
             } while ($res);
-            $this->out('Added: ' . $added . ' Left: ' . $this->redis->track_raw->sCard());
-            sleep(5);
+            $this->out('Added: ' . $added);
+            sleep(10);
         }
     }
 
