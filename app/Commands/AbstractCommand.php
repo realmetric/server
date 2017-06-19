@@ -35,7 +35,12 @@ abstract class AbstractCommand extends \Symfony\Component\Console\Command\Comman
             $this->lastOut = time();
         }
         $fromLast = time() - $this->lastOut;
-        $this->output->writeln(date('[m.d H:i ') . "+{$fromLast}s] [" . $this->getName() . '] ' . $message);
+        if ($fromLast) {
+            $fromLast = " +{$fromLast}s";
+        } else {
+            $fromLast = '';
+        }
+        $this->output->writeln(date('[m.d H:i') . $fromLast . '] [' . $this->getName() . '] ' . $message);
         $this->lastOut = time();
     }
 }
