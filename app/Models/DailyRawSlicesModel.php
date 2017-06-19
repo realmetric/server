@@ -74,13 +74,12 @@ class DailyRawSlicesModel extends AbstractModel
         $ts = strtotime($time);
         $minutes = date('H', $ts) * 60 + date('i', $ts);
         return $this->qb()
-            ->selectRaw('metric_id, minute, slice_id, sum(value) as value')
+            ->selectRaw('metric_id, max(minute) as minute, slice_id, sum(value) as value')
             ->where('id', '>=', $firstId)
             ->where('id', '<=', $lastId)
             ->where('minute', '<', $minutes)
             ->groupBy('metric_id')
             ->groupBy('slice_id')
-            ->groupBy('minute')
             ->get();
     }
 }
