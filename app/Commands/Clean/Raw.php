@@ -20,10 +20,10 @@ class Raw extends AbstractCommand
 
     private function dropDate($date)
     {
-        $this->output->writeln('Try drop ' . $date);
+        $this->out('Try drop ' . $date);
         $this->mysql->dailyRawMetrics->dropTable($date);
         $this->mysql->dailyRawSlices->dropTable($date);
         $this->mysql->dailyCounters->dropTable($date);
-        $this->output->writeln('Done');
+        $this->out('Done');
     }
 }

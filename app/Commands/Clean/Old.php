@@ -16,9 +16,9 @@ class Old extends AbstractCommand
 
     private function dropDate($date)
     {
-        $this->output->writeln('Try drop ' . $date);
+        $this->out('Try drop ' . $date);
         $this->mysql->dailyMetrics->dropTable($date);
         $this->mysql->dailySlices->dropTable($date);
-        $this->output->writeln('Done');
+        $this->out('Done');
     }
 }
