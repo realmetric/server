@@ -26,6 +26,9 @@ class Metrics extends AbstractCommand
             if ($timeDiff < 60) {
                 sleep(60 - $timeDiff + 1);
             }
+            if (!random_int(0, 9)) {
+                die;
+            }
         }
     }
 

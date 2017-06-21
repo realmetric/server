@@ -20,6 +20,9 @@ class Track extends AbstractCommand
             } while ($res);
             $this->out('Added: ' . $added);
             sleep(10);
+            if (!random_int(0, 9)) {
+                die;
+            }
         }
     }
 
