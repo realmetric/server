@@ -9,6 +9,9 @@
             'charset' => 'utf8', // Optional
             'collation' => 'utf8_unicode_ci', // Optional
             'prefix' => '', // Table prefix, optional
+            'options' => array(
+                PDO::ATTR_PERSISTENT => false,
+            ),
         );
 
         $capsule = new Illuminate\Database\Capsule\Manager();
