@@ -17,6 +17,11 @@ class Metrics extends AbstractCommand
             $timeStart = time();
             $saved = $this->fetch();
             $this->out("Saved {$saved} daily metrics");
+
+            if (!$saved) {
+                mail('andreinwald@gmail.com', 'No metrics in Realmetric ' . time(), '');
+            }
+
             $timeDiff = time() - $timeStart;
             if ($timeDiff < 60) {
                 sleep(60 - $timeDiff + 1);
