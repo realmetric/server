@@ -6,6 +6,8 @@ namespace App\Models;
 abstract class AbstractModel
 {
     const TABLE = null;
+    const MAX_PREPARED_STMT_COUNT = 60000;
+
     private $tableName = null;
     private $queryBuilder = null;
 
@@ -77,47 +79,45 @@ abstract class AbstractModel
 
     public function insertBatch(array $arraysOfData)
     {
-        $keys = [];
+        $keys = array_keys($arraysOfData[0]);
         $values = [];
-        foreach ($arraysOfData[0] as $key => $value) {
-            $keys[] = $key;
-        }
+
         foreach ($arraysOfData as $data) {
             foreach ($data as $key => $value) {
                 $values[] = $value;
             }
         }
 
-        // Hard but fast
-        $placeHolders = array_fill(0, count($keys), '?');
-        $placeHolders = implode(',', $placeHolders);
-        $valuesSql = array_fill(0, count($values) / count($keys), '(' . $placeHolders . ')');
-        $valuesSql = implode(',', $valuesSql);
-        $keys = implode(',', $keys);
-
-        $table = $this->getTable();
-        $sql = "insert into `{$table}` ({$keys}) values {$valuesSql}";
-
-        $this->queryBuilder->getPdo()
-            ->prepare($sql)
-            ->execute($values);
+        $this->insertBatchRaw($keys, $values);
     }
 
     public function insertBatchRaw(array $keys, array $values)
     {
         // Hard but fast
-        $placeHolders = array_fill(0, count($keys), '?');
+        $keysCount = count($keys);
+        $valuesCount = count($values);
+        $valuesSqlCount = $valuesCount / $keysCount;
+        $valuesSqlChunkSize = floor(self::MAX_PREPARED_STMT_COUNT / $keysCount);
+        $valuesChunkSize = $valuesSqlChunkSize * $keysCount;
+
+        $placeHolders = array_fill(0, $keysCount, '?');
         $placeHolders = implode(',', $placeHolders);
-        $valuesSql = array_fill(0, count($values) / count($keys), '(' . $placeHolders . ')');
-        $valuesSql = implode(',', $valuesSql);
+        $valuesSql = array_fill(0, $valuesSqlCount, '(' . $placeHolders . ')');
+
         $keys = implode(',', $keys);
-
         $table = $this->getTable();
-        $sql = "insert into `{$table}` ({$keys}) values {$valuesSql}";
 
-        $this->queryBuilder->getPdo()
-            ->prepare($sql)
-            ->execute($values);
+        $valuesOffset = 0;
+        foreach(array_chunk($valuesSql, $valuesSqlChunkSize) as $valuesSqlPart){
+            $valuesPart = array_slice($values, $valuesOffset * $valuesSqlChunkSize * $keysCount, $valuesChunkSize);
+            $valuesOffset++;
+            $valuesSqlPart = implode(',', $valuesSqlPart);
+
+            $sql = "insert into `{$table}` ({$keys}) values {$valuesSqlPart}";
+            $this->queryBuilder->getPdo()
+                ->prepare($sql)
+                ->execute($valuesPart);
+        }
     }
 
     public function increment(int $id, string $column, $amount = 1)
