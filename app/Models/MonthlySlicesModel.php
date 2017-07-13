@@ -109,6 +109,7 @@ class MonthlySlicesModel extends AbstractModel
 
         $q->where($this->getTable() . '.date', '>=', $from->format('Y-m-d'));
         $q->where($this->getTable() . '.date', '<=', $to->format('Y-m-d'));
+//        $q->orderBy('value', 'desc');
 
         return $q->get();
 

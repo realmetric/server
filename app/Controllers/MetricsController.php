@@ -12,8 +12,9 @@ class MetricsController extends AbstractController
 {
     public function getAll(ServerRequestInterface $request)
     {
+        $from = new \DateTime('today');
         $to = new \DateTime();
-        $result = $this->getMetricValues($to, $to);
+        $result = $this->getMetricValues($from, $to);
 
         $format = new Format();
         // Sort by value

@@ -12,8 +12,9 @@ class SlicesController extends AbstractController
 {
     public function getAll()
     {
+        $from = new \DateTime('today');
         $to = new \DateTime();
-        $result = $this->getSliceValues($to, $to);
+        $result = $this->getSliceValues($from, $to);
 
         $format = new Format();
         // Sort by value
@@ -66,9 +67,9 @@ class SlicesController extends AbstractController
     {
         $result = [];
 
-        $todayTimestamp = strtotime(date('Y-m-d'));
-        $tomorrowTimestamp = strtotime('tomorrow 00:00:00');
-        $yesterdayTimestamp = strtotime('yesterday 00:00:00');
+        $todayTimestamp = strtotime(date('Y-m-d', strtotime('-1 day')));
+        $tomorrowTimestamp = strtotime('tomorrow 00:00:00', strtotime('-6 hour'));
+        $yesterdayTimestamp = strtotime('yesterday 00:00:00', strtotime('-6 hour'));
         if ($from->getTimestamp() >= $tomorrowTimestamp) {
             return $result;
         }
@@ -81,8 +82,8 @@ class SlicesController extends AbstractController
         } else {
             //get data from daily tables for today due to no data in monthly tables
 
-            $dt = new \DateTime();
-            $pastDt = new \DateTime();
+            $dt = new \DateTime('-6 hour');
+            $pastDt = new \DateTime('-6 hour');
             $pastDt->modify('-' . $periodDiffDays . ' day');
 
             //select totals from daily tables
