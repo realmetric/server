@@ -3,10 +3,7 @@
 
 namespace App\Controllers;
 
-
-use App\Commands\Raw\Metrics;
 use App\Models\DailyMetricsModel;
-use App\Models\MetricsModel;
 use App\Values\Format;
 use Illuminate\Database\QueryException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -15,42 +12,10 @@ class MetricsController extends AbstractController
 {
     public function getAll(ServerRequestInterface $request)
     {
-        // Total values by day
-        $todayTotals = $this->mysql->dailyMetrics->getTotals();
-        $todayTotals = array_column($todayTotals, 'value', 'id');
-
-        // Filter by slice
-        $sliceId = (int)$request->getAttribute('slice_id', 0);
-        if ($sliceId) {
-            $metricsBySlice = $this->mysql->dailySlices->getMetricsBySlice($sliceId);
-            $newTotals = [];
-            foreach ($metricsBySlice as $metricId) {
-                $newTotals[$metricId] = $todayTotals[$metricId];
-            }
-            $todayTotals = $newTotals;
-        }
-
-        // All metric names
-        $metrics = $this->mysql->metrics->getAll();
-        $metrics = array_column($metrics, 'name', 'id');
+        $to = new \DateTime();
+        $result = $this->getMetricValues($to, $to);
 
         $format = new Format();
-
-        // Build Result
-        $result = [];
-        foreach ($todayTotals as $metricId => $value) {
-            $metricName = $metrics[$metricId];
-            $nameParts = explode('.', $metricName);
-            $catName = count($nameParts) > 1 ? $nameParts[0] : 'Other';
-
-            $result[$catName][] = [
-                'id' => $metricId,
-                'name' => $metricName,
-                'diff' => 123,
-                'total' => $value,
-            ];
-        }
-
         // Sort by value
         foreach ($result as &$values) {
             usort($values, function ($a, $b) {
@@ -87,5 +52,86 @@ class MetricsController extends AbstractController
         ];
 
         return $this->jsonResponse(['values' => $values]);
+    }
+
+    private function getMetricValues(\DateTime $from, \DateTime $to, $metricId = null)
+    {
+        $dt = new \DateTime();
+        $pastDt = new \DateTime();
+        $periodDiff = $from->diff($to);
+        $periodDiffDays = (int)$periodDiff->format('%a') + 1;
+        $pastDt->modify('-' . $periodDiffDays . ' day');
+        $dailyTotals = $this->getTotalsFromDailyMetrics($dt, $pastDt, $metricId);
+        $result = $this->formatTotals($dailyTotals['currentSubtotals'], $dailyTotals['pastSubtotals']);
+        return $result;
+    }
+
+    private function getTotalsFromDailyMetrics(\DateTime $dt, \DateTime $pastDt): array
+    {
+        $currentSubtotals = [];
+        $pastSubtotals = [];
+        $currentTimestamp = time();
+        $currentDailySlicesTableName = DailyMetricsModel::TABLE_PREFIX . $dt->format('Y_m_d');
+        $pastDailySlicesTableName = DailyMetricsModel::TABLE_PREFIX . $pastDt->format('Y_m_d');
+        try {
+            $currentSubtotals = $this->mysql->dailyMetrics
+                ->setTable($currentDailySlicesTableName)
+                ->getTotals($currentTimestamp, true);
+            $currentSubtotals = $this->prepareSubtotals($currentSubtotals);
+            $pastSubtotals = $this->mysql->dailyMetrics
+                ->setTable($pastDailySlicesTableName)
+                ->getTotals($currentTimestamp, false);
+            $pastSubtotals = $this->prepareSubtotals($pastSubtotals);
+        } catch (QueryException $exception) {
+            if ($exception->getCode() !== '42S02') { //table does not exists
+                throw $exception;
+            }
+        }
+        return [
+            'currentSubtotals' => $currentSubtotals,
+            'pastSubtotals' => $pastSubtotals,
+        ];
+    }
+
+    /**
+     * Reformat array as ['$metric_id'=> [...]]
+     * @param array $subtotals
+     * @return array
+     */
+    private function prepareSubtotals(array $subtotals)
+    {
+        $result = [];
+        foreach ($subtotals as $subtotal) {
+            $index = $subtotal['metric_id'];
+            unset($subtotal['metric_id']);
+            $result[$index] = $subtotal;
+        }
+        return $result;
+    }
+
+    private function formatTotals(array $currentPeriodSubtotals, array $pastPeriodSubtotals): array
+    {
+        $result = [];
+        foreach ($currentPeriodSubtotals as $metricId => $currentPeriodSubtotal) {
+            $data = [
+                'id' => $metricId,
+                'name' => $currentPeriodSubtotal['name'],
+                'total' => $currentPeriodSubtotal['value'],
+            ];
+
+            if (isset($pastPeriodSubtotals[$metricId])) {
+                $pastValue = $pastPeriodSubtotals[$metricId]['value'];
+                if ($pastValue == 0){
+                    $data['diff'] = true;
+                } else {
+                    $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastValue) - 100;
+                }
+            }
+
+            $nameParts = explode('.', $currentPeriodSubtotal['name']);
+            $catName = count($nameParts) > 1 ? $nameParts[0] : 'Other';
+            $result[$catName][] = $data;
+        }
+        return $result;
     }
 }

@@ -65,7 +65,7 @@ class ValuesController extends AbstractController
             try {
                 $result[$dt->format('Y-m-d')] = array_column($this->mysql->dailyMetrics
                     ->setTable(DailyMetricsModel::TABLE_PREFIX . $dt->format('Y_m_d'))
-                    ->getByMetricId($metricId), 'value', 'minute');
+                    ->get($metricId), 'value', 'minute');
             } catch (QueryException $exception) {
                 if ($exception->getCode() !== '42S02') { //table does not exists
                     throw $exception;

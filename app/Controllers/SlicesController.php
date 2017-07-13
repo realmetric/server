@@ -12,26 +12,10 @@ class SlicesController extends AbstractController
 {
     public function getAll()
     {
-        $result = [];
-        $values = $this->mysql->dailySliceTotals->getAllValues();
-        $values = array_column($values, 'value', 'id');
+        $to = new \DateTime();
+        $result = $this->getSliceValues($to, $to);
 
         $format = new Format();
-
-        $slices = $this->mysql->slices->getAll();
-        foreach ($slices as $slice) {
-            $sliceId = $slice['id'];
-            if (!in_array($sliceId, $values) || !$values[$sliceId]) {
-                continue;
-            }
-            $catName = $slice['category'];
-            $result[$catName][] = [
-                'id' => $sliceId,
-                'name' => $slice['name'],
-                'total' => $values[$sliceId],
-            ];
-        }
-
         // Sort by value
         foreach ($result as &$values) {
             usort($values, function ($a, $b) {
@@ -63,7 +47,7 @@ class SlicesController extends AbstractController
             throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ')');
         }
 
-        $result = $this->getSliceValues($metricId, $from, $to);
+        $result = $this->getSliceValues($from, $to, $metricId);
 
         // Sort by value
         foreach ($result as &$group) {
@@ -78,7 +62,7 @@ class SlicesController extends AbstractController
         return $this->jsonResponse(['slices' => $result]);
     }
 
-    private function getSliceValues(int $metricId, \DateTime $from, \DateTime $to)
+    private function getSliceValues(\DateTime $from, \DateTime $to, $metricId = null)
     {
         $result = [];
 
@@ -93,7 +77,7 @@ class SlicesController extends AbstractController
 
         if ($to->getTimestamp() < $todayTimestamp) {
             //get data from monthly tables
-            $result = $this->getFormattedTotalsFromMonthlySlices($metricId, $from, $to, $periodDiffDays);
+            $result = $this->getFormattedTotalsFromMonthlySlices($from, $to, $periodDiffDays, $metricId);
         } else {
             //get data from daily tables for today due to no data in monthly tables
 
@@ -102,13 +86,17 @@ class SlicesController extends AbstractController
             $pastDt->modify('-' . $periodDiffDays . ' day');
 
             //select totals from daily tables
-            $dailyTotals = $this->getTotalsFromDailySlices($metricId, $dt, $pastDt);
+            $dailyTotals = $this->getTotalsFromDailySlices($dt, $pastDt, $metricId);
             if ($from->getTimestamp() > $yesterdayTimestamp) {
                 $result = $this->formatTotals($dailyTotals['currentSubtotals'], $dailyTotals['pastSubtotals']);
             } else {
                 //select totals from monthly table
-                $monthlyTotals = $this->getTotalsFromMonthlySlices($metricId, $from,
-                    new \DateTime('yesterday 23:59:59'), $periodDiffDays);
+                $monthlyTotals = $this->getTotalsFromMonthlySlices(
+                    $from,
+                    new \DateTime('yesterday 23:59:59'),
+                    $periodDiffDays,
+                    $metricId
+                );
                 $mergedTotals = $this->mergeTotals($dailyTotals, $monthlyTotals);
                 $result = $this->formatTotals($mergedTotals['currentSubtotals'], $mergedTotals['pastSubtotals']);
             }
@@ -133,7 +121,7 @@ class SlicesController extends AbstractController
         return $result;
     }
 
-    private function getTotalsFromDailySlices(int $metricId, \DateTime $dt, \DateTime $pastDt): array
+    private function getTotalsFromDailySlices(\DateTime $dt, \DateTime $pastDt, $metricId = null): array
     {
         $currentSubtotals = [];
         $pastSubtotals = [];
@@ -143,11 +131,11 @@ class SlicesController extends AbstractController
         try {
             $currentSubtotals = $this->mysql->dailySlices
                 ->setTable($currentDailySlicesTableName)
-                ->getTotalsByMetricId($metricId, $currentTimestamp, true);
+                ->getTotals($currentTimestamp, $metricId, true);
             $currentSubtotals = $this->prepareSubtotals($currentSubtotals);
             $pastSubtotals = $this->mysql->dailySlices
                 ->setTable($pastDailySlicesTableName)
-                ->getTotalsByMetricId($metricId, $currentTimestamp, false);
+                ->getTotals($currentTimestamp, $metricId, false);
             $pastSubtotals = $this->prepareSubtotals($pastSubtotals);
         } catch (QueryException $exception) {
             if ($exception->getCode() !== '42S02') { //table does not exists
@@ -171,8 +159,12 @@ class SlicesController extends AbstractController
             ];
 
             if (isset($pastPeriodSubtotals[$sliceId])) {
-//                $data['pastTotal'] = $pastPeriodSubtotals[$sliceId]['value'];
-                $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastPeriodSubtotals[$sliceId]['value']) - 100;
+                $pastValue = $pastPeriodSubtotals[$sliceId]['value'];
+                if ($pastValue == 0){
+                    $data['diff'] = true;
+                } else {
+                    $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastValue) - 100;
+                }
             }
             $result[$currentPeriodSubtotal['category']][] = $data;
         }
@@ -180,10 +172,10 @@ class SlicesController extends AbstractController
     }
 
     private function getTotalsFromMonthlySlices(
-        int $metricId,
         \DateTime $from,
         \DateTime $to,
-        int $periodDiffDays
+        int $periodDiffDays,
+        $metricId = null
     ): array
     {
         $pastFrom = clone $from;
@@ -191,10 +183,10 @@ class SlicesController extends AbstractController
         $pastFrom = $pastFrom->modify('-' . $periodDiffDays . ' day');
         $pastTo = $pastTo->modify('-' . $periodDiffDays . ' day');
         $currentSubtotals = $this->mysql->monthlySlices
-            ->getTotalsByMetricId($metricId, $from, $to, true);
+            ->getTotals($from, $to, $metricId,true);
         $currentSubtotals = $this->prepareSubtotals($currentSubtotals);
         $pastSubtotals = $this->mysql->monthlySlices
-            ->getTotalsByMetricId($metricId, $pastFrom, $pastTo, false);
+            ->getTotals($pastFrom, $pastTo, $metricId, false);
         $pastSubtotals = $this->prepareSubtotals($pastSubtotals);
         return [
             'currentSubtotals' => $currentSubtotals,
@@ -202,9 +194,9 @@ class SlicesController extends AbstractController
         ];
     }
 
-    private function getFormattedTotalsFromMonthlySlices(int $metricId, \DateTime $from, \DateTime $to, int $periodDiffDays): array
+    private function getFormattedTotalsFromMonthlySlices(\DateTime $from, \DateTime $to, int $periodDiffDays, $metricId = null): array
     {
-        $totals = $this->getTotalsFromMonthlySlices($metricId, $from, $to, $periodDiffDays);
+        $totals = $this->getTotalsFromMonthlySlices($from, $to, $periodDiffDays, $metricId);
         $result = $this->formatTotals($totals['currentSubtotals'], $totals['pastSubtotals']);
         return $result;
     }
