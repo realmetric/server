@@ -213,6 +213,7 @@ class SlicesController extends AbstractController
     {
         $result = [];
         foreach ($monthlyTotals as $key => $monthlyTotal) {
+            $result[$key] = [];
             foreach ($monthlyTotal as $sliceId => $value) {
                 if (!isset($dailyTotals[$key][$sliceId])) {
                     continue;
