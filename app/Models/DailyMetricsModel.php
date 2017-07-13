@@ -56,11 +56,22 @@ class DailyMetricsModel extends AbstractModel
         return $this->insert($data);
     }
 
-    public function getTotals()
+    public function getTotals(int $timestamp, bool $withNames = false)
     {
-        return $this->qb()->selectRaw('metric_id as id, sum(value) as value')
-            ->groupBy('metric_id')
-            ->get();
+        $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
+        $q = $this->qb();
+        if ($withNames) {
+            $q->selectRaw($this->getTable() . '.metric_id, metrics.name, sum(' . $this->getTable() . '.value) as value')
+                ->join('metrics', $this->getTable() . '.metric_id', '=', 'metrics.id')
+                ->groupBy($this->getTable() . '.metric_id', 'metrics.name');
+
+        } else {
+            $q->selectRaw($this->getTable() . '.metric_id, sum('. $this->getTable() .'.value) as value')
+                ->groupBy('metric_id');
+        }
+
+        $q->where($this->getTable() . '.minute', '<', $minute);
+        return $q->get();
     }
 
     public function getByMetricId(int $metricId): array

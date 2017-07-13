@@ -88,10 +88,10 @@ class MonthlySlicesModel extends AbstractModel
         return $q->get(['date', 'value']);
     }
 
-    public function getTotalsByMetricId(
-        int $metricId,
+    public function getTotals(
         \DateTime $from,
         \DateTime $to,
+        $metricId = null,
         $withNamesAndCategories = false
     ): array {
         $q = $this->qb();
@@ -103,7 +103,10 @@ class MonthlySlicesModel extends AbstractModel
             $q->selectRaw($this->getTable() . '.slice_id, SUM(' . $this->getTable() . '.value) as value')
                 ->groupBy($this->getTable() . '.slice_id');
         }
-        $q->where($this->getTable() . '.metric_id', '=', $metricId);
+        if ($metricId){
+            $q->where($this->getTable() . '.metric_id', '=', $metricId);
+        }
+
         $q->where($this->getTable() . '.date', '>=', $from->format('Y-m-d'));
         $q->where($this->getTable() . '.date', '<=', $to->format('Y-m-d'));
 

@@ -83,7 +83,7 @@ class DailySlicesModel extends AbstractModel
         return $this->insert($data);
     }
 
-    public function getTotalsByMetricId(int $metricId, int $timestamp, $withNamesAndCategories = false): array
+    public function getTotals(int $timestamp, $metricId = null, bool $withNamesAndCategories = false): array
     {
         $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
         $q = $this->qb();
@@ -96,8 +96,11 @@ class DailySlicesModel extends AbstractModel
             $q->selectRaw($this->getTable() . '.slice_id, sum(' . $this->getTable() . '.value) as value')
                 ->groupBy($this->getTable() . '.slice_id');
         }
-        $q->where($this->getTable() . '.metric_id', '=', $metricId)
-            ->where($this->getTable() . '.minute', '<', $minute);
+        if ($metricId){
+            $q->where($this->getTable() . '.metric_id', '=', $metricId);
+        }
+
+        $q->where($this->getTable() . '.minute', '<', $minute);
 
         return $q->get();
 
