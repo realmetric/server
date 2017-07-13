@@ -161,9 +161,7 @@ class SlicesController extends AbstractController
 
             if (isset($pastPeriodSubtotals[$sliceId])) {
                 $pastValue = $pastPeriodSubtotals[$sliceId]['value'];
-                if ($pastValue == 0){
-                    $data['diff'] = true;
-                } else {
+                if ($pastValue != 0){
                     $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastValue) - 100;
                 }
             }

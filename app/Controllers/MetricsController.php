@@ -55,14 +55,14 @@ class MetricsController extends AbstractController
         return $this->jsonResponse(['values' => $values]);
     }
 
-    private function getMetricValues(\DateTime $from, \DateTime $to, $metricId = null)
+    private function getMetricValues(\DateTime $from, \DateTime $to)
     {
         $dt = new \DateTime();
         $pastDt = new \DateTime();
         $periodDiff = $from->diff($to);
         $periodDiffDays = (int)$periodDiff->format('%a') + 1;
         $pastDt->modify('-' . $periodDiffDays . ' day');
-        $dailyTotals = $this->getTotalsFromDailyMetrics($dt, $pastDt, $metricId);
+        $dailyTotals = $this->getTotalsFromDailyMetrics($dt, $pastDt);
         $result = $this->formatTotals($dailyTotals['currentSubtotals'], $dailyTotals['pastSubtotals']);
         return $result;
     }
@@ -122,9 +122,7 @@ class MetricsController extends AbstractController
 
             if (isset($pastPeriodSubtotals[$metricId])) {
                 $pastValue = $pastPeriodSubtotals[$metricId]['value'];
-                if ($pastValue == 0){
-                    $data['diff'] = true;
-                } else {
+                if ($pastValue != 0){
                     $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastValue) - 100;
                 }
             }
