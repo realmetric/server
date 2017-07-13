@@ -67,9 +67,9 @@ class SlicesController extends AbstractController
     {
         $result = [];
 
-        $todayTimestamp = strtotime(date('Y-m-d', strtotime('-1 day')));
-        $tomorrowTimestamp = strtotime('tomorrow 00:00:00', strtotime('-6 hour'));
-        $yesterdayTimestamp = strtotime('yesterday 00:00:00', strtotime('-6 hour'));
+        $todayTimestamp = strtotime(date('Y-m-d'));
+        $tomorrowTimestamp = strtotime('tomorrow 00:00:00');
+        $yesterdayTimestamp = strtotime('yesterday 00:00:00');
         if ($from->getTimestamp() >= $tomorrowTimestamp) {
             return $result;
         }
@@ -82,8 +82,8 @@ class SlicesController extends AbstractController
         } else {
             //get data from daily tables for today due to no data in monthly tables
 
-            $dt = new \DateTime('-6 hour');
-            $pastDt = new \DateTime('-6 hour');
+            $dt = new \DateTime();
+            $pastDt = new \DateTime();
             $pastDt->modify('-' . $periodDiffDays . ' day');
 
             //select totals from daily tables
