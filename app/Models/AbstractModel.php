@@ -97,7 +97,7 @@ abstract class AbstractModel
         $keysCount = count($keys);
         $valuesCount = count($values);
         $valuesSqlCount = $valuesCount / $keysCount;
-        $valuesSqlChunkSize = floor(self::MAX_PREPARED_STMT_COUNT / $keysCount);
+        $valuesSqlChunkSize = (int) floor(self::MAX_PREPARED_STMT_COUNT / $keysCount);
         $valuesChunkSize = $valuesSqlChunkSize * $keysCount;
 
         $placeHolders = array_fill(0, $keysCount, '?');
