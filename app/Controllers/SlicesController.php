@@ -12,8 +12,9 @@ class SlicesController extends AbstractController
 {
     public function getAll()
     {
+        $from = new \DateTime('today');
         $to = new \DateTime();
-        $result = $this->getSliceValues($to, $to);
+        $result = $this->getSliceValues($from, $to);
 
         $format = new Format();
         // Sort by value
