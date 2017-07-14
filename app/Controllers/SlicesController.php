@@ -39,7 +39,7 @@ class SlicesController extends AbstractController
 
         $format = new Format();
 
-        $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime('-1 day');
+        $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime();
         $from->setTime(0, 0, 0);
         $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime();
         $to->setTime(23, 59, 59);
