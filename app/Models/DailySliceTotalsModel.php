@@ -29,12 +29,13 @@ class DailySliceTotalsModel extends AbstractModel
             $table->unsignedSmallInteger('metric_id');
             $table->unsignedSmallInteger('slice_id');
             $table->integer('value');
+            $table->float('diff')->default(0);
 
             $table->unique(['metric_id', 'slice_id']);
         });
     }
 
-    public function addValue(int $metricId, int $sliceId, float $value)
+    public function addValue(int $metricId, int $sliceId, float $value, float $diff)
     {
         if (!$value) {
             return false;
@@ -44,17 +45,17 @@ class DailySliceTotalsModel extends AbstractModel
         if (empty($exist)) {
 
             // Create new row
-            return $this->insert(['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value]);
+            return $this->insert(['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'diff' => $diff]);
         }
 
+        $this->qb()->where('id', $exist['id'])->update(['diff' => $diff]);
         $this->increment($exist['id'], 'value', $value);
         return true;
     }
 
     public function getAllValues()
     {
-        return $this->qb()->selectRaw('slice_id as id, sum(value) as value')
-            ->groupBy('slice_id')
+        return $this->qb()->selectRaw('slice_id as id, value, diff')
             ->get();
     }
 

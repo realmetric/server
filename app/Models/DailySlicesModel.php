@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models;
 
@@ -59,7 +59,7 @@ class DailySlicesModel extends AbstractModel
             ->pluck('metric_id');
     }
 
-    public function createOrIncrement(int $metricId, int $sliceId, int $value, string $date) : int
+    public function createOrIncrement(int $metricId, int $sliceId, int $value, string $date): int
     {
         $minute = $this->minuteFromDate($date);
 
@@ -97,7 +97,7 @@ class DailySlicesModel extends AbstractModel
             $q->selectRaw($this->getTable() . '.slice_id, sum(' . $this->getTable() . '.value) as value')
                 ->groupBy($this->getTable() . '.slice_id');
         }
-        if ($metricId){
+        if ($metricId) {
             $q->where($this->getTable() . '.metric_id', '=', $metricId);
         }
 
@@ -111,5 +111,21 @@ class DailySlicesModel extends AbstractModel
     {
         $name = self::TABLE_PREFIX . $datePart;
         return $this->shema()->dropIfExists($name);
+    }
+
+    public function getDiff($metricId, $sliceId, $value, $minute) : float
+    {
+        $yesterdayValue = $this->qb()
+            ->selectRaw('sum(value) as value')
+            ->where('metric_id', $metricId)
+            ->where('slice_id', $sliceId)
+            ->where('minute', '<', $minute)
+            ->pluck('value');
+
+        if (!$yesterdayValue) {
+            return (float) 0;
+        }
+
+        return (float)(($value * 100) / $yesterdayValue) - 100;
     }
 }

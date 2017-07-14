@@ -4,6 +4,7 @@
 namespace App\Controllers;
 
 use App\Models\DailySlicesModel;
+use App\Models\DailySliceTotalsModel;
 use App\Values\Format;
 use Illuminate\Database\QueryException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,10 +13,25 @@ class SlicesController extends AbstractController
 {
     public function getAll()
     {
-        $from = new \DateTime('today');
-        $to = new \DateTime();
-        $result = $this->getSliceValues($from, $to);
+        $result = [];
+        $allValues = $this->mysql->dailySliceTotals->getAllValues();
+        $values = array_column($allValues, 'value', 'id');
+        $diffs = array_column($allValues, 'diff', 'id');
 
+        $slices = $this->mysql->slices->getAll();
+        foreach ($slices as $slice) {
+            $sliceId = $slice['id'];
+            if (empty($values[$sliceId])) {
+                continue;
+            }
+            $catName = $slice['category'];
+            $result[$catName][] = [
+                'id' => $sliceId,
+                'name' => $slice['name'],
+                'total' => $values[$sliceId],
+                'diff' =>  isset($diffs[$sliceId]) ? $diffs[$sliceId] : 0,
+            ];
+        }
         $format = new Format();
         // Sort by value
         foreach ($result as &$values) {
@@ -191,13 +207,6 @@ class SlicesController extends AbstractController
             'currentSubtotals' => $currentSubtotals,
             'pastSubtotals' => $pastSubtotals,
         ];
-    }
-
-    private function getFormattedTotalsFromMonthlySlices(\DateTime $from, \DateTime $to, int $periodDiffDays, $metricId = null): array
-    {
-        $totals = $this->getTotalsFromMonthlySlices($from, $to, $periodDiffDays, $metricId);
-        $result = $this->formatTotals($totals['currentSubtotals'], $totals['pastSubtotals']);
-        return $result;
     }
 
     private function mergeTotals(array $dailyTotals, array $monthlyTotals): array

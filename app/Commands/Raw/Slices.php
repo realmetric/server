@@ -4,6 +4,7 @@ namespace App\Commands\Raw;
 
 
 use App\Commands\AbstractCommand;
+use App\Models\DailySlicesModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -52,12 +53,18 @@ class Slices extends AbstractCommand
 
         // Saving into aggr table
         $saved = 0;
+        $minute = date('H') * 60 + date('i');
+        $yesterdayDailySliceTableName = DailySlicesModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day'));
         foreach ($aggregatedData as $row) {
             $res = false;
             try {
-                $row['minute'] = date('H') * 60 + date('i');
+                $row['minute'] = $minute;
                 $res = $this->mysql->dailySlices->insert($row);
-                $this->mysql->dailySliceTotals->addValue($row['metric_id'], $row['slice_id'], $row['value']);
+
+                $diff = $this->mysql->dailySlices
+                    ->setTable($yesterdayDailySliceTableName)
+                    ->getDiff($row['metric_id'], $row['slice_id'], $row['value'], $minute);
+                $this->mysql->dailySliceTotals->addValue($row['metric_id'], $row['slice_id'], $row['value'], $diff);
             } catch (\Exception $e) {
                 $this->out($e->getMessage());
             }

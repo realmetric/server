@@ -8,6 +8,9 @@ server {
     listen 443 ssl http2;
     server_name server.realmetric.dev;
 
+    error_log /home/wdata/nginx-error.log warn;
+    client_body_buffer_size 1m;
+
     root /home/ubuntu/www/realmetric/server/public;
     index index.php;
 
