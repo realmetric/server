@@ -46,9 +46,10 @@ class Metrics extends AbstractCommand
             return 0;
         }
         $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
+        $this->out($startId . ' - ' . $maxId);
 
-        // Getting grouped data form RAW
-        $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($time, $startId, $maxId);
+        // Getting grouped data from RAW
+        $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($startId, $maxId);
         if (!count($aggregatedData)) {
             $this->out('No raw data in dailyRawMetrics from startId ' . $startId);
             sleep(5);
@@ -62,7 +63,7 @@ class Metrics extends AbstractCommand
             $res = false;
             try {
                 $row['minute'] = date('H') * 60 + date('i');
-                $res = $this->mysql->dailyMetrics->insert($row);
+                $res = $this->mysql->dailyMetrics->createOrIncrement($row['metric_id'], $row['value'], $row['minute']);
             } catch (\Exception $e) {
                 $this->out($e->getMessage());
             }

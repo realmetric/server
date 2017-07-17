@@ -33,10 +33,8 @@ class DailyMetricsModel extends AbstractModel
         });
     }
 
-    public function createOrIncrement(int $metricId, int $value, string $date) : int
+    public function createOrIncrement(int $metricId, int $value, int $minute) : int
     {
-        $minute = $this->minuteFromDate($date);
-
         // Check exist
         $id = $this->qb()->where('metric_id', $metricId)
             ->where('minute', $minute)
@@ -51,7 +49,7 @@ class DailyMetricsModel extends AbstractModel
         $data = [
             'metric_id' => $metricId,
             'value' => $value,
-            'minute' => $this->minuteFromDate($date),
+            'minute' => $minute,
         ];
         return $this->insert($data);
     }
