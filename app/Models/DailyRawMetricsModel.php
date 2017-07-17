@@ -64,16 +64,14 @@ class DailyRawMetricsModel extends AbstractModel
             ->value('max_id') ?: 0;
     }
 
-    public function getAggregatedDataByRange(string $time = 'now', int $firstId, int $lastId): array
+    public function getAggregatedDataByRange(int $firstId, int $lastId): array
     {
-        $ts = strtotime($time);
-        $minutes = date('H', $ts) * 60 + date('i', $ts);
         return $this->qb()
-            ->selectRaw('metric_id, max(minute) as minute, sum(value) as value')
+            ->selectRaw('metric_id, minute, sum(value) as value')
             ->where('id', '>=', $firstId)
             ->where('id', '<=', $lastId)
-            ->where('minute', '<', $minutes)
-            ->groupBy('metric_id')
+//            ->where('minute', '<', $minutes)
+            ->groupBy(['metric_id', 'minute'])
             ->get();
     }
 
