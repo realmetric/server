@@ -120,12 +120,14 @@ class DailySlicesModel extends AbstractModel
             ->where('metric_id', $metricId)
             ->where('slice_id', $sliceId)
             ->where('minute', '<', $minute)
-            ->pluck('value');
+            ->value('value');
 
         if (!$yesterdayValue) {
             return (float) 0;
         }
 
-        return (float)(($value * 100) / $yesterdayValue) - 100;
+        $diffPercent = (($value * 100) / $yesterdayValue) - 100;
+
+        return (float)$diffPercent;
     }
 }
