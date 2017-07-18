@@ -69,17 +69,13 @@ class DailyRawSlicesModel extends AbstractModel
             ->value('max_id') ?: 0;
     }
 
-    public function getAggregatedData(string $time = 'now', int $firstId, int $lastId): array
+    public function getAggregatedData(int $firstId, int $lastId): array
     {
-        $ts = strtotime($time);
-        $minutes = date('H', $ts) * 60 + date('i', $ts);
         return $this->qb()
-            ->selectRaw('metric_id, max(minute) as minute, slice_id, sum(value) as value')
+            ->selectRaw('metric_id, minute, slice_id, sum(value) as value')
             ->where('id', '>=', $firstId)
             ->where('id', '<=', $lastId)
-            ->where('minute', '<', $minutes)
-            ->groupBy('metric_id')
-            ->groupBy('slice_id')
+            ->groupBy(['metric_id', 'minute', 'slice_id'])
             ->get();
     }
 }

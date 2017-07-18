@@ -225,4 +225,11 @@ class SlicesController extends AbstractController
 
         return $result;
     }
+
+    private function getFormattedTotalsFromMonthlySlices(\DateTime $from, \DateTime $to, int $periodDiffDays, $metricId = null): array
+    {
+        $totals = $this->getTotalsFromMonthlySlices($from, $to, $periodDiffDays, $metricId);
+        $result = $this->formatTotals($totals['currentSubtotals'], $totals['pastSubtotals']);
+        return $result;
+    }
 }

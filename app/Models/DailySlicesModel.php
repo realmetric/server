@@ -59,10 +59,8 @@ class DailySlicesModel extends AbstractModel
             ->pluck('metric_id');
     }
 
-    public function createOrIncrement(int $metricId, int $sliceId, int $value, string $date): int
+    public function createOrIncrement(int $metricId, int $sliceId, int $value, int $minute): int
     {
-        $minute = $this->minuteFromDate($date);
-
         // Check exist
         $id = $this->qb()->where('metric_id', $metricId)
             ->where('slice_id', $sliceId)
