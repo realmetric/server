@@ -70,7 +70,6 @@ class DailyRawMetricsModel extends AbstractModel
             ->selectRaw('metric_id, minute, sum(value) as value')
             ->where('id', '>=', $firstId)
             ->where('id', '<=', $lastId)
-//            ->where('minute', '<', $minutes)
             ->groupBy(['metric_id', 'minute'])
             ->get();
     }

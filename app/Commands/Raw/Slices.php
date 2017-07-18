@@ -44,7 +44,7 @@ class Slices extends AbstractCommand
         $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
 
         // Getting grouped data form RAW
-        $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($time, $startId, $maxId);
+        $aggregatedData = $this->mysql->dailyRawSlices->getAggregatedData($startId, $maxId);
         if (!$aggregatedData) {
             $this->out('No raw data in dailyRawSlices from startId ' . $startId);
             sleep(5);
@@ -53,20 +53,18 @@ class Slices extends AbstractCommand
 
         // Saving into aggr table
         $saved = 0;
-        $minute = date('H') * 60 + date('i');
         $todayDailySliceTableName = DailySlicesModel::TABLE_PREFIX . date('Y_m_d');
         $yesterdayDailySliceTableName = DailySlicesModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day'));
         foreach ($aggregatedData as $row) {
             $res = false;
             try {
-                $row['minute'] = $minute;
                 $res = $this->mysql->dailySlices
                     ->setTable($todayDailySliceTableName)
-                    ->insert($row);
+                    ->createOrIncrement($row['metric_id'], $row['slice_id'], $row['value'], $row['minute']);
 
                 $diff = $this->mysql->dailySlices
                     ->setTable($yesterdayDailySliceTableName)
-                    ->getDiff($row['metric_id'], $row['slice_id'], $row['value'], $minute);
+                    ->getDiff($row['metric_id'], $row['slice_id'], $row['value'], $row['minute']);
                 $this->mysql->dailySliceTotals->addValue($row['metric_id'], $row['slice_id'], $row['value'], $diff);
             } catch (\Exception $e) {
                 $this->out($e->getMessage());

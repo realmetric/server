@@ -62,7 +62,6 @@ class Metrics extends AbstractCommand
         foreach ($aggregatedData as $row) {
             $res = false;
             try {
-                $row['minute'] = date('H') * 60 + date('i');
                 $res = $this->mysql->dailyMetrics->createOrIncrement($row['metric_id'], $row['value'], $row['minute']);
             } catch (\Exception $e) {
                 $this->out($e->getMessage());
