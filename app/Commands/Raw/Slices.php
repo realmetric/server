@@ -54,12 +54,15 @@ class Slices extends AbstractCommand
         // Saving into aggr table
         $saved = 0;
         $minute = date('H') * 60 + date('i');
+        $todayDailySliceTableName = DailySlicesModel::TABLE_PREFIX . date('Y_m_d');
         $yesterdayDailySliceTableName = DailySlicesModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day'));
         foreach ($aggregatedData as $row) {
             $res = false;
             try {
                 $row['minute'] = $minute;
-                $res = $this->mysql->dailySlices->insert($row);
+                $res = $this->mysql->dailySlices
+                    ->setTable($todayDailySliceTableName)
+                    ->insert($row);
 
                 $diff = $this->mysql->dailySlices
                     ->setTable($yesterdayDailySliceTableName)
