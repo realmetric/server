@@ -77,7 +77,7 @@ class DailySlicesModel extends AbstractModel
             'metric_id' => $metricId,
             'slice_id' => $sliceId,
             'value' => $value,
-            'minute' => $this->minuteFromDate($date),
+            'minute' => $minute,
         ];
         return $this->insert($data);
     }
