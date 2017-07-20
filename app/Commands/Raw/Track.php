@@ -12,6 +12,7 @@ class Track extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        sleep(3);//prevent supervisord exited too quick error
         while (1) {
             $added = 0;
             do {

@@ -13,6 +13,7 @@ class Metrics extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        sleep(3);//prevent supervisord exited too quick error
         while (1) {
             $timeStart = time();
             $saved = $this->fetch();
