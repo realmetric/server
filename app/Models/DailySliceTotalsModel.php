@@ -35,7 +35,7 @@ class DailySliceTotalsModel extends AbstractModel
         });
     }
 
-    public function addValue(int $metricId, int $sliceId, float $value, float $diff)
+    public function insertOrIncrement(int $metricId, int $sliceId, float $value, float $diff)
     {
         if (!$value) {
             return false;
