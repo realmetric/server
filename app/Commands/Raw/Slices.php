@@ -42,7 +42,12 @@ class Slices extends AbstractCommand
         if ($lastCounter === 0){
             //process the previous period
             $previousDateTime = $dateTime = date('Y-m-d H:i:s', strtotime('-1 hour',strtotime($dateTime)));
-            $this->flush($previousDateTime, true);
+            try {
+                $this->flush($previousDateTime, true);
+            } catch (\Exception $e) {
+                $this->out($e->getMessage());
+            }
+
             //return back current table
             $this->mysql->dailyCounters->setTable(DailyCountersModel::TABLE_PREFIX . $tablePostfix);
         }
