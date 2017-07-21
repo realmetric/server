@@ -11,10 +11,10 @@ class Raw extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $date = date('Y_m_d_H', strtotime('-1 hour'));
+        $date = date('Y_m_d_H', strtotime('-2 hour'));
         $this->dropDate($date);
 
-        $date = date('Y_m_d_H', strtotime('-2 hour'));
+        $date = date('Y_m_d_H', strtotime('-3 hour'));
         $this->dropDate($date);
     }
 
