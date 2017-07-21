@@ -19,6 +19,7 @@ class Old extends AbstractCommand
         $this->out('Try drop ' . $date);
         $this->mysql->dailyMetrics->dropTable($date);
         $this->mysql->dailySlices->dropTable($date);
+        $this->mysql->dailySliceTotals->dropTable($date);
         $this->out('Done');
     }
 }
