@@ -65,7 +65,7 @@ class DailyRawSlicesModel extends AbstractModel
         $minute = date('H', $ts) * 60 + date('i', $ts);
         return $this->qb()
             ->selectRaw('max(id) as max_id')
-            ->where('minute', '<=', $minute)
+            ->where('minute', '<', $minute)
             ->value('max_id') ?: 0;
     }
 
