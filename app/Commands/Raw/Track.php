@@ -21,7 +21,9 @@ class Track extends AbstractCommand
             } while ($res);
             $this->out('Added: ' . $added);
             sleep(10);
-            if (!random_int(0, 9)) {
+            $memory = memory_get_usage();
+            if ($memory > 262144000){
+                $this->out('Memory usage more then 250MB: '. number_format($memory / 1024 / 1024, 2) . 'MB');
                 die;
             }
         }

@@ -27,7 +27,9 @@ class Metrics extends AbstractCommand
             if ($timeDiff < 60) {
                 sleep(60 - $timeDiff + 1);
             }
-            if (!random_int(0, 9)) {
+            $memory = memory_get_usage();
+            if ($memory > 262144000){
+                $this->out('Memory usage more then 250MB: '. number_format($memory / 1024 / 1024, 2) . 'MB');
                 die;
             }
         }
