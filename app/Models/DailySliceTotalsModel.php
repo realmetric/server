@@ -9,15 +9,15 @@ class DailySliceTotalsModel extends AbstractModel
     const TABLE_PREFIX = 'daily_slice_totals_';
     const TABLE = self::TABLE_PREFIX . '2017_01_01'; // Just for example
 
-    public function __construct($queryBuilder)
+    public function __construct($connection)
     {
-        parent::__construct($queryBuilder);
+        parent::__construct($connection);
 
         $this->setTable(self::TABLE_PREFIX . date('Y_m_d'));
         $this->createTable($this->getTable());
     }
 
-    private function createTable($name)
+    protected function createTable($name)
     {
         if ($this->shema()->hasTable($name)) {
             return;

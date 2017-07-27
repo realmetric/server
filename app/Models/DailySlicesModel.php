@@ -9,15 +9,15 @@ class DailySlicesModel extends AbstractModel
     const TABLE_PREFIX = 'daily_slices_';
     const TABLE = self::TABLE_PREFIX . '2017_01_01'; // Just for example
 
-    public function __construct($queryBuilder)
+    public function __construct($connection)
     {
-        parent::__construct($queryBuilder);
+        parent::__construct($connection);
 
         $this->setTable(self::TABLE_PREFIX . date('Y_m_d'));
         $this->createTable($this->getTable());
     }
 
-    private function createTable($name)
+    protected function createTable($name)
     {
         if ($this->shema()->hasTable($name)) {
             return;
@@ -127,5 +127,45 @@ class DailySlicesModel extends AbstractModel
         $diffPercent = (($value * 100) / $yesterdayValue) - 100;
 
         return (float)$diffPercent;
+    }
+
+    public function aggregate(int $timestamp)
+    {
+        //TODO: check table exists
+        $dailySliceTotalsTable = DailySliceTotalsModel::TABLE_PREFIX . date('Y_m_d', $timestamp);
+        $dailySlicesTable = DailySlicesModel::TABLE_PREFIX . date('Y_m_d', $timestamp);
+        $dailySlicesYesterdayTable = DailySlicesModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day', $timestamp));
+        $minute = date('H', $timestamp) * 60 + date('i', $timestamp);
+
+        $sql = <<<SQL
+INSERT INTO $dailySliceTotalsTable (metric_id, slice_id, value, diff)
+  SELECT s.metric_id, s.slice_id, s.val, (case s.sm
+                                          -- when s.sm IS NULL then 0
+                                          when 0 then 0
+                                          else ((s.val * 100) / s.sm) - 100 END) AS diff
+  FROM (SELECT
+          daily_slices.metric_id,
+          daily_slices.slice_id,
+          sum(daily_slices.value) val,
+          case when df.sm is null then 0
+    else df.sm end as sm
+        FROM $dailySlicesTable daily_slices
+          LEFT JOIN (SELECT
+                       daily_slices_diff.metric_id,
+                       daily_slices_diff.slice_id,
+                       sum(value) AS sm
+                     FROM $dailySlicesYesterdayTable daily_slices_diff
+                     WHERE daily_slices_diff.minute < $minute
+                     GROUP BY daily_slices_diff.metric_id, daily_slices_diff.slice_id
+                    ) df ON daily_slices.metric_id = df.metric_id AND
+                            daily_slices.slice_id = df.slice_id
+        GROUP BY daily_slices.metric_id,
+          daily_slices.slice_id) s
+ON DUPLICATE KEY UPDATE
+  $dailySliceTotalsTable.value = s.val,
+  $dailySliceTotalsTable.diff  = diff
+SQL;
+
+        return $this->getConnection()->getPdo()->query($sql, \PDO::FETCH_ASSOC);
     }
 }
