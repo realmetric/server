@@ -10,14 +10,14 @@ class SlicesModel extends AbstractModel
 
     private $cache = [];
 
-    public function __construct($queryBuilder)
+    public function __construct($connection)
     {
-        parent::__construct($queryBuilder);
+        parent::__construct($connection);
 
         $this->createTable($this->getTable());
     }
 
-    private function createTable($name)
+    protected function createTable($name)
     {
         if ($this->shema()->hasTable($name)) {
             return;

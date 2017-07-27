@@ -7,15 +7,15 @@ class CountersModel extends AbstractModel
     const TABLE_PREFIX = '';
     const TABLE = self::TABLE_PREFIX . 'counters';
 
-    public function __construct($queryBuilder)
+    public function __construct($connection)
     {
-        parent::__construct($queryBuilder);
+        parent::__construct($connection);
 
         $this->setTable(self::TABLE);
         $this->createTable($this->getTable());
     }
 
-    private function createTable($name)
+    protected function createTable($name)
     {
         if ($this->shema()->hasTable($name)) {
             return;

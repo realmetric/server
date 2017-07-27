@@ -9,15 +9,15 @@ class DailyRawSlicesModel extends AbstractModel
     const TABLE_PREFIX = 'daily_raw_slices_';
     const TABLE = self::TABLE_PREFIX . '2017_01_01'; // Just for example
 
-    public function __construct($queryBuilder)
+    public function __construct($connection)
     {
-        parent::__construct($queryBuilder);
+        parent::__construct($connection);
 
         $this->setTable(self::TABLE_PREFIX . date('Y_m_d_H'));
         $this->createTable($this->getTable());
     }
 
-    private function createTable($name)
+    protected function createTable($name)
     {
         if ($this->shema()->hasTable($name)) {
             return;
@@ -59,9 +59,8 @@ class DailyRawSlicesModel extends AbstractModel
             ->get(['minute', 'value']);
     }
 
-    public function getMaxIdForTime(string $time): int
+    public function getMaxIdForTime(int $ts): int
     {
-        $ts = strtotime($time);
         $minute = date('H', $ts) * 60 + date('i', $ts);
         return $this->qb()
             ->selectRaw('max(id) as max_id')
@@ -69,13 +68,78 @@ class DailyRawSlicesModel extends AbstractModel
             ->value('max_id') ?: 0;
     }
 
-    public function getAggregatedData(int $firstId, int $lastId): array
+    public function getAggregatedData(int $minId, int $lastId): array
     {
+//        $result = [];
+//        $allSliceIds = $this->qb()
+//            ->distinct()
+//            ->where('id', '>=', $minId)
+//            ->where('id', '<=', $lastId)
+//            ->pluck('slice_id');
+//
+//        foreach ($allSliceIds as $sliceId){
+//            $sliceIds[] = $sliceId;
+//            if (count($sliceIds) > 200){
+//                $res = $this->qb()
+//                    ->selectRaw('metric_id, minute, slice_id, sum(value) as value')
+//                    ->where('id', '>=', $minId)
+//                    ->where('id', '<=', $lastId)
+//                    ->whereIn('slice_id', $sliceIds)
+//                    ->groupBy(['metric_id', 'minute', 'slice_id'])
+//                    ->get();
+//                $result = array_merge($result, $res);
+//                $sliceIds = [];
+//            }
+//        }
+//        if (!empty($sliceIds)){
+//            $res = $this->qb()
+//                ->selectRaw('metric_id, minute, slice_id, sum(value) as value')
+//                ->where('id', '>=', $minId)
+//                ->where('id', '<=', $lastId)
+//                ->whereIn('slice_id', $sliceIds)
+//                ->groupBy(['metric_id', 'minute', 'slice_id'])
+//                ->get();
+//            $result = array_merge($result, $res);
+//        }
+//
+//        return $result;
+//        $this->getConnection()->select();
         return $this->qb()
-            ->selectRaw('metric_id, minute, slice_id, sum(value) as value')
-            ->where('id', '>=', $firstId)
-            ->where('id', '<=', $lastId)
-            ->groupBy(['metric_id', 'minute', 'slice_id'])
+            ->selectRaw($this->getTable() . '.metric_id, ' . $this->getTable() . '.minute, ' . $this->getTable() .  '.slice_id, sum(value) as value')
+//            ->leftJoin('daily_slices_2017_07_25', function($join){
+//                $join->on('daily_slices_2017_07_25.metric_id', '=', $this->getTable() .'.metric_id');
+//                $join->on('daily_slices_2017_07_25.slice_id', '=', $this->getTable() .'.slice_id');
+//                $join->on('daily_slices_2017_07_25.minute', '=', $this->getTable() .'.minute');
+//            })
+            ->where($this->getTable() . '.id', '>=', $minId)
+            ->where($this->getTable() . '.id', '<=', $lastId)
+            ->groupBy([$this->getTable() .'.metric_id', $this->getTable() . '.minute', $this->getTable() . '.slice_id'])
             ->get();
+    }
+
+    public function aggregate(int $startId, int $maxIdForTime, int $timestamp)
+    {
+        //TODO: check table exists
+        $dailySlicesTable = DailySlicesModel::TABLE_PREFIX . date('Y_m_d', $timestamp);
+        $dailyRawSlicesTable = DailyRawSlicesModel::TABLE_PREFIX . date('Y_m_d_H', $timestamp);
+
+        $sql = <<<SQL
+INSERT INTO $dailySlicesTable (metric_id, slice_id, value, minute)
+  SELECT * FROM (SELECT
+    daily_raw_slices.metric_id,
+    daily_raw_slices.slice_id,
+    sum(daily_raw_slices.value) val,
+    daily_raw_slices.minute
+  FROM $dailyRawSlicesTable daily_raw_slices
+  WHERE daily_raw_slices.id >= $startId
+        AND daily_raw_slices.id <= $maxIdForTime
+  GROUP BY daily_raw_slices.metric_id,
+    daily_raw_slices.slice_id,
+    daily_raw_slices.minute) s
+ON DUPLICATE KEY UPDATE
+  $dailySlicesTable.value = $dailySlicesTable.value + s.val
+SQL;
+
+        return $this->getConnection()->getPdo()->query($sql, \PDO::FETCH_ASSOC);
     }
 }

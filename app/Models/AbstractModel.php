@@ -9,15 +9,18 @@ abstract class AbstractModel
     const MAX_PREPARED_STMT_COUNT = 60000;
 
     private $tableName = null;
-    private $queryBuilder = null;
+    /**
+     * @var \Illuminate\Database\Connection
+     */
+    private $connection = null;
 
-    public function __construct($queryBuilder)
+    public function __construct($connection)
     {
         if (!static::TABLE) {
             throw new \Exception('Model ' . static::class . ' without TABLE constant');
         }
         $this->setTable(static::TABLE);
-        $this->queryBuilder = $queryBuilder;
+        $this->connection = $connection;
     }
 
     public function minuteFromDate(string $date)
@@ -31,7 +34,7 @@ abstract class AbstractModel
      */
     protected function qb()
     {
-        $connection = $this->queryBuilder;
+        $connection = $this->connection;
         $qb = new QueryBuilder(
             $connection,
             $connection->getQueryGrammar(),
@@ -42,11 +45,19 @@ abstract class AbstractModel
     }
 
     /**
+     * @return \Illuminate\Database\Connection
+     */
+    protected function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
      * @return \Illuminate\Database\Schema\Builder
      */
     protected function shema()
     {
-        return $this->queryBuilder->getSchemaBuilder();
+        return $this->connection->getSchemaBuilder();
     }
 
     public function setTable($name)
@@ -114,7 +125,7 @@ abstract class AbstractModel
             $valuesSqlPart = implode(',', $valuesSqlPart);
 
             $sql = "insert into `{$table}` ({$keys}) values {$valuesSqlPart}";
-            $this->queryBuilder->getPdo()
+            $this->connection->getPdo()
                 ->prepare($sql)
                 ->execute($valuesPart);
         }
@@ -128,5 +139,13 @@ abstract class AbstractModel
     public function getAll($columns = ['*']): array
     {
         return $this->qb()->get($columns);
+    }
+
+    abstract protected function createTable($name);
+
+    public function createIfNotExists()
+    {
+        $this->createTable($this->getTable());
+        return $this;
     }
 }
