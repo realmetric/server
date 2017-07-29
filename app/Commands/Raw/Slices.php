@@ -52,6 +52,7 @@ class Slices extends AbstractCommand
             ->setTable(DailyRawSlicesModel::TABLE_PREFIX . date('Y_m_d_H', $timestamp))
             ->createIfNotExists()
             ->getMaxIdForTime($timestamp);
+        $this->out(date('Y-m-d H:i:s', $timestamp . ' '. $lastCounter . ' - ' . $maxIdForTime));
         if ($maxIdForTime < $lastCounter) {
             $this->out('No new records in dailyRawSlices from startId ' . $maxIdForTime);
             sleep(5);
