@@ -6,6 +6,7 @@ namespace App\Commands\Raw;
 use App\Commands\AbstractCommand;
 use App\Models\DailyCountersModel;
 use App\Models\DailyRawSlicesModel;
+use App\Models\DailySlicesModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -38,30 +39,43 @@ class Slices extends AbstractCommand
         }
     }
 
-    private function flush($timestamp)
+    private function flush($timestamp, $skipTimeForMaxId = false)
     {
         $lastCounter = $this->mysql->dailyCounters
-            ->setTable(DailyCountersModel::TABLE_PREFIX . date('Y_m_d_H', $timestamp))
-            ->createIfNotExists()
+            ->setTableFromTimestamp($timestamp)
             ->getValue(static::COUNTER_NAME);
+        if ($lastCounter == 0){
+            $this->flush(strtotime('-1 hour', $timestamp), true);
+        }
 
         $startId = $lastCounter ? $lastCounter + 1 : 0;
 
-        // Getting maxId bc no order in aggr result
-        $maxIdForTime = $this->mysql->dailyRawSlices
-            ->setTable(DailyRawSlicesModel::TABLE_PREFIX . date('Y_m_d_H', $timestamp))
-            ->createIfNotExists()
-            ->getMaxIdForTime($timestamp);
-        $this->out(date('Y-m-d H:i:s', $timestamp . ' '. $lastCounter . ' - ' . $maxIdForTime));
-        if ($maxIdForTime < $lastCounter) {
-            $this->out('No new records in dailyRawSlices from startId ' . $maxIdForTime);
-            sleep(5);
+        if ($skipTimeForMaxId){
+            $maxId = $this->mysql->dailyRawSlices
+                ->setTableFromTimestamp($timestamp)
+                ->getMaxId();
+        } else {
+            // Getting maxId bc no order in aggr result
+            $maxId = $this->mysql->dailyRawSlices
+                ->setTableFromTimestamp($timestamp)
+                ->getMaxIdForTime($timestamp);
+
+        }
+
+        if ($maxId < $lastCounter) {
+            $this->out('No new records in dailyRawSlices from startId ' . $maxId);
+            if (!$skipTimeForMaxId){
+                sleep(5);
+            }
             return 0;
         }
 
-        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxIdForTime);
+        $this->mysql->dailyCounters
+            ->setTableFromTimestamp($timestamp)
+            ->updateOrInsert(static::COUNTER_NAME, $maxId);
 
-        $slicesAggrPdoStmt = $this->mysql->dailyRawSlices->aggregate($startId, $maxIdForTime, $timestamp);
+        $slicesAggrPdoStmt = $this->aggregate($startId, $maxId, $timestamp);
+
 
 //        if ($slicesAggr){
 //            $totalsAggr = $this->mysql->dailySlices->aggregate($startId, $maxIdForTime, strtotime($time));
@@ -102,5 +116,36 @@ class Slices extends AbstractCommand
 //        }
 
         return $slicesAggrPdoStmt->rowCount();
+    }
+
+    private function aggregate(int $startId, int $maxIdForTime, int $timestamp) : \PDOStatement
+    {
+        $dailySlicesTable = $this->mysql->dailySlices->setTableFromTimestamp($timestamp)->getTable();
+        $dailyRawSlicesTable = $this->mysql->dailyRawSlices->setTableFromTimestamp($timestamp)->getTable();
+
+        $sql = <<<SQL
+INSERT INTO $dailySlicesTable (metric_id, slice_id, value, minute)
+  SELECT * FROM (SELECT
+    daily_raw_slices.metric_id,
+    daily_raw_slices.slice_id,
+    sum(daily_raw_slices.value) val,
+    daily_raw_slices.minute
+  FROM $dailyRawSlicesTable daily_raw_slices
+  WHERE daily_raw_slices.id >= $startId
+        AND daily_raw_slices.id <= $maxIdForTime
+  GROUP BY daily_raw_slices.metric_id,
+    daily_raw_slices.slice_id,
+    daily_raw_slices.minute) s
+ON DUPLICATE KEY UPDATE
+  $dailySlicesTable.value = $dailySlicesTable.value + s.val
+SQL;
+
+        try {
+            $result = $this->mysql->getConnection()->getPdo()->query($sql, \PDO::FETCH_ASSOC);
+        } catch (\Exception $ex){
+            $this->out($sql);
+            throw $ex;
+        }
+        return $result;
     }
 }

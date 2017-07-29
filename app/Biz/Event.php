@@ -2,6 +2,8 @@
 
 namespace App\Biz;
 
+use App\Models\DailyRawMetricsModel;
+
 class Event
 {
     use \App\Injectable;
@@ -41,7 +43,7 @@ class Event
         return $insertData;
     }
 
-    public function saveBatch($events, $metrics, $categories, $names)
+    public function saveBatch($events, $metrics, $categories, $names, $timestamp)
     {
         $this->timer->startPoint('events prepare');
         $metricsResult = [];
@@ -89,8 +91,12 @@ class Event
         $this->timer->endPoint('events prepare');
 
         $this->timer->startPoint('events saving');
-        $this->mysql->dailyRawMetrics->insertBatchRaw(['metric_id', 'value', 'minute'], $metricsResult);
-        $this->mysql->dailyRawSlices->insertBatchRaw(['metric_id', 'slice_id', 'value', 'minute'], $slicesResult);
+        $this->mysql->dailyRawMetrics
+            ->setTableFromTimestamp($timestamp)
+            ->insertBatchRaw(['metric_id', 'value', 'minute'], $metricsResult);
+        $this->mysql->dailyRawSlices
+            ->setTableFromTimestamp($timestamp)
+            ->insertBatchRaw(['metric_id', 'slice_id', 'value', 'minute'], $slicesResult);
         $this->timer->endPoint('events saving');
 
         return count($events);

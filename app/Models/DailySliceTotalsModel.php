@@ -13,8 +13,14 @@ class DailySliceTotalsModel extends AbstractModel
     {
         parent::__construct($connection);
 
-        $this->setTable(self::TABLE_PREFIX . date('Y_m_d'));
-        $this->createTable($this->getTable());
+        $this->setTableFromTimestamp(time());
+    }
+
+    public function setTableFromTimestamp(int $timestamp)
+    {
+        $this->setTable(self::TABLE_PREFIX . date('Y_m_d', $timestamp));
+        $this->createTableIfNotExists();
+        return $this;
     }
 
     protected function createTable($name)
