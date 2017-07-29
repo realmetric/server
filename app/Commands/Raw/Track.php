@@ -16,7 +16,7 @@ class Track extends AbstractCommand
         while (1) {
             $added = 0;
             do {
-                $res = (int)$this->track();
+                $res = (int)$this->track(time());
                 $added += $res;
             } while ($res);
             $this->out('Added: ' . $added);
@@ -29,7 +29,7 @@ class Track extends AbstractCommand
         }
     }
 
-    private function track()
+    private function track($timestamp)
     {
         $eventPack = $this->redis->track_raw->sPop();
         if (!$eventPack) {
@@ -90,6 +90,6 @@ class Track extends AbstractCommand
         }
 
         $eventService = new Event();
-        return (int)$eventService->saveBatch($events, $metrics, $categories, $slices);
+        return (int)$eventService->saveBatch($events, $metrics, $categories, $slices, $timestamp);
     }
 }

@@ -7,6 +7,9 @@ abstract class AbstractModel
 {
     const TABLE = null;
     const MAX_PREPARED_STMT_COUNT = 60000;
+    const MAX_TABLE_NAME_EXISTS_CACHE_COUNT = 20;
+
+    protected $tableNameExistsCache = [];
 
     private $tableName = null;
     /**
@@ -143,9 +146,18 @@ abstract class AbstractModel
 
     abstract protected function createTable($name);
 
-    public function createIfNotExists()
+    protected function createTableIfNotExists()
     {
-        $this->createTable($this->getTable());
+        $tableName = $this->getTable();
+        if (!in_array($tableName, $this->tableNameExistsCache, true)){
+            if (count($this->tableNameExistsCache) > static::MAX_TABLE_NAME_EXISTS_CACHE_COUNT){
+                $this->tableNameExistsCache = [];
+            }
+
+            $this->createTable($tableName);
+            $this->tableNameExistsCache[] = $tableName;
+        }
+
         return $this;
     }
 }

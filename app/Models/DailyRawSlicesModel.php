@@ -13,8 +13,14 @@ class DailyRawSlicesModel extends AbstractModel
     {
         parent::__construct($connection);
 
-        $this->setTable(self::TABLE_PREFIX . date('Y_m_d_H'));
-        $this->createTable($this->getTable());
+        $this->setTableFromTimestamp(time());
+    }
+
+    public function setTableFromTimestamp(int $timestamp)
+    {
+        $this->setTable(self::TABLE_PREFIX . date('Y_m_d_H', $timestamp));
+        $this->createTableIfNotExists();
+        return $this;
     }
 
     protected function createTable($name)
@@ -68,6 +74,13 @@ class DailyRawSlicesModel extends AbstractModel
             ->value('max_id') ?: 0;
     }
 
+    public function getMaxId(): int
+    {
+        return $this->qb()
+            ->selectRaw('max(id) as max_id')
+            ->value('max_id') ?: 0;
+    }
+
     public function getAggregatedData(int $minId, int $lastId): array
     {
 //        $result = [];
@@ -115,31 +128,5 @@ class DailyRawSlicesModel extends AbstractModel
             ->where($this->getTable() . '.id', '<=', $lastId)
             ->groupBy([$this->getTable() .'.metric_id', $this->getTable() . '.minute', $this->getTable() . '.slice_id'])
             ->get();
-    }
-
-    public function aggregate(int $startId, int $maxIdForTime, int $timestamp)
-    {
-        //TODO: check table exists
-        $dailySlicesTable = DailySlicesModel::TABLE_PREFIX . date('Y_m_d', $timestamp);
-        $dailyRawSlicesTable = DailyRawSlicesModel::TABLE_PREFIX . date('Y_m_d_H', $timestamp);
-
-        $sql = <<<SQL
-INSERT INTO $dailySlicesTable (metric_id, slice_id, value, minute)
-  SELECT * FROM (SELECT
-    daily_raw_slices.metric_id,
-    daily_raw_slices.slice_id,
-    sum(daily_raw_slices.value) val,
-    daily_raw_slices.minute
-  FROM $dailyRawSlicesTable daily_raw_slices
-  WHERE daily_raw_slices.id >= $startId
-        AND daily_raw_slices.id <= $maxIdForTime
-  GROUP BY daily_raw_slices.metric_id,
-    daily_raw_slices.slice_id,
-    daily_raw_slices.minute) s
-ON DUPLICATE KEY UPDATE
-  $dailySlicesTable.value = $dailySlicesTable.value + s.val
-SQL;
-
-        return $this->getConnection()->getPdo()->query($sql, \PDO::FETCH_ASSOC);
     }
 }

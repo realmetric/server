@@ -20,11 +20,14 @@ namespace App\Models;
 class ModelFactory
 {
     protected $cache = [];
-    protected $queryBuilder = null;
+    /**
+     * @var \Illuminate\Database\Connection
+     */
+    protected $connection;
 
-    public function __construct($queryBuilder)
+    public function __construct($connection)
     {
-        $this->queryBuilder = $queryBuilder;
+        $this->connection = $connection;
     }
 
     /**
@@ -41,7 +44,12 @@ class ModelFactory
         if (!class_exists($className)) {
             throw new \Exception("Model {$name} not exist");
         }
-        $this->cache[$name] = new $className($this->queryBuilder);
+        $this->cache[$name] = new $className($this->connection);
         return $this->cache[$name];
+    }
+
+    public function getConnection()
+    {
+        return $this->connection;
     }
 }

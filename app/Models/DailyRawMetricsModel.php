@@ -11,8 +11,14 @@ class DailyRawMetricsModel extends AbstractModel
     {
         parent::__construct($connection);
 
-        $this->setTable(self::TABLE_PREFIX . date('Y_m_d_H'));
-        $this->createTable($this->getTable());
+        $this->setTableFromTimestamp(time());
+    }
+
+    public function setTableFromTimestamp(int $timestamp)
+    {
+        $this->setTable(self::TABLE_PREFIX . date('Y_m_d_H', $timestamp));
+        $this->createTableIfNotExists();
+        return $this;
     }
 
     protected function createTable($name)

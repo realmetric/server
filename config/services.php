@@ -17,8 +17,8 @@
         $capsule = new Illuminate\Database\Capsule\Manager();
         $capsule->setFetchMode(\PDO::FETCH_ASSOC);
         $capsule->addConnection($config);
-        $builder = $capsule->getConnection();
-        return new \App\Models\ModelFactory($builder);
+        $connection = $capsule->getConnection();
+        return new \App\Models\ModelFactory($connection);
     },
 
     'timer' => function () {
