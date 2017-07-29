@@ -16,7 +16,7 @@ class Metrics extends AbstractCommand
         sleep(3);//prevent supervisord exited too quick error
         while (1) {
             $timeStart = time();
-            $saved = $this->fetch();
+            $saved = $this->fetch($timeStart);
             $this->out("Saved {$saved} daily metrics");
 
             if (!$saved) {
@@ -35,24 +35,31 @@ class Metrics extends AbstractCommand
         }
     }
 
-    private function fetch()
+    private function fetch(int $timestamp)
     {
-        $time = date('Y-m-d H:i:s');
-        $lastCounter = $this->mysql->dailyCounters->getValue(static::COUNTER_NAME);
+        $lastCounter = $this->mysql->dailyCounters
+            ->setTableFromTimestamp($timestamp)
+            ->getValue(static::COUNTER_NAME);
         $startId = $lastCounter ? $lastCounter + 1 : 0;
 
         // Getting maxId bc no order in aggr result
-        $maxId = $this->mysql->dailyRawMetrics->getMaxIdForTime($time);
+        $maxId = $this->mysql->dailyRawMetrics
+            ->setTableFromTimestamp($timestamp)
+            ->getMaxIdForTime($timestamp);
         if ($maxId < $startId) {
             $this->out('No new records in dailyRawMetrics from startId ' . $startId);
             sleep(5);
             return 0;
         }
-        $this->mysql->dailyCounters->updateOrInsert(static::COUNTER_NAME, $maxId);
+        $this->mysql->dailyCounters
+            ->setTableFromTimestamp($timestamp)
+            ->updateOrInsert(static::COUNTER_NAME, $maxId);
         $this->out($startId . ' - ' . $maxId);
 
         // Getting grouped data from RAW
-        $aggregatedData = $this->mysql->dailyRawMetrics->getAggregatedDataByRange($startId, $maxId);
+        $aggregatedData = $this->mysql->dailyRawMetrics
+            ->setTableFromTimestamp($timestamp)
+            ->getAggregatedDataByRange($startId, $maxId);
         if (!count($aggregatedData)) {
             $this->out('No raw data in dailyRawMetrics from startId ' . $startId);
             sleep(5);
@@ -65,7 +72,9 @@ class Metrics extends AbstractCommand
         foreach ($aggregatedData as $row) {
             $res = false;
             try {
-                $res = $this->mysql->dailyMetrics->createOrIncrement($row['metric_id'], $row['value'], $row['minute']);
+                $res = $this->mysql->dailyMetrics
+                    ->setTableFromTimestamp($timestamp)
+                    ->createOrIncrement($row['metric_id'], $row['value'], $row['minute']);
             } catch (\Exception $e) {
                 $this->out($e->getMessage());
             }
