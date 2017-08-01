@@ -40,8 +40,8 @@ class AggrSlices extends AbstractCommand
 INSERT INTO $dailySliceTotalsTable (metric_id, slice_id, value, diff)
   SELECT s.metric_id, s.slice_id, s.val, (case s.sm
                                           -- when s.sm IS NULL then 0
-                                          when 0 then 0
-                                          else ((s.val * 100) / s.sm) - 100 END) AS diff
+                                          when 0 then CAST(0 AS DECIMAL(8,2))
+                                          else CAST(((s.val * 100) / s.sm) - 100 AS DECIMAL(8,2)) END) AS diff
   FROM (SELECT
           daily_slices.metric_id,
           daily_slices.slice_id,
