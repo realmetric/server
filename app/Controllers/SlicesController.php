@@ -29,11 +29,13 @@ class SlicesController extends AbstractController
                 'id' => $sliceId,
                 'name' => $slice['name'],
                 'total' => $values[$sliceId],
-                'diff' =>  isset($diffs[$sliceId]) ? $diffs[$sliceId] : 0,
+                'diff' => isset($diffs[$sliceId]) ? $diffs[$sliceId] : 0,
             ];
         }
+
+        // Sort by value & formatting
+        ksort($result);
         $format = new Format();
-        // Sort by value
         foreach ($result as &$values) {
             usort($values, function ($a, $b) {
                 return $b['total'] - $a['total'];
@@ -177,7 +179,7 @@ class SlicesController extends AbstractController
 
             if (isset($pastPeriodSubtotals[$sliceId])) {
                 $pastValue = $pastPeriodSubtotals[$sliceId]['value'];
-                if ($pastValue != 0){
+                if ($pastValue != 0) {
                     $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastValue) - 100;
                 }
             }
@@ -198,7 +200,7 @@ class SlicesController extends AbstractController
         $pastFrom = $pastFrom->modify('-' . $periodDiffDays . ' day');
         $pastTo = $pastTo->modify('-' . $periodDiffDays . ' day');
         $currentSubtotals = $this->mysql->monthlySlices
-            ->getTotals($from, $to, $metricId,true);
+            ->getTotals($from, $to, $metricId, true);
         $currentSubtotals = $this->prepareSubtotals($currentSubtotals);
         $pastSubtotals = $this->mysql->monthlySlices
             ->getTotals($pastFrom, $pastTo, $metricId, false);
