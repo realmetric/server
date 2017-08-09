@@ -15,7 +15,7 @@ class MetricsController extends AbstractController
         $from = new \DateTime('today');
         $to = new \DateTime();
         $result = $this->getMetricValues($from, $to);
-        ksort($result);
+        ksort($result, SORT_STRING);
 
         $format = new Format();
         // Sort by value
@@ -123,7 +123,7 @@ class MetricsController extends AbstractController
 
             if (isset($pastPeriodSubtotals[$metricId])) {
                 $pastValue = $pastPeriodSubtotals[$metricId]['value'];
-                if ($pastValue != 0){
+                if ($pastValue != 0) {
                     $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastValue) - 100;
                 }
             }
