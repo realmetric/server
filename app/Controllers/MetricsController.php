@@ -15,6 +15,7 @@ class MetricsController extends AbstractController
         $from = new \DateTime('today');
         $to = new \DateTime();
         $result = $this->getMetricValues($from, $to);
+        ksort($result);
 
         $format = new Format();
         // Sort by value
