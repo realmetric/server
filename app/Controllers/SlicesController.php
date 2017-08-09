@@ -67,6 +67,7 @@ class SlicesController extends AbstractController
         }
 
         $result = $this->getSliceValues($from, $to, $metricId);
+        ksort($result);
 
         // Sort by value
         foreach ($result as &$group) {
