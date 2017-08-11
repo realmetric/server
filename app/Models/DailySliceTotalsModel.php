@@ -70,4 +70,20 @@ class DailySliceTotalsModel extends AbstractModel
         $name = self::TABLE_PREFIX . $datePart;
         return $this->shema()->dropIfExists($name);
     }
+
+    public function getTotals($metricId = null, bool $withNamesAndCategories = false): array
+    {
+        $q = $this->qb();
+        if ($withNamesAndCategories) {
+            $q->selectRaw($this->getTable() . '.slice_id as id, slices.name, slices.category, ' . $this->getTable() . '.value as total, ' . $this->getTable() . '.diff')
+                ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id');
+        } else {
+            $q->selectRaw($this->getTable() . '.slice_id as id, ' . $this->getTable() . '.value as total, ' . $this->getTable() . '.diff');
+        }
+        if ($metricId) {
+            $q->where($this->getTable() . '.metric_id', '=', $metricId);
+        }
+
+        return $q->get();
+    }
 }
