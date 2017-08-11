@@ -2,6 +2,11 @@
 define('APP_START_TIME', microtime(true));
 require __DIR__ . '/../vendor/autoload.php';
 $config = require __DIR__ . '/../config/env.php';
+// Config to ENV
+foreach ($config as $name => $value) {
+    putenv($name . '=' . $value);
+}
+
 $services = require __DIR__ . '/../config/services.php';
 $middleware = require __DIR__ . '/../config/middleware.php';
 $routes = require __DIR__ . '/../config/routes.php';
@@ -9,11 +14,6 @@ $routes = require __DIR__ . '/../config/routes.php';
 // Services container
 $container = \Injectable\Factories\LeagueFactory::fromConfig($services);
 \Injectable\ContainerSingleton::setContainer($container);
-
-// Config to ENV
-foreach ($config as $name => $value) {
-    putenv($name . '=' . $value);
-}
 
 // Dispatch Request
 $request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals();

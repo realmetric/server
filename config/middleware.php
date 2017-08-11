@@ -50,6 +50,10 @@
         return $delegate->process($request);
     },
 
+    new \App\Http\Middleware\BasicAuthMiddleware([
+        'user' => getenv('BASIC_AUTH_LOGIN'),
+        'password' => getenv('BASIC_AUTH_PASS'),
+    ]),
     new \FastRouteMiddleware\Router(require __DIR__ . '/routes.php', '\App\Controllers\NotFoundController::showMessage'),
     new \App\Http\Middleware\RequestHandlerMiddleware(),
 ];
