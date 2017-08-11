@@ -105,11 +105,10 @@ class SlicesController extends AbstractController
             $pastDt = new \DateTime();
             $pastDt->modify('-' . $periodDiffDays . ' day');
 
-            //select totals from daily tables
-            $dailyTotals = $this->getTotalsFromDailySlices($dt, $pastDt, $metricId);
             if ($from->getTimestamp() > $yesterdayTimestamp) {
-                $result = $this->formatTotals($dailyTotals['currentSubtotals'], $dailyTotals['pastSubtotals']);
+                $result = $this->getTotalsFromDailySliceTotals($dt, $metricId);
             } else {
+                $dailyTotals = $this->getTotalsFromDailySlices($dt, $pastDt, $metricId);
                 //select totals from monthly table
                 $monthlyTotals = $this->getTotalsFromMonthlySlices(
                     $from,
@@ -168,6 +167,30 @@ class SlicesController extends AbstractController
         ];
     }
 
+    private function getTotalsFromDailySliceTotals(\DateTime $dt, $metricId = null): array
+    {
+        $currentSliceTotalsTable = DailySliceTotalsModel::TABLE_PREFIX . $dt->format('Y_m_d');
+        $result = [];
+        try {
+            $currentSubtotals = $this->mysql->dailySliceTotals
+                ->setTable($currentSliceTotalsTable)
+                ->getTotals($metricId, true);
+            $result = [];
+            foreach ($currentSubtotals as $row){
+                $category = $row['category'];
+                unset($row['category']);
+                $result[$category][] = $row;
+            }
+
+        } catch (QueryException $exception) {
+            if ($exception->getCode() !== '42S02') { //table does not exists
+                throw $exception;
+            }
+        }
+
+        return $result;
+    }
+
     private function formatTotals(array $currentPeriodSubtotals, array $pastPeriodSubtotals): array
     {
         $result = [];
@@ -178,7 +201,9 @@ class SlicesController extends AbstractController
                 'total' => $currentPeriodSubtotal['value'],
             ];
 
-            if (isset($pastPeriodSubtotals[$sliceId])) {
+            if (!empty($currentPeriodSubtotal['diff'])){
+                $data['diff'] = $currentPeriodSubtotal['diff'];
+            } elseif (isset($pastPeriodSubtotals[$sliceId])) {
                 $pastValue = $pastPeriodSubtotals[$sliceId]['value'];
                 if ($pastValue != 0) {
                     $data['diff'] = (($currentPeriodSubtotal['value'] * 100) / $pastValue) - 100;
