@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AggrMetrics extends AbstractCommand
 {
-    const AGGR_PERIOD = 60; //sec
+    const AGGR_PERIOD = 300; //sec
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         while (1) {
