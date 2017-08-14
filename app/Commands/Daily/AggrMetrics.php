@@ -9,6 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AggrMetrics extends AbstractCommand
 {
+    const AGGR_PERIOD = 60; //sec
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         while (1) {
@@ -16,8 +17,8 @@ class AggrMetrics extends AbstractCommand
             $saved = $this->flush($timeStart);
             $this->out("Aggregated {$saved} daily metrics");
             $timeDiff = time() - $timeStart;
-            if ($timeDiff < 60) {
-                sleep(60 - $timeDiff + 1);
+            if ($timeDiff < self::AGGR_PERIOD) {
+                sleep(self::AGGR_PERIOD - $timeDiff + 1);
             }
         }
     }

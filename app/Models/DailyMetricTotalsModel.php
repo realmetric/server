@@ -46,4 +46,20 @@ class DailyMetricTotalsModel extends AbstractModel
         return $this->shema()->dropIfExists($name);
     }
 
+    public function getTotals(bool $withNames = false)
+    {
+        $q = $this->qb();
+        if ($withNames) {
+            $q->selectRaw($this->getTable() . '.metric_id as id, metrics.name, sum(' . $this->getTable() . '.value) as total, ' . $this->getTable() . '.diff')
+                ->join('metrics', $this->getTable() . '.metric_id', '=', 'metrics.id')
+                ->groupBy($this->getTable() . '.metric_id', 'metrics.name', $this->getTable() . '.diff');
+
+        } else {
+            $q->selectRaw($this->getTable() . '.metric_id, sum('. $this->getTable() .'.value) as value, ' . $this->getTable() . '.diff')
+                ->groupBy($this->getTable() . '.metric_id', $this->getTable() . '.diff');
+        }
+
+        return $q->get();
+    }
+
 }

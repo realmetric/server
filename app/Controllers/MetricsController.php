@@ -58,13 +58,20 @@ class MetricsController extends AbstractController
 
     private function getMetricValues(\DateTime $from, \DateTime $to)
     {
-        $dt = new \DateTime();
-        $pastDt = new \DateTime();
-        $periodDiff = $from->diff($to);
-        $periodDiffDays = (int)$periodDiff->format('%a') + 1;
-        $pastDt->modify('-' . $periodDiffDays . ' day');
-        $dailyTotals = $this->getTotalsFromDailyMetrics($dt, $pastDt);
-        $result = $this->formatTotals($dailyTotals['currentSubtotals'], $dailyTotals['pastSubtotals']);
+        $totals = $this->mysql->dailyMetricTotals->getTotals(true);
+        $result = [];
+        foreach ($totals as $row){
+            $nameParts = explode('.', $row['name']);
+            $catName = count($nameParts) > 1 ? $nameParts[0] : 'Other';
+            $result[$catName][] = $row;
+        }
+//        $dt = new \DateTime();
+//        $pastDt = new \DateTime();
+//        $periodDiff = $from->diff($to);
+//        $periodDiffDays = (int)$periodDiff->format('%a') + 1;
+//        $pastDt->modify('-' . $periodDiffDays . ' day');
+//        $dailyTotals = $this->getTotalsFromDailyMetrics($dt, $pastDt);
+//        $result = $this->formatTotals($dailyTotals['currentSubtotals'], $dailyTotals['pastSubtotals']);
         return $result;
     }
 
