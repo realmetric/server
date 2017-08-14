@@ -9,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AggrSlices extends AbstractCommand
 {
+    const AGGR_PERIOD = 300; //sec
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         while (1) {
@@ -16,8 +18,8 @@ class AggrSlices extends AbstractCommand
             $saved = $this->flush($timeStart);
             $this->out("Aggregated {$saved} daily slices");
             $timeDiff = time() - $timeStart;
-            if ($timeDiff < 60) {
-                sleep(60 - $timeDiff + 1);
+            if ($timeDiff < self::AGGR_PERIOD) {
+                sleep(self::AGGR_PERIOD - $timeDiff + 1);
             }
         }
     }
