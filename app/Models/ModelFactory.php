@@ -15,6 +15,7 @@ namespace App\Models;
  * @property MonthlyMetricsModel monthlyMetrics
  * @property MonthlySlicesModel monthlySlices
  * @property CountersModel counters
+ * @property DailyMetricTotalsModel dailyMetricTotals
  */
 
 class ModelFactory
