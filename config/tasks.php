@@ -8,6 +8,7 @@
     new App\Commands\Daily\Metrics('daily:metrics'),
     new App\Commands\Daily\Slices('daily:slices'),
     new App\Commands\Daily\AggrSlices('daily:aggr_slices'),
+    new App\Commands\Daily\AggrMetrics('daily:aggr_metrics'),
 
     new App\Commands\Track('track'),
 ];
