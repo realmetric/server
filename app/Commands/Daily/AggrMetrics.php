@@ -53,7 +53,7 @@ INSERT INTO $dailyMetricTotalsTable (metric_id, value, diff)
                      FROM $dailyMetricsYesterdayTable daily_metrics_diff
                      WHERE daily_metrics_diff.minute < $minute
                      GROUP BY daily_metrics_diff.metric_id
-                    ) df ON daily_slices.metric_id = df.metric_id
+                    ) df ON daily_metrics.metric_id = df.metric_id
         GROUP BY daily_metrics.metric_id) s
 ON DUPLICATE KEY UPDATE
   $dailyMetricTotalsTable.value = s.val,
