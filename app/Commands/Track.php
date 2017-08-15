@@ -59,12 +59,12 @@ class Track extends AbstractCommand
             $value = (int)$data['value'];
             $packer->addMetric($data['metric'], $minute, $value);
 
-//            if (!isset($data['slices'])) {
-//                continue;
-//            }
-//            foreach ($data['slices'] as $category => $slice) {
-//                $packer->addSlice($data['metric'], $category, $slice, $minute, $value);
-//            }
+            if (!isset($data['slices'])) {
+                continue;
+            }
+            foreach ($data['slices'] as $category => $slice) {
+                $packer->addSlice($data['metric'], $category, $slice, $minute, $value);
+            }
         }
         return count($rawEvents);
     }
