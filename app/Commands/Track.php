@@ -17,14 +17,14 @@ class Track extends AbstractCommand
             $res = (int)$this->pack();
             $added += $res;
             if (microtime(true) - $startTime > 59) {
-                $this->output->writeln('Not enough time. ' . $this->redis->track_raw->sCard() . ' left');
+                $this->out->writeln('Not enough time. ' . $this->redis->track_raw->sCard() . ' left');
                 break;
             }
         } while ($res);
-        $this->output->writeln('Packed: ' . $added);
+        $this->out('Packed: ' . $added);
 
         $saved = $this->flush();
-        $this->output->writeln("Saved: $saved");
+        $this->out("Saved: $saved");
     }
 
     private function flush()
@@ -57,12 +57,12 @@ class Track extends AbstractCommand
             $value = (int)$data['value'];
             $packer->addMetric($data['metric'], $minute, $value);
 
-            if (!isset($data['slices'])) {
-                continue;
-            }
-            foreach ($data['slices'] as $category => $slice) {
-                $packer->addSlice($data['metric'], $category, $slice, $minute, $value);
-            }
+//            if (!isset($data['slices'])) {
+//                continue;
+//            }
+//            foreach ($data['slices'] as $category => $slice) {
+//                $packer->addSlice($data['metric'], $category, $slice, $minute, $value);
+//            }
         }
         return count($rawEvents);
     }

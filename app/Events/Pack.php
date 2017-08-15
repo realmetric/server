@@ -68,7 +68,7 @@ class Pack
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
 
             $records[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'minute' => $minute];
-            $this->mysql->dailySliceTotals->addValue($metricId, $sliceId, $value);
+            //$this->mysql->dailySliceTotals->addValue($metricId, $sliceId, $value);
         }
         if (!count($records)) {
             return 0;
