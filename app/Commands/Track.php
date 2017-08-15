@@ -16,11 +16,13 @@ class Track extends AbstractCommand
         do {
             $res = (int)$this->pack();
             $added += $res;
-            if (microtime(true) - $startTime > 59) {
+
+            $time = microtime(true) - $startTime;
+            if ($time > 59) {
                 $this->out->writeln('Not enough time. ' . $this->redis->track_raw->sCard() . ' left');
                 break;
             }
-        } while ($res);
+        } while ($res || $time < 30);
         $this->out('Packed: ' . $added);
 
         $saved = $this->flush();
