@@ -24,6 +24,7 @@ class Pack
     public function flushMetrics()
     {
         $metrics = $this->redis->track_aggr_metrics->getAll();
+        echo 'metrics ' . json_encode($metrics) . PHP_EOL . PHP_EOL;
         $this->redis->track_aggr_metrics->del();
         $records = [];
         foreach ($metrics as $member => $value) {

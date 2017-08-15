@@ -31,7 +31,7 @@ class Track extends AbstractCommand
     {
         $packer = new Pack();
         $count = $packer->flushMetrics();
-        $packer->flushSlices();
+//        $packer->flushSlices();
         return $count;
     }
 
