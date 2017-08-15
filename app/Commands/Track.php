@@ -13,6 +13,7 @@ class Track extends AbstractCommand
     {
         $startTime = microtime(true);
         $added = 0;
+
         do {
             $res = (int)$this->pack();
             $added += $res;
@@ -39,7 +40,6 @@ class Track extends AbstractCommand
 
     private function pack()
     {
-        $packer = new Pack();
         $eventPack = $this->redis->track_raw->sPop();
         if (!$eventPack) {
             return 0;
@@ -50,20 +50,18 @@ class Track extends AbstractCommand
             return 0;
         }
 
-        $minute = (int)(date('H') * 60 + date('i'));
+//        $minute = (int)(date('H') * 60 + date('i'));
         foreach ($rawEvents as $data) {
 //            $ts = strtotime($date);
 //            $minute = date('H', $ts) * 60 + date('i', $ts);
 
             // Force current minute
             $value = (int)$data['value'];
-            $packer->addMetric($data['metric'], $minute, $value);
+            $this->redis->track_aggr_metrics->zIncrBy($data['metric'], $value);
 
-            if (!isset($data['slices'])) {
-                continue;
-            }
             foreach ($data['slices'] as $category => $slice) {
-                $packer->addSlice($data['metric'], $category, $slice, $minute, $value);
+                $slicesKey = implode('|', [$data['metric'], $category, $slice]);
+                $this->redis->track_aggr_metrics->zIncrBy($slicesKey, $value);
             }
         }
         return count($rawEvents);

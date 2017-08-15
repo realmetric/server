@@ -27,14 +27,11 @@ class Pack
         $this->redis->track_aggr_metrics->del();
         $records = [];
         foreach ($metrics as $member => $value) {
-            $memberData = json_decode($member, true);
-            $metricName = $memberData[0];
-//            $minute = $memberData[1];
             $value = (int)$value;
 
             $minute = (int)(date('H') * 60 + date('i'));
             // Find metric
-            $metricId = $this->mysql->metrics->getId($metricName);
+            $metricId = $this->mysql->metrics->getId($member);
 
             $records[] = ['metric_id' => $metricId, 'value' => $value, 'minute' => $minute];
 
