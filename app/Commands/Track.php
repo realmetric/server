@@ -18,8 +18,8 @@ class Track extends AbstractCommand
             $added += $res;
 
             $time = microtime(true) - $startTime;
-            if ($time > 59) {
-                $this->out->writeln('Not enough time. ' . $this->redis->track_raw->sCard() . ' left');
+            if ($time > 50) {
+                $this->out('Not enough time. ' . $this->redis->track_raw->sCard() . ' left');
                 break;
             }
         } while ($res || $time < 30);
