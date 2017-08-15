@@ -61,7 +61,7 @@ class Track extends AbstractCommand
 
             foreach ($data['slices'] as $category => $slice) {
                 $slicesKey = implode('|', [$data['metric'], $category, $slice]);
-                $this->redis->track_aggr_metrics->zIncrBy($slicesKey, $value);
+                $this->redis->track_aggr_slices->zIncrBy($slicesKey, $value);
             }
         }
         return count($rawEvents);
