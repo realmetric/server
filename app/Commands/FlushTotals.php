@@ -24,7 +24,12 @@ class FlushTotals extends AbstractCommand
         }
 
         while (true) {
+            $timeStart = time();
             $this->process();
+            $timeDiff = time() - $timeStart;
+            if ($timeDiff < 60) {
+                sleep(60 - $timeDiff + 1);
+            }
         }
     }
 
@@ -40,7 +45,6 @@ class FlushTotals extends AbstractCommand
             $this->flushTotals();
         } else {
             $this->out('Not time to flush');
-            sleep(60);
         }
 
 
