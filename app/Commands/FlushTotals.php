@@ -26,7 +26,11 @@ class FlushTotals extends AbstractCommand
 
         if ($this->timeToFlush()) {
             $this->flushTotals();
+        } else {
+            $this->out('Not time to flush');
+            sleep(60);
         }
+
 
         if ($this->timeToRestart()) {
             exit(0);
