@@ -11,8 +11,8 @@ class Str extends AbstractCommand
         return $this->connection->get($this->key);
     }
 
-    public function set($value, $timeout = 0):bool
+    public function set($value):bool
     {
-        return $this->connection->set($this->key, $value, $timeout);
+        return $this->connection->set($this->key, $value);
     }
 }
