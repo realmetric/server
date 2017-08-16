@@ -120,7 +120,7 @@ class FlushTotals extends AbstractCommand
 
         $lastFlushTime = $this->redis->flush_totals_time->get() ?? 0;
         if ($minute > $lastFlushTime) {
-            $this->redis->flush_totals_time->set($lastFlushTime, 3600);
+            $this->redis->flush_totals_time->setex($lastFlushTime, 3600);
             return true;
         }
 

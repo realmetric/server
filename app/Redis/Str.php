@@ -15,4 +15,9 @@ class Str extends AbstractCommand
     {
         return $this->connection->set($this->key, $value);
     }
+
+    public function setex($value, $ttl):bool
+    {
+        return $this->connection->setex($this->key, $ttl, $value);
+    }
 }
