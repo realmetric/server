@@ -30,4 +30,9 @@ class KeyLocator
             return new $class($name, $this->connection);
         }
     }
+
+    public function getPipe()
+    {
+        return $this->connection->multi(\Redis::PIPELINE);
+    }
 }

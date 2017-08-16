@@ -34,7 +34,7 @@ class Track extends AbstractCommand
     {
         $packer = new Pack();
         $count = $packer->flushMetrics();
-//        $packer->flushSlices();
+        $packer->flushSlices();
         return $count;
     }
 
@@ -50,6 +50,8 @@ class Track extends AbstractCommand
             return 0;
         }
 
+        $pipe = $this->redis->getPipe();
+
 //        $minute = (int)(date('H') * 60 + date('i'));
         foreach ($rawEvents as $data) {
 //            $ts = strtotime($date);
@@ -57,13 +59,19 @@ class Track extends AbstractCommand
 
             // Force current minute
             $value = (int)$data['value'];
-            $this->redis->track_aggr_metrics->zIncrBy($data['metric'], $value);
+//            $this->redis->track_aggr_metrics->zIncrBy($data['metric'], $value);
+            $pipe->zIncrBy('track_aggr_metrics', $value, $data['metric']);
 
             foreach ($data['slices'] as $category => $slice) {
                 $slicesKey = implode('|', [$data['metric'], $category, $slice]);
-                $this->redis->track_aggr_slices->zIncrBy($slicesKey, $value);
+//                $this->redis->track_aggr_slices->zIncrBy($slicesKey, $value);
+                $pipe->zIncrBy('track_aggr_slices', $value, $slicesKey);
             }
         }
+        if ($rawEvents){
+            $pipe->exec();
+        }
+
         return count($rawEvents);
     }
 }
