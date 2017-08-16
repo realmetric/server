@@ -119,7 +119,7 @@ class DailySlicesModel extends AbstractModel
             ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id')
             ->join('metrics', $this->getTable() . '.metric_id', '=', $this->getTable() . '.metric_id')
             ->where($this->getTable() . '.minute', '<', $minute)
-            ->groupBy($this->getTable() . '.slice_id', 'metric_name', 'slices.name', 'slices.category');
+            ->groupBy('metric_name', 'slices.name', 'slices.category');
         return $q->get();
     }
 
