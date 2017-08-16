@@ -3,15 +3,26 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class FlushTotals extends AbstractCommand
 {
-    private $firstIteration = true;
+    private $refillTotalsFromDb = true;
+
+    protected function configure()
+    {
+        $this->addOption('no-refill', null,InputOption::VALUE_NONE);
+    }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($input->getOption('no-refill')){
+            $this->refillTotalsFromDb = false;
+        }
+
         while (true) {
             $this->process();
         }
@@ -19,9 +30,10 @@ class FlushTotals extends AbstractCommand
 
     public function process()
     {
-        if ($this->firstIteration) {
+//        $this->op
+        if ($this->refillTotalsFromDb) {
             $this->fillTotalsFromDb();
-            $this->firstIteration = false;
+            $this->refillTotalsFromDb = false;
         }
 
         if ($this->timeToFlush()) {
