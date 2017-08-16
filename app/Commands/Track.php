@@ -11,6 +11,13 @@ class Track extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        while (true){
+            $this->process();
+        }
+    }
+
+    public function process()
+    {
         $startTime = microtime(true);
         $added = 0;
 
@@ -62,11 +69,13 @@ class Track extends AbstractCommand
             $value = (int)$data['value'];
 //            $this->redis->track_aggr_metrics->zIncrBy($data['metric'], $value);
             $pipe->zIncrBy('track_aggr_metrics', $value, $data['metric']);
+            $pipe->zIncrBy('track_aggr_metric_totals', $value, $data['metric']);
 
             foreach ($data['slices'] as $category => $slice) {
                 $slicesKey = implode('|', [$data['metric'], $category, $slice]);
 //                $this->redis->track_aggr_slices->zIncrBy($slicesKey, $value);
                 $pipe->zIncrBy('track_aggr_slices', $value, $slicesKey);
+                $pipe->zIncrBy('track_aggr_slice_totals', $value, $slicesKey);
             }
         }
         if ($rawEvents){

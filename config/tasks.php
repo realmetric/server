@@ -11,4 +11,5 @@
     new App\Commands\Daily\AggrMetrics('daily:aggr_metrics'),
 
     new App\Commands\Track('track'),
+    new App\Commands\FlushTotals('flush_totals'),
 ];

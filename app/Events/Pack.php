@@ -39,7 +39,7 @@ class Pack
         if (!count($records)) {
             return 0;
         }
-        $this->mysql->dailyMetrics->insertBatch($records);
+        $this->mysql->dailyMetrics->setTableFromTimestamp(time())->insertBatch($records);
         return count($records);
     }
 
@@ -61,9 +61,7 @@ class Pack
             $sliceName = (string)$sliceName;
 
             $minute = (int)(date('H') * 60 + date('i'));
-            if (!$metricName){
-                continue;
-            }
+
             // Find metrics and slices
             $metricId = $this->mysql->metrics->getId($metricName);
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
@@ -74,7 +72,7 @@ class Pack
         if (!count($records)) {
             return 0;
         }
-        $this->mysql->dailySlices->insertBatch($records);
+        $this->mysql->dailySlices->setTableFromTimestamp(time())->insertBatch($records);
 
         return count($records);
     }

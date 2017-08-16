@@ -111,6 +111,18 @@ class DailySlicesModel extends AbstractModel
 
     }
 
+    public function getTotalsWithCategoryNames(int $timestamp):array
+    {
+        $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
+        $q = $this->qb()
+            ->selectRaw('metrics.name as metric_name, slices.name, slices.category, sum(' . $this->getTable() . '.value) as value')
+            ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id')
+            ->join('metrics', $this->getTable() . '.metric_id', '=', $this->getTable() . '.metric_id')
+            ->where($this->getTable() . '.minute', '<', $minute)
+            ->groupBy($this->getTable() . '.slice_id', 'metric_name', 'slices.name', 'slices.category');
+        return $q->get();
+    }
+
     public function dropTable($datePart)
     {
         $name = self::TABLE_PREFIX . $datePart;
