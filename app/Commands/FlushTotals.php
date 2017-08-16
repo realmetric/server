@@ -175,6 +175,7 @@ class FlushTotals extends AbstractCommand
         $lastStart = $this->redis->flush_totals_reset_time->get();
 
         if (is_numeric($lastStart) && $lastStart < strtotime('today')) {
+            $this->out($lastStart);
             return true;
         }
 
