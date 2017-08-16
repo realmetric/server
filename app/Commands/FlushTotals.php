@@ -21,6 +21,7 @@ class FlushTotals extends AbstractCommand
     {
         if ($input->getOption('no-refill')){
             $this->refillTotalsFromDb = false;
+            $this->redis->flush_totals_reset_time->set(time());
         }
 
         while (true) {
