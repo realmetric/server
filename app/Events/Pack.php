@@ -49,7 +49,8 @@ class Pack
         $this->redis->track_aggr_slices->del();
         $records = [];
         foreach ($slices as $member => $value) {
-            $memberData = json_decode($member, true);
+//            $memberData = json_decode($member, true);
+            $memberData = explode('|', $member);
             $metricName = $memberData[0];
             $category = $memberData[1];
             $sliceName = $memberData[2];
