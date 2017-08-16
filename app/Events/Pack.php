@@ -60,6 +60,9 @@ class Pack
             $sliceName = (string)$sliceName;
 
             $minute = (int)(date('H') * 60 + date('i'));
+            if (!$metricName){
+                continue;
+            }
             // Find metrics and slices
             $metricId = $this->mysql->metrics->getId($metricName);
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
