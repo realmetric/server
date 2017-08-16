@@ -72,6 +72,6 @@ class Pack
         }
         $this->mysql->dailySlices->insertBatch($records);
 
-        return count($slices);
+        return count($records);
     }
 }
