@@ -12,7 +12,12 @@ class Track extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         while (true){
+            $timeStart = time();
             $this->process();
+            $timeDiff = time() - $timeStart;
+            if ($timeDiff < 60) {
+                sleep(60 - $timeDiff + 1);
+            }
         }
     }
 
