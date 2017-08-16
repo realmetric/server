@@ -116,8 +116,8 @@ class DailySlicesModel extends AbstractModel
         $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
         $q = $this->qb()
             ->selectRaw('metrics.name as metric_name, slices.name, slices.category, sum(' . $this->getTable() . '.value) as value')
-            ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id')
-            ->join('metrics', $this->getTable() . '.metric_id', '=', $this->getTable() . '.metric_id')
+            ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id', 'left')
+            ->join('metrics', $this->getTable() . '.metric_id', '=', 'metrics.id', 'left')
             ->where($this->getTable() . '.minute', '<', $minute)
             ->groupBy('metric_name', 'slices.name', 'slices.category');
         return $q->get();
