@@ -126,7 +126,7 @@ class FlushTotals extends AbstractCommand
         $this->redis->track_aggr_metric_totals->del();
         $pipe = $this->redis->getPipe();
         foreach ($metrics as $metric) {
-            $pipe->zIncrBy('track_aggr_metric_totals', $metric['value'], $metric['name']);
+            $pipe->zIncrBy('track_aggr_metric_totals', (int)$metric['value'], $metric['name']);
         }
         $pipe->exec();
 
@@ -144,7 +144,7 @@ class FlushTotals extends AbstractCommand
         $pipe = $this->redis->getPipe();
         foreach ($slices as $slice) {
             $slicesKey = implode('|', [$slice['metric_name'], $slice['category'], $slice['name']]);
-            $pipe->zIncrBy('track_aggr_slice_totals', $slice['value'], $slicesKey);
+            $pipe->zIncrBy('track_aggr_slice_totals', (int)$slice['value'], $slicesKey);
         }
         $pipe->exec();
         return count($slices);
