@@ -39,7 +39,7 @@ class Pack
         if (!count($records)) {
             return 0;
         }
-        $this->mysql->dailyMetrics->insertBatch($records);
+        $this->mysql->dailyMetrics->setTableFromTimestamp(time())->insertBatch($records);
         return count($records);
     }
 
@@ -49,7 +49,8 @@ class Pack
         $this->redis->track_aggr_slices->del();
         $records = [];
         foreach ($slices as $member => $value) {
-            $memberData = json_decode($member, true);
+//            $memberData = json_decode($member, true);
+            $memberData = explode('|', $member);
             $metricName = $memberData[0];
             $category = $memberData[1];
             $sliceName = $memberData[2];
@@ -60,6 +61,7 @@ class Pack
             $sliceName = (string)$sliceName;
 
             $minute = (int)(date('H') * 60 + date('i'));
+
             // Find metrics and slices
             $metricId = $this->mysql->metrics->getId($metricName);
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
@@ -70,8 +72,8 @@ class Pack
         if (!count($records)) {
             return 0;
         }
-        $this->mysql->dailySlices->insertBatch($records);
+        $this->mysql->dailySlices->setTableFromTimestamp(time())->insertBatch($records);
 
-        return count($slices);
+        return count($records);
     }
 }

@@ -11,6 +11,18 @@ class Track extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        while (true){
+            $timeStart = time();
+            $this->process();
+            $timeDiff = time() - $timeStart;
+            if ($timeDiff < 60) {
+                sleep(60 - $timeDiff + 1);
+            }
+        }
+    }
+
+    public function process()
+    {
         $startTime = microtime(true);
         $added = 0;
 
@@ -34,7 +46,8 @@ class Track extends AbstractCommand
     {
         $packer = new Pack();
         $count = $packer->flushMetrics();
-//        $packer->flushSlices();
+        $slicesCount = $packer->flushSlices();
+        $this->out('Slices count: '.$slicesCount);
         return $count;
     }
 
@@ -50,6 +63,8 @@ class Track extends AbstractCommand
             return 0;
         }
 
+        $pipe = $this->redis->getPipe();
+
 //        $minute = (int)(date('H') * 60 + date('i'));
         foreach ($rawEvents as $data) {
 //            $ts = strtotime($date);
@@ -57,13 +72,21 @@ class Track extends AbstractCommand
 
             // Force current minute
             $value = (int)$data['value'];
-            $this->redis->track_aggr_metrics->zIncrBy($data['metric'], $value);
+//            $this->redis->track_aggr_metrics->zIncrBy($data['metric'], $value);
+            $pipe->zIncrBy('track_aggr_metrics', $value, $data['metric']);
+            $pipe->zIncrBy('track_aggr_metric_totals', $value, $data['metric']);
 
             foreach ($data['slices'] as $category => $slice) {
                 $slicesKey = implode('|', [$data['metric'], $category, $slice]);
-                $this->redis->track_aggr_slices->zIncrBy($slicesKey, $value);
+//                $this->redis->track_aggr_slices->zIncrBy($slicesKey, $value);
+                $pipe->zIncrBy('track_aggr_slices', $value, $slicesKey);
+                $pipe->zIncrBy('track_aggr_slice_totals', $value, $slicesKey);
             }
         }
+        if ($rawEvents){
+            $pipe->exec();
+        }
+
         return count($rawEvents);
     }
 }

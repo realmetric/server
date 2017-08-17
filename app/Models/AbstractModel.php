@@ -144,6 +144,11 @@ abstract class AbstractModel
         return $this->qb()->get($columns);
     }
 
+    public function truncate()
+    {
+        $this->qb()->truncate();
+    }
+
     abstract protected function createTable($name);
 
     protected function createTableIfNotExists()
