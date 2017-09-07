@@ -23,10 +23,14 @@
     }
 ]
 ```
+```php
+$data = gzcompress(json_encode($events));
+curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
+```
 
 # Installing
 ```shell
-# All in ROOT
+# All via ROOT
 apt-get update
 
 # Enable swap
@@ -43,61 +47,4 @@ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/
 sudo apt-get install supervisor
 sudo ln -s /home/wdata/server/config/supervisor.conf /etc/supervisor/conf.d/tasks.conf
 sudo service supervisor reload
-```
-
-### Configuring mysql (mysql.cfg) 
-```shell
-[mysqld]
-pid-file	                   = /var/run/mysqld/mysqld.pid
-socket		                   = /var/run/mysqld/mysqld.sock
-# By default we only accept connections from localhost
-bind-address	               = 127.0.0.1
-# Disabling symbolic-links is recommended to prevent assorted security risks
-symbolic-links=0
-
-# MyISAM #
-key-buffer-size                = 16M
-
-# SAFETY #
-max-allowed-packet             = 16M
-max-connect-errors             = 1000000
-skip-name-resolve
-
-# DATA STORAGE #
-datadir                        = /var/lib/mysql/
-default-storage-engine         = InnoDB
-
-# CACHES AND LIMITS #
-tmp-table-size                 = 32M
-max-heap-table-size            = 32M
-query-cache-type               = 0
-query-cache-size               = 0
-max-connections                = 20
-thread-cache-size              = 50
-open-files-limit               = 65535
-table-definition-cache         = 1024
-table-open-cache               = 2048
-
-# INNODB #
-innodb-flush-method            = O_DIRECT
-innodb-log-files-in-group      = 2
-innodb-log-file-size           = 64M
-innodb-flush-log-at-trx-commit = 1
-innodb-file-per-table          = 1
-innodb-buffer-pool-size        = 160M
-
-# LOGGING #
-log-error                      = /var/log/mysql/error.log
-log-queries-not-using-indexes  = 1
-slow-query-log                 = 0
-slow-query-log-file            = /var/lib/mysql/mysql-slow.log
-
-
-#BLACKHOLE MRG_MYISAM ARCHIVE FEDERATED
-
-#skip-federated
-#skip-blackhole
-skip-archive
-#skip-mrg_myisam
-
 ```
