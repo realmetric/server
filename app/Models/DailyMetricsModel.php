@@ -90,4 +90,20 @@ class DailyMetricsModel extends AbstractModel
         $name = self::TABLE_PREFIX . $datePart;
         return $this->shema()->dropIfExists($name);
     }
+
+    public function insertBatch(array $arraysOfData)
+    {
+        $keys = array_keys($arraysOfData[0]);
+        $values = [];
+
+        foreach ($arraysOfData as $data) {
+            foreach ($data as $key => $value) {
+                $values[] = $value;
+            }
+        }
+
+        $updateSql = 'value = value+VALUES(value)';
+
+        $this->insertBatchRaw($keys, $values, $updateSql);
+    }
 }
