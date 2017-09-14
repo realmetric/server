@@ -105,7 +105,7 @@ abstract class AbstractModel
         $this->insertBatchRaw($keys, $values);
     }
 
-    public function insertBatchRaw(array $keys, array $values, $updateSql = null)
+    public function insertBatchRaw(array $keys, array $values)
     {
         // Hard but fast
         $keysCount = count($keys);
@@ -128,9 +128,7 @@ abstract class AbstractModel
             $valuesSqlPart = implode(',', $valuesSqlPart);
 
             $sql = "insert into `{$table}` ({$keys}) values {$valuesSqlPart}";
-            if (!empty($updateSql)){
-                $sql .= " ON DUPLICATE KEY UPDATE " . $updateSql;
-            }
+            
             $this->connection->getPdo()
                 ->prepare($sql)
                 ->execute($valuesPart);

@@ -91,19 +91,4 @@ class DailyMetricsModel extends AbstractModel
         return $this->shema()->dropIfExists($name);
     }
 
-    public function insertBatch(array $arraysOfData)
-    {
-        $keys = array_keys($arraysOfData[0]);
-        $values = [];
-
-        foreach ($arraysOfData as $data) {
-            foreach ($data as $key => $value) {
-                $values[] = $value;
-            }
-        }
-
-        $updateSql = 'value = value+VALUES(value)';
-
-        $this->insertBatchRaw($keys, $values, $updateSql);
-    }
 }

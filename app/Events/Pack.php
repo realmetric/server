@@ -32,8 +32,11 @@ class Pack
             $minute = (int)(date('H') * 60 + date('i'));
             // Find metric
             $metricId = $this->mysql->metrics->getId($member);
-
-            $records[] = ['metric_id' => $metricId, 'value' => $value, 'minute' => $minute];
+            if (isset($records[$metricId])){
+                $records[$metricId]['value'] += $value;
+            } else {
+                $records[$metricId] = ['metric_id' => $metricId, 'value' => $value, 'minute' => $minute];
+            }
 
         }
         if (!count($records)) {
@@ -66,7 +69,13 @@ class Pack
             $metricId = $this->mysql->metrics->getId($metricName);
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
 
-            $records[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'minute' => $minute];
+            $uniqueKey = $metricId . '_' . $sliceId;
+            if (isset($records[$uniqueKey])){
+                $records[$uniqueKey]['value'] += $value;
+            } else {
+                $records[$uniqueKey] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'minute' => $minute];
+            }
+
             //$this->mysql->dailySliceTotals->addValue($metricId, $sliceId, $value);
         }
         if (!count($records)) {
