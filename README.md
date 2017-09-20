@@ -3,9 +3,9 @@
 ```json
 [
     {
-        "metric": "Product.Some.Metric",
-        "value": 123.78,
-        "time": "",
+        "metric": "Product.Metric",
+        "value": 12355,
+        "time": 1505906051,
         "slices": [
             {
                 "category": "project",
@@ -18,7 +18,7 @@
         ]
     },
     {
-        "metric": "Product.Some.Metric2",
+        "metric": "Product.Metric2",
         "slices": "..."
     }
 ]
