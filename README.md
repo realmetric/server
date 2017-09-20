@@ -8,12 +8,11 @@
         "time": 1505906051,
         "slices": [
             {
-                "category": "project",
-                "name": "some_project_1"
+                "project": "some_project_1",
+                "lifetime": 5,
             },
             {
-                "category": "paid",
-                "name": "yes"
+                "category": "name",
             }
         ]
     },
