@@ -1,7 +1,4 @@
-* * * * * /home/ubuntu/www/realmetric/server/run raw:track >>/home/ubuntu/www/realmetric/server/logs/commands/raw_track.log 2>&1
-* * * * * /home/ubuntu/www/realmetric/server/run raw:metrics >>/home/ubuntu/www/realmetric/server/logs/commands/raw_metrics.log 2>&1
-* * * * * /home/ubuntu/www/realmetric/server/run raw:slices >>/home/ubuntu/www/realmetric/server/logs/commands/raw_slices.log 2>&1
-0 * * * * /home/ubuntu/www/realmetric/server/run clean:raw >>/home/ubuntu/www/realmetric/server/logs/commands/clean_raw.log 2>&1
-0 0 * * * /home/ubuntu/www/realmetric/server/run clean:old >>/home/ubuntu/www/realmetric/server/logs/commands/clean_old.log 2>&1
-0 0 * * * /home/ubuntu/www/realmetric/server/run daily:metrics >>/home/ubuntu/www/realmetric/server/logs/commands/daily_metrics.log 2>&1
-0 0 * * * /home/ubuntu/www/realmetric/server/run daily:slices >>/home/ubuntu/www/realmetric/server/logs/commands/daily_slices.log 2>&1
+0 * * * * /home/wdata/server/run clean:raw >> /home/wdata/server/logs/commands/clean_raw.log 2>&1
+0 0 * * * /home/wdata/server/run clean:old >> /home/wdata/server/logs/commands/clean_old.log 2>&1
+0 0 * * * /home/wdata/server/run daily:metrics >> /home/wdata/server/logs/commands/daily_metrics.log 2>&1
+0 0 * * * /home/wdata/server/run daily:slices >> /home/wdata/server/logs/commands/daily_slices.log 2>&1
