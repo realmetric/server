@@ -14,10 +14,12 @@ class DailyMetricsModel extends AbstractModel
         $this->setTableFromTimestamp(time());
     }
 
-    public function setTableFromTimestamp(int $timestamp)
+    public function setTableFromTimestamp(int $timestamp, bool $createTableIfNotExists = true)
     {
         $this->setTable(self::TABLE_PREFIX . date('Y_m_d', $timestamp));
-        $this->createTableIfNotExists();
+        if ($createTableIfNotExists){
+            $this->createTableIfNotExists();
+        }
         return $this;
     }
 
