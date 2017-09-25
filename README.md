@@ -30,7 +30,18 @@ curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
 # Installing
 ```shell
 # All via ROOT
+sudo -i
+
+# Add repos
+add-apt-repository ppa:ondrej/php
 apt-get update
+
+# PHP 7.1
+apt-get install php7.1
+apt-get install php7.1-mbstring 
+
+# Composer
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 
 # Enable swap
 dd if=/dev/zero of=/swapspace bs=1M count=4000
