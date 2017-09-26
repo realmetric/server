@@ -76,9 +76,13 @@ class ValuesController extends AbstractController
                     ->getByMetricId($metricId);
                 if ($data){
                     $result[$dt->format('Y-m-d')] = array_column($data, 'value', 'minute');
+                } else {
+                    $result[$dt->format('Y-m-d')] = null;
                 }
             } catch (QueryException $exception) {
-                if ($exception->getCode() !== '42S02') { //table does not exists
+                if ($exception->getCode() === '42S02') { //table does not exists
+                    $result[$dt->format('Y-m-d')] = null;
+                } else {
                     throw $exception;
                 }
             }
@@ -100,6 +104,8 @@ class ValuesController extends AbstractController
         if ($data){
             $result = array_column($data, 'value', 'date');
         }
+
+        $result = $this->formatDaysResult($result, $from, $to);
 
         return $result;
     }
@@ -126,9 +132,13 @@ class ValuesController extends AbstractController
                     ->getValues($metricId, $sliceId);
                 if ($data){
                     $result[$dt->format('Y-m-d')] = array_column($data, 'value', 'minute');
+                } else {
+                    $result[$dt->format('Y-m-d')] = null;
                 }
             } catch (QueryException $exception) {
-                if ($exception->getCode() !== '42S02') { //table does not exists
+                if ($exception->getCode() === '42S02') { //table does not exists
+                    $result[$dt->format('Y-m-d')] = null;
+                } else {
                     throw $exception;
                 }
             }
@@ -144,7 +154,27 @@ class ValuesController extends AbstractController
         \DateTime $to = null
     ): array
     {
-        return array_column($this->mysql->monthlySlices
-            ->getValues($metricId, $sliceId, $from, $to), 'value', 'date');
+        $result = [];
+        $data = $this->mysql->monthlySlices
+            ->getValues($metricId, $sliceId, $from, $to);
+        if ($data){
+            $result = array_column($data, 'value', 'date')
+        }
+
+        $result = $this->formatDaysResult($result, $from, $to);
+
+        return $result;
+    }
+
+    private function formatDaysResult(array $result, \DateTime $from = null, \DateTime $to = null)
+    {
+        $interval = \DateInterval::createFromDateString('1 day');
+        $period = new \DatePeriod($from, $interval, $to);
+        foreach ($period as $dt) {
+            if (!isset($result[$dt->format('Y-m-d')])){
+                $result[$dt->format('Y-m-d')] = null;
+            }
+        }
+        return $result;
     }
 }
