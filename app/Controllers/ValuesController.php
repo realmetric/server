@@ -158,7 +158,7 @@ class ValuesController extends AbstractController
         $data = $this->mysql->monthlySlices
             ->getValues($metricId, $sliceId, $from, $to);
         if ($data){
-            $result = array_column($data, 'value', 'date')
+            $result = array_column($data, 'value', 'date');
         }
 
         $result = $this->formatDaysResult($result, $from, $to);
