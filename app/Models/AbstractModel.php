@@ -93,7 +93,7 @@ abstract class AbstractModel
 
     public function insertBatch(array $arraysOfData)
     {
-        $keys = array_keys($arraysOfData[0]);
+        $keys = array_keys(reset($arraysOfData));
         $values = [];
 
         foreach ($arraysOfData as $data) {
