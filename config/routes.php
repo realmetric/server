@@ -11,6 +11,7 @@
     // Track new data
     ['GET', '/track/testdata', 'App\Controllers\TrackController::createTest'],
     ['POST', '/track', 'App\Controllers\TrackController::create'],
+    ['POST', '/track/one', 'App\Controllers\TrackController::createOne'],
 
     // Values for graph
     ['GET', '/values/minutes', 'App\Controllers\ValuesController::minutes'],

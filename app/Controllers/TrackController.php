@@ -14,6 +14,13 @@ class TrackController extends AbstractController
         $added = (int)$this->redis->track_raw->sAdd($data);
         return $this->jsonResponse(['createdEvents' => $added]);
     }
+    
+    public function createOne()
+    {
+        $data = file_get_contents('php://input');
+        $added = (int)$this->redis->track_raw->sAdd($data);
+        return $this->jsonResponse(['createdEvents' => $added]);
+    }
 
     public function createTest()
     {
