@@ -20,4 +20,9 @@ class Set extends AbstractCommand
     {
         return $this->connection->sPop($this->key);
     }
+
+    public function del(): int
+    {
+        return $this->connection->del($this->key);
+    }
 }

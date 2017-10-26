@@ -32,7 +32,12 @@ class Track extends AbstractCommand
 
             $time = microtime(true) - $startTime;
             if ($time > 60) {
-                $this->out('Not enough time. ' . $this->redis->track_raw->sCard() . ' left');
+                $cnt = $this->redis->track_raw->sCard();
+                if ($cnt){
+                    $this->out('Not enough time. ' . $cnt . ' left');
+                    $this->redis->track_raw->del();
+                    $this->out('[!] Deleted track_raw from redis');
+                }
             }
         } while ($time < 60);
         $this->out('Packed: ' . $added);
