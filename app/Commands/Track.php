@@ -81,9 +81,6 @@ class Track extends AbstractCommand
             $pipe->zIncrBy('track_aggr_metric_totals', $value, $data['metric']);
 
             foreach ($data['slices'] as $category => $slice) {
-                if (!mt_rand(0,10000)){
-                    var_dump($data);
-                }
                 $slicesKey = implode('|', [$data['metric'], $category, $slice]);
 //                $this->redis->track_aggr_slices->zIncrBy($slicesKey, $value);
                 $pipe->zIncrBy('track_aggr_slices', $value, $slicesKey);
