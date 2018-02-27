@@ -47,7 +47,7 @@ class FlushTotals extends AbstractCommand
             $this->out('Not time to flush');
         }
 
-        if (!mt_rand(0, 9) || $this->timeToRestart()) {
+        if (!mt_rand(0, 99) || $this->timeToRestart()) {
             $this->out('Time to restart');
             exit(0);
         }
