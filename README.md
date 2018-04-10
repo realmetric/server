@@ -1,6 +1,7 @@
-# API points:
-### POST: /track
+# How to Track events:
+### Prepare json with arrays of data
 ```json
+# events
 [
     {
         "metric": "Product.Metric",
@@ -22,10 +23,31 @@
     }
 ]
 ```
+### Compress data with gzip
 ```php
-$data = gzcompress(json_encode($events));
+# PHP
+$data = gzcompress(json_encode(events));
+```
+```python
+# Python
+data = zlib.compress(events)
+```
+
+### Make POST request to /track
+```php
+# PHP
 curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
 ```
+```python
+# Python
+# http://docs.python-requests.org
+r = requests.post(url, json=data)
+```
+
+
+
+
+
 
 # Installing
 ```shell
