@@ -47,7 +47,9 @@ class BasicAuthMiddleware implements MiddlewareInterface
         $user = $serverParams['PHP_AUTH_USER'] ?? null;
         $password = $serverParams['PHP_AUTH_PW'] ?? null;
 
-        if ($user !== $this->options['user'] || $password !== $this->options['password']){
+        $passHash = sha1($password);
+        if ($user !== $this->options['user'] ||
+            ($password !== $this->options['password'] && $passHash !== $this->options['password'])){
             return false;
         }
 
