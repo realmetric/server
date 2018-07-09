@@ -91,6 +91,8 @@ class FlushTotals extends AbstractCommand
         }
 
         $records = [];
+
+        $preventedSlices = []; // prevent mysql index error kostyl
         foreach ($slices as $member => $value) {
             $memberData = explode('|', $member);
             $metricName = $memberData[0];
@@ -102,7 +104,13 @@ class FlushTotals extends AbstractCommand
             $metricId = $this->mysql->metrics->getId($metricName);
             $sliceId = $this->mysql->slices->getId($category, $sliceName);
 
+            if (isset($preventedSlices[$metricId]) && isset($preventedSlices[$metricId][$sliceId])){
+                $value += $preventedSlices[$metricId][$sliceId];
+            }
+
             $records[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'diff' => 0];
+
+            $preventedSlices[$metricId][$sliceId] = $value;
 
         }
         $this->mysql->dailySliceTotals->setTableFromTimestamp(time())->truncate();
