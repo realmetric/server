@@ -108,11 +108,18 @@ class FlushTotals extends AbstractCommand
                 $value += $preventedSlices[$metricId][$sliceId];
             }
 
-            $records[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'diff' => 0];
+//            $records[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'diff' => 0];
 
             $preventedSlices[$metricId][$sliceId] = $value;
 
         }
+
+        foreach ($preventedSlices as $metricId => $slices){
+            foreach ($slices as $sliceId=>$value){
+                $records[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'diff' => 0];
+            }
+        }
+
         $this->mysql->dailySliceTotals->setTableFromTimestamp(time())->truncate();
         $this->mysql->dailySliceTotals->setTableFromTimestamp(time())->insertBatch($records);
         return count($records);
