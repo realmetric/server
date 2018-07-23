@@ -24,7 +24,7 @@ class BasicAuthMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         if (!$this->authenticate($request)){
-            return new Response(401, [], 'Access denied');
+            return new Response(401, [], 'Auth user/pass is wrong (Basic with sha1 of pass)');
         }
         return $delegate->process($request);
     }
