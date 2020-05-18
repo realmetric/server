@@ -31,7 +31,7 @@ class DailyCountersModel extends AbstractModel
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->string('name');
-            $table->unsignedInteger('value');
+            $table->unsignedBigInteger('value');
 
             $table->index('name');
 

@@ -32,8 +32,8 @@ class DailyMetricTotalsModel extends AbstractModel
         $this->shema()->create($name, function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
-            $table->unsignedSmallInteger('metric_id');
-            $table->integer('value');
+            $table->unsignedBigInteger('metric_id');
+            $table->bigInteger('value');
             $table->float('diff')->default(0);
 
             $table->unique(['metric_id']);

@@ -32,9 +32,9 @@ class DailySliceTotalsModel extends AbstractModel
         $this->shema()->create($name, function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
-            $table->unsignedSmallInteger('metric_id');
-            $table->unsignedSmallInteger('slice_id');
-            $table->integer('value');
+            $table->unsignedInteger('metric_id');
+            $table->unsignedInteger('slice_id');
+            $table->unsignedBigInteger('value');
             $table->float('diff')->default(0);
 
             $table->unique(['metric_id', 'slice_id']);

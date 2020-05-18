@@ -24,8 +24,8 @@ class MonthlySlicesModel extends AbstractModel
         $this->shema()->create($name, function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
-            $table->unsignedSmallInteger('metric_id');
-            $table->unsignedSmallInteger('slice_id');
+            $table->unsignedInteger('metric_id');
+            $table->unsignedInteger('slice_id');
             $table->double('value');
             $table->date('date');
 

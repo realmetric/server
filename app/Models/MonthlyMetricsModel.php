@@ -24,7 +24,7 @@ class MonthlyMetricsModel extends AbstractModel
         $this->shema()->create($name, function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
-            $table->unsignedSmallInteger('metric_id');
+            $table->unsignedInteger('metric_id');
             $table->double('value');
             $table->date('date');
 

@@ -32,9 +32,9 @@ class DailyMetricsModel extends AbstractModel
         $this->shema()->create($name, function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
-            $table->unsignedSmallInteger('metric_id');
-            $table->integer('value');
-            $table->unsignedSmallInteger('minute');
+            $table->unsignedInteger('metric_id');
+            $table->unsignedBigInteger('value');
+            $table->unsignedInteger('minute');
 
             $table->index('metric_id');
             $table->unique(['metric_id', 'minute']);
