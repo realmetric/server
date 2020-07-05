@@ -17,7 +17,7 @@ class DailyMetricsModel extends AbstractModel
     public function setTableFromTimestamp(int $timestamp, bool $createTableIfNotExists = true)
     {
         $this->setTable(self::TABLE_PREFIX . date('Y_m_d', $timestamp));
-        if ($createTableIfNotExists){
+        if ($createTableIfNotExists) {
             $this->createTableIfNotExists();
         }
         return $this;
@@ -37,11 +37,12 @@ class DailyMetricsModel extends AbstractModel
             $table->unsignedInteger('minute');
 
             $table->index('metric_id');
+            $table->index('minute');
             $table->unique(['metric_id', 'minute']);
         });
     }
 
-    public function createOrIncrement(int $metricId, int $value, int $minute) : int
+    public function createOrIncrement(int $metricId, int $value, int $minute): int
     {
         // Check exist
         $id = $this->qb()->where('metric_id', $metricId)
@@ -62,6 +63,14 @@ class DailyMetricsModel extends AbstractModel
         return $this->insert($data);
     }
 
+    public function getMetricsByMinute(int $minute)
+    {
+        return $this->qb()
+            ->where('minute', $minute)
+            ->distinct()
+            ->pluck('metric_id');
+    }
+
     public function getTotals(int $timestamp, bool $withNames = false)
     {
         $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
@@ -72,7 +81,7 @@ class DailyMetricsModel extends AbstractModel
                 ->groupBy($this->getTable() . '.metric_id', 'metrics.name');
 
         } else {
-            $q->selectRaw($this->getTable() . '.metric_id, sum('. $this->getTable() .'.value) as value')
+            $q->selectRaw($this->getTable() . '.metric_id, sum(' . $this->getTable() . '.value) as value')
                 ->groupBy('metric_id');
         }
 

@@ -8,6 +8,7 @@ namespace App\Models;
  * @property SlicesModel slices
  * @property DailyMetricsModel dailyMetrics
  * @property DailySlicesModel dailySlices
+ * @property DailySliceIntersect10Model dailySliceIntersect10
  * @property DailySliceTotalsModel dailySliceTotals
  * @property DailyRawMetricsModel dailyRawMetrics
  * @property DailyRawSlicesModel dailyRawSlices

@@ -58,6 +58,14 @@ class DailySlicesModel extends AbstractModel
             ->get(['slice_id', 'minute', 'value']);
     }
 
+    public function getSlicesByMetric(int $metricId, int $minute)
+    {
+        return $this->qb()
+            ->where('metric_id', $metricId)
+            ->where('minute', $minute)
+            ->pluck('slice_id');
+    }
+
     public function getMetricsBySlice(int $sliceId)
     {
         return $this->qb()->where('slice_id', $sliceId)
@@ -111,7 +119,7 @@ class DailySlicesModel extends AbstractModel
 
     }
 
-    public function getTotalsWithCategoryNames(int $timestamp):array
+    public function getTotalsWithCategoryNames(int $timestamp): array
     {
         $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
         $q = $this->qb()
@@ -129,7 +137,7 @@ class DailySlicesModel extends AbstractModel
         return $this->shema()->dropIfExists($name);
     }
 
-    public function getDiff($metricId, $sliceId, $value, $minute) : float
+    public function getDiff($metricId, $sliceId, $value, $minute): float
     {
         $yesterdayValue = $this->qb()
             ->selectRaw('sum(value) as value')
@@ -139,7 +147,7 @@ class DailySlicesModel extends AbstractModel
             ->value('value');
 
         if (!$yesterdayValue) {
-            return (float) 0;
+            return (float)0;
         }
 
         $diffPercent = (($value * 100) / $yesterdayValue) - 100;
