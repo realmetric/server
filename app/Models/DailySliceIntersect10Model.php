@@ -51,35 +51,20 @@ class DailySliceIntersect10Model extends AbstractModel
     }
 
 
-    public function createOrIncrement(int $metricId, array $slices, int $value, int $minute): int
+    public function createBatchSlices(int $metricId, array $arrayOfSlices, int $value, int $minute)
     {
-        sort($slices);
-
-        // Check exist
-        $q = $this->qb()->where('metric_id', $metricId);
-        foreach ($slices as $sliceIndex => $slice) {
-            $q->where('slice_' . $sliceIndex, $slice);
+        $insertData = [];
+        foreach ($arrayOfSlices as $slices) {
+            $insertRow = [
+                'metric_id' => $metricId,
+                'value' => $value,
+                'minute' => $minute
+            ];
+            foreach ($slices as $index => $slice) {
+                $insertRow['slice_' . $index] = $slice;
+            }
+            $insertData[] = $insertRow;
         }
-        $q->where('minute', $minute);
-        $id = $q->value('id');
-
-        // Increment instead Insert
-        if ($id) {
-            $this->increment($id, 'value', $value);
-            return $id;
-        }
-
-        // Creating new record
-        $insertData = [
-            'metric_id' => $metricId,
-            'minute' => $minute,
-            'value' => $value,
-        ];
-        foreach ($slices as $sliceIndex => $slice) {
-            $insertData['slice_' . $sliceIndex] = $slice;
-        }
-        return $this->insert($insertData);
+        $this->insertBatch($insertData);
     }
-
-
 }

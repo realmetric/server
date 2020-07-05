@@ -32,9 +32,8 @@ class SliceIntersect extends AbstractCommand
             $slicesAll = $this->mysql->dailySlices->getSlicesByMetric($metricId, $minute);
             $slicesAll = array_slice($slicesAll, 0, 10);
             $slicesIntersect = $intersect->getIntersect($slicesAll, 10);
-            foreach ($slicesIntersect as $slices) {
-                $this->mysql->dailySliceIntersect10->createOrIncrement($metricId, $slices, mt_rand(23423, 12312312), $minute);
-            }
+            $value = mt_rand(100, 10000);
+            $this->mysql->dailySliceIntersect10->createBatchSlices($metricId, $slicesIntersect, $value, $minute);
         }
     }
 }
