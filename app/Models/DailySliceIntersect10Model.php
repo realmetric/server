@@ -29,12 +29,12 @@ class DailySliceIntersect10Model extends AbstractModel
             return;
         }
 
-        $this->shema()->create($name, function ($table) {
+        $this->shema()->create($name, function ($table) use ($name) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->unsignedInteger('metric_id');
             foreach (range(0, 9) as $sliceIndex) {
-                $table->unsignedInteger('slice_' . $sliceIndex);
+                $table->unsignedInteger('slice_' . $sliceIndex)->nullable($value = true);
             }
             $table->unsignedBigInteger('value');
             $table->unsignedInteger('minute');
@@ -44,9 +44,9 @@ class DailySliceIntersect10Model extends AbstractModel
             foreach (range(0, 9) as $sliceIndex) {
                 $indexCols[] = 'slice_' . $sliceIndex;
             }
-            $table->index($indexCols);
+            $table->index($indexCols, $name . '_metric_slices');
             $indexCols[] = 'minute';
-            $table->index($indexCols);
+            $table->index($indexCols, $name . '_metric_slices_minute');
         });
     }
 
