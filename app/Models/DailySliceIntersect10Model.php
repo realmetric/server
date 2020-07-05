@@ -39,9 +39,14 @@ class DailySliceIntersect10Model extends AbstractModel
             $table->unsignedBigInteger('value');
             $table->unsignedInteger('minute');
 
-            $table->index(['metric_id', 'slice_id']);
-            $table->index(['minute']);
-            $table->unique(['metric_id', 'slice_id', 'minute']);
+
+            $indexCols = ['metric_id'];
+            foreach (range(0, 9) as $sliceIndex) {
+                $indexCols[] = 'slice_' . $sliceIndex;
+            }
+            $table->index($indexCols);
+            $indexCols[] = 'minute';
+            $table->index($indexCols);
         });
     }
 
