@@ -6,6 +6,7 @@ namespace App\Models;
 
 class DailySliceIntersect10Model extends AbstractModel
 {
+    const SLICE_COLS_COUNT = 10;
     const TABLE_PREFIX = 'daily_slice_intersect10_';
     const TABLE = self::TABLE_PREFIX . '2017_01_01'; // Just for example
 
@@ -60,6 +61,11 @@ class DailySliceIntersect10Model extends AbstractModel
                 'value' => $value,
                 'minute' => $minute
             ];
+
+            if (count($slices) < self::SLICE_COLS_COUNT) {
+                // fill empty slices
+                $slices = array_merge($slices, array_fill(0, self::SLICE_COLS_COUNT - count($slices), null));
+            }
             foreach ($slices as $index => $slice) {
                 $insertRow['slice_' . $index] = $slice;
             }

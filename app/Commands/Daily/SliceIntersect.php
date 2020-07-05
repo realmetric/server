@@ -12,11 +12,11 @@ class SliceIntersect extends AbstractCommand
 {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        while (1) {
+//        while (1) {
             $timestart = microtime(true);
             $this->process();
             echo 'minute done in ' . (microtime(true) - $timestart) . "\n";
-        }
+//        }
     }
 
     private function process()
