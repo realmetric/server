@@ -71,21 +71,23 @@ class Intersect
 //            echo "                       -------------------------------\n";
         }
 
-        if ($this->combsCycles > 50) {
-            die;
-        }
+//        if ($this->combsCycles > 50) {
+//            die;
+//        }
+
+
+//        foreach ($nextCombs as $id => $nextCombData) {
+//            if (count($nextCombData) == 1) {
+//                continue; // will be empty array
+//            }
+//
+//            $level = count($this->original) - count($nextCombData);
+//            echo str_repeat("\t", $level) . json_encode($nextCombData) . ' ' . join('.', array_diff($this->original, $nextCombData)) . "\n";
+//        }
+//        echo "----------------------------------------------------------\n";
 
 
         // recursion n!
-        foreach ($nextCombs as $id => $nextCombData) {
-            if (count($nextCombData) == 1) {
-                continue; // will be empty array
-            }
-
-            $level = count($this->original) - count($nextCombData);
-            echo str_repeat("\t", $level) . json_encode($nextCombData) . ' ' . join('.', array_diff($this->original, $nextCombData)) . "\n";
-        }
-//        echo "----------------------------------------------------------\n";
         foreach ($nextCombs as $nextCombData) {
             $this->fillAllCombs($nextCombData);
         }
