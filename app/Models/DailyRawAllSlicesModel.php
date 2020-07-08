@@ -47,7 +47,7 @@ class DailyRawAllSlicesModel extends AbstractModel
 
     public function create(int $metricId, array $slices, int $value, int $minute)
     {
-        sort($arrayOfSlices);
+        sort($slices);
 
         $insertRow = [
             'metric_id' => $metricId,
