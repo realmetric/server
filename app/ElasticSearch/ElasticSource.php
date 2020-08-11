@@ -54,7 +54,7 @@ class ElasticSource
 
     public function agg(string $indexName, array $conditions, string $groupBy = null, string $aggFieldName = 'value')
     {
-        if (!$this->client->indices()->exists($indexName)) {
+        if (!$this->client->indices()->exists(['index' => $indexName])) {
             return [];
         }
         $query = [];
