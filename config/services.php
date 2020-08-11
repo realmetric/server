@@ -32,5 +32,9 @@
         $redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_NONE);
         $redis->setOption(\Redis::OPT_PREFIX, getenv('REDIS_PREFIX'));
         return new \App\Redis\KeyLocator($redis);
+    },
+
+    'es' => function() {
+        return new \App\ElasticSearch\Model();
     }
 ];

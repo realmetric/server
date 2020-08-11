@@ -12,7 +12,8 @@
     "filp/whoops": "2.1.5",
     "illuminate/database": "5.2.45",
     "psr/log": "^1.0",
-    "symfony/console": "^3.3"
+    "symfony/console": "^3.3",
+    "elasticsearch/elasticsearch": "^7.8"
   },
   "autoload": {
     "psr-4": {

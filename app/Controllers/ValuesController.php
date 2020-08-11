@@ -13,15 +13,24 @@ class ValuesController extends AbstractController
     {
         $queryParams = $request->getQueryParams();
         $metricId = isset($queryParams['metric_id']) ? (int)$queryParams['metric_id'] : null;
-        $sliceId = isset($queryParams['slice_id']) ? (int)$queryParams['slice_id'] : null;
+        $slicesId = isset($queryParams['slice_id']) ? $queryParams['slice_id'] : null;
+
         $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime('today');
         $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime('tomorrow');
         $prevFrom = isset($queryParams['prev_from']) ? new \DateTime($queryParams['prev_from']) : new \DateTime('yesterday');
         $prevTo = isset($queryParams['prev_to']) ? new \DateTime($queryParams['prev_to']) : new \DateTime('today');
 
-        if (!$metricId && !$sliceId) {
-            throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ') or slice_id(' . $sliceId . ') value');
+        if (!$metricId && !$slicesId) {
+            throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ') or slice_id(' . json_encode($slicesId) . ') value');
         }
+
+        if (is_array($slicesId)) {
+            $values['curr'][$from->format('Y-m-d')] = $this->es->minutes($from, $metricId, $slicesId);
+            $values['prev'][$prevFrom->format('Y-m-d')] = $this->es->minutes($prevFrom, $metricId, $slicesId);
+            return $this->jsonResponse(['values' => $values]);
+        }
+
+        $sliceId = (int) $slicesId;
 
         $values = [];
         if ($sliceId) {
