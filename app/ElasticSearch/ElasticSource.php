@@ -54,12 +54,14 @@ class ElasticSource
 
     public function agg(string $indexName, array $conditions, string $groupBy = null, string $aggFieldName = 'value')
     {
+        if (!$this->client->indices()->exists($indexName)) {
+            return [];
+        }
         $query = [];
 
         foreach ($conditions as $key => $v) {
             $query['bool']['must'][] = ['match' => [$key => $v]];
         }
-        $aggs = [];
 
         if ($groupBy) {
             $aggs = [

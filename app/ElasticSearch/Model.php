@@ -6,7 +6,7 @@ namespace App\ElasticSearch;
 class Model
 {
     /**
-     * @var
+     * @var ElasticSource
      */
     private $elasticSource;
 
