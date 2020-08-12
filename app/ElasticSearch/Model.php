@@ -29,13 +29,7 @@ class Model
      */
     public function minutes(\DateTime $date, int $metricId, array $slices): array
     {
-        $indexName = 'realmetric_' . $date->format('Y-d-m');
-        $conditions = ['metric_id' => $metricId];
-
-        foreach ($slices as $sliceId) {
-            $conditions["slice_{$sliceId}"] = 1;
-        }
-
-        return $this->elasticSource->agg($indexName, $conditions, 'minute', 'value');
+        $indexName = sprintf('realmetric_%d_%s', $metricId, $date->format('Y-d-m'));
+        return $this->elasticSource->agg($indexName, $slices, 'minute', 'value');
     }
 }

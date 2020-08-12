@@ -52,16 +52,13 @@ class ElasticSource
         }
     }
 
-    public function agg(string $indexName, array $conditions, string $groupBy = null, string $aggFieldName = 'value')
+    public function agg(string $indexName, array $slices, string $groupBy, string $aggFieldName = 'value')
     {
-        if (!$this->client->indices()->exists(['index' => $indexName])) {
-            return [];
-        }
         $query = [];
-
-        foreach ($conditions as $key => $v) {
-            $query['bool']['must'][] = ['match' => [$key => $v]];
+        foreach ($slices as $v) {
+            $query['bool']['must'][] = ['match' => ['slices' => $v]];
         }
+
 
         if ($groupBy) {
             $aggs = [
