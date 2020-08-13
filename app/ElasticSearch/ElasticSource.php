@@ -2,6 +2,7 @@
 namespace App\ElasticSearch;
 
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 
 class ElasticSource
 {
@@ -94,7 +95,11 @@ class ElasticSource
             ]
         ];
 
-        $response = $this->client->search($params);
+        try {
+            $response = $this->client->search($params);
+        } catch (Missing404Exception $e) {
+            $response['aggregations'] = [];
+        }
 
         $result = $response['aggregations'];
 
