@@ -110,7 +110,7 @@ class ElasticSource
         $result = [];
 
         foreach ($data as $d) {
-            $key = $d['key'] * 1;
+            $key = $d['key'];
             $value = $d['value']['value'];
             $result[$key] = $value;
         }
