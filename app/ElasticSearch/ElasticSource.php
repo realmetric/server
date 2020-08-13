@@ -64,7 +64,8 @@ class ElasticSource
             $aggs = [
                 'by_' . $groupBy => [
                     'terms' => [
-                        'field' => $groupBy
+                        'field' => $groupBy,
+                        'size' => 1440
                     ],
                     'aggs' => [
                         'value' => [
