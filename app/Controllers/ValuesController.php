@@ -25,9 +25,14 @@ class ValuesController extends AbstractController
         }
 
         if (is_array($slicesId)) {
-            $values['curr'][$from->format('Y-m-d')] = $this->es->minutes($from, $metricId, $slicesId);
-            $values['prev'][$prevFrom->format('Y-m-d')] = $this->es->minutes($prevFrom, $metricId, $slicesId);
-            return $this->jsonResponse(['values' => $values]);
+
+            if (count($slicesId) > 1) {
+                $values['curr'][$from->format('Y-m-d')] = $this->es->minutes($from, $metricId, $slicesId);
+                $values['prev'][$prevFrom->format('Y-m-d')] = $this->es->minutes($prevFrom, $metricId, $slicesId);
+                return $this->jsonResponse(['values' => $values]);
+            } else {
+                $slicesId = array_shift($slicesId);
+            }
         }
 
         $sliceId = (int) $slicesId;
