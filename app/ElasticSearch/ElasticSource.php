@@ -91,9 +91,12 @@ class ElasticSource
             'size' => 0,
             'body' => [
                 'aggs'  => $aggs,
-                'query' => $query
             ]
         ];
+
+        if ($query) {
+            $params['body']['query'] = $query;
+        }
 
         try {
             $response = $this->client->search($params);
