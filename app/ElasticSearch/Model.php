@@ -32,6 +32,6 @@ class Model
         $indexName = sprintf('realmetric_%d_%s', $metricId, $date->format('Y-d-m'));
         $result = $this->elasticSource->agg($indexName, $slices, 'minute', 'value');
         ksort($result);
-        return array_values($result);
+        return $result;
     }
 }
