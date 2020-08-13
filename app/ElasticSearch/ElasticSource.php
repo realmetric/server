@@ -98,7 +98,7 @@ class ElasticSource
         try {
             $response = $this->client->search($params);
         } catch (Missing404Exception $e) {
-            $response['aggregations'] = [];
+            $response['aggregations']['by_' . $groupBy]['buckets'] = [];
         }
 
         $result = $response['aggregations'];
