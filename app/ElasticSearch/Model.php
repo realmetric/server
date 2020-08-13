@@ -10,7 +10,7 @@ class Model
      */
     private $elasticSource;
 
-    public function __constructor()
+    public function __construct()
     {
         $clientBuilder = \Elasticsearch\ClientBuilder::create()->setHosts([
             '94.130.68.232:9200',
