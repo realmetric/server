@@ -108,11 +108,9 @@ class ElasticSource
     private function prepareGroupResult(array $data)
     {
         $result = [];
-
-        foreach ($data as $d) {
-            $key = $d['key'];
-            $value = $d['value']['value'];
-            $result[$key] = $value;
+        $minutes = range(0, 1439);
+        foreach ($minutes as $minute) {
+            $result[$minute] = $data[$minute]['value']['value']??0;
         }
 
         return $result;
