@@ -30,6 +30,8 @@ class Model
     public function minutes(\DateTime $date, int $metricId, array $slices): array
     {
         $indexName = sprintf('realmetric_%d_%s', $metricId, $date->format('Y-d-m'));
-        return $this->elasticSource->agg($indexName, $slices, 'minute', 'value');
+        $result = $this->elasticSource->agg($indexName, $slices, 'minute', 'value');
+        ksort($result);
+        return $result;
     }
 }
