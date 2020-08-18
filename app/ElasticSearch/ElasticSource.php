@@ -53,9 +53,10 @@ class ElasticSource
         }
     }
 
-    public function agg(string $indexName, array $slices, string $groupBy, string $aggFieldName = 'value')
+    public function agg(string $indexName, $metricId, array $slices, string $groupBy, string $aggFieldName = 'value')
     {
         $query = [];
+        $query['bool']['must'][] = ['match' => ['metric_id' => $metricId]];
         foreach ($slices as $v) {
             $query['bool']['must'][] = ['match' => ['slices' => $v]];
         }
