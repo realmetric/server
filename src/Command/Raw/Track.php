@@ -4,12 +4,17 @@ namespace App\Command\Raw;
 
 use App\Command\AbstractCommand;
 use App\Keys;
-use App\Library\Event;
+use App\Library\EventSaver;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Track extends AbstractCommand
 {
+    public function __construct(private readonly EventSaver $eventSaver)
+    {
+        parent::__construct();
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         sleep(3);//prevent supervisord exited too quick error
@@ -22,8 +27,8 @@ class Track extends AbstractCommand
             $this->out('Added: ' . $added);
             sleep(10);
             $memory = memory_get_usage();
-            if ($memory > 262144000){
-                $this->out('Memory usage more then 250MB: '. number_format($memory / 1024 / 1024, 2) . 'MB');
+            if ($memory > 262144000) {
+                $this->out('Memory usage more then 250MB: ' . number_format($memory / 1024 / 1024, 2) . 'MB');
                 die;
             }
         }
@@ -89,7 +94,6 @@ class Track extends AbstractCommand
             $events[] = $event;
         }
 
-        $eventService = new Event();
-        return (int)$eventService->saveBatch($events, $metrics, $categories, $slices, $timestamp);
+        return (int)$this->eventSaver->saveBatch($events, $metrics, $categories, $slices, $timestamp);
     }
 }

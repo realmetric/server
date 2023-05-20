@@ -2,15 +2,29 @@
 
 namespace App\Library;
 
-class Event
+use App\Model\DailyRawMetricsModel;
+use App\Model\DailyRawSlicesModel;
+use App\Model\MetricsModel;
+use App\Model\SlicesModel;
+
+class EventSaver
 {
-    public function save(string $metricName, float $value = 1.0, $time, array $slices = [])
+    public function __construct(
+        private readonly MetricsModel         $metrics,
+        private readonly SlicesModel         $slices,
+        private readonly DailyRawMetricsModel $dailyRawMetrics,
+        private readonly DailyRawSlicesModel  $dailyRawSlices
+    )
+    {
+    }
+
+    public function save(string $metricName, float $value, $time, array $slices = [])
     {
         if (is_numeric($time)) {
             $time = date('Y-m-d H:i:s', $time);
         }
-        $metricId = $this->mysql->metrics->getId($metricName);
-        $eventId = $this->mysql->dailyRawMetrics->create($metricId, $value, $time);
+        $metricId = $this->metrics->getId($metricName);
+        $eventId = $this->dailyRawMetrics->create($metricId, $value, $time);
 
         $ts = strtotime($time);
         $minute = date('H', $ts) * 60 + date('i', $ts);
@@ -21,7 +35,7 @@ class Event
 
         // --------------- Saving slices ---------------------
         $insertData = $this->getSlicesInsertData($slices, $metricId, $value, $minute);
-        $this->mysql->dailyRawSlices->insertBatchRaw(['metric_id', 'slice_id', 'value', 'minute'], $insertData);
+        $this->dailyRawSlices->insertBatchRaw(['metric_id', 'slice_id', 'value', 'minute'], $insertData);
 
         return $eventId;
     }
@@ -33,7 +47,7 @@ class Event
             if ($sliceName === null) {
                 continue;
             }
-            $sliceId = $this->mysql->slices->getId($category, $sliceName);
+            $sliceId = $this->slices->getId($category, $sliceName);
             array_push($insertData, $metricId, $sliceId, $value, $minute);
         }
         return $insertData;
@@ -41,12 +55,11 @@ class Event
 
     public function saveBatch($events, $metrics, $categories, $names, $timestamp)
     {
-        $this->timer->startPoint('events prepare');
         $metricsResult = [];
         $slicesResult = [];
 
         foreach ($metrics as $id => $name) {
-            $metrics[$id] = $this->mysql->metrics->getId($name);
+            $metrics[$id] = $this->metrics->getId($name);
         }
 
         $slices = [];
@@ -60,7 +73,6 @@ class Event
                 $ts = time();
             }
             $minute = date('H', $ts) * 60 + date('i', $ts);
-
 
             // Metric
             $metricId = $metrics[$event['m']];
@@ -78,22 +90,18 @@ class Event
                     if ($category === null || $sliceName === null) {
                         continue;
                     }
-                    $slices[$key] = $this->mysql->slices->getId($category, $sliceName);
+                    $slices[$key] = $this->slices->getId($category, $sliceName);
                 }
                 array_push($slicesResult, $metricId, $slices[$key], $value, $minute);
             }
         }
 
-        $this->timer->endPoint('events prepare');
-
-        $this->timer->startPoint('events saving');
-        $this->mysql->dailyRawMetrics
+        $this->dailyRawMetrics
             ->setTableFromTimestamp($timestamp)
             ->insertBatchRaw(['metric_id', 'value', 'minute'], $metricsResult);
-        $this->mysql->dailyRawSlices
+        $this->dailyRawSlices
             ->setTableFromTimestamp($timestamp)
             ->insertBatchRaw(['metric_id', 'slice_id', 'value', 'minute'], $slicesResult);
-        $this->timer->endPoint('events saving');
 
         return count($events);
     }
