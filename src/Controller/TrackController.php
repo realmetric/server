@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Library\EventSaver;
 use App\Model\DailyMetricsModel;
 use App\Model\DailyMetricTotalsModel;
 use App\Model\DailySliceTotalsModel;
@@ -14,7 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class TrackController extends AbstractController
 {
     public function __construct(
-        private readonly EventSaver             $eventSaver,
         private readonly MetricsModel           $metrics,
         private readonly SlicesModel            $slices,
         private readonly DailyMetricsModel      $dailyMetrics,
@@ -30,9 +28,9 @@ class TrackController extends AbstractController
         $data = gzuncompress(file_get_contents('php://input'));
         $events = json_decode($data, true);
 
-        foreach ($events as $event) {
-            $this->eventSaver->save($event['m'], $event['v'], $event['t'], $event['s']);
-        }
+//        foreach ($events as $event) {
+//            $this->eventSaver->save($event['m'], $event['v'], $event['t'], $event['s']);
+//        }
         return $this->json(['createdEvents' => count($events)]);
     }
 
