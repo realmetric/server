@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Library\EventSaver;
 use App\Model\DailyMetricsModel;
 use App\Model\DailyMetricTotalsModel;
+use App\Model\DailySliceTotalsModel;
 use App\Model\MetricsModel;
+use App\Model\SlicesModel;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -14,8 +16,10 @@ class TrackController extends AbstractController
     public function __construct(
         private readonly EventSaver             $eventSaver,
         private readonly MetricsModel           $metrics,
+        private readonly SlicesModel            $slices,
         private readonly DailyMetricsModel      $dailyMetrics,
         private readonly DailyMetricTotalsModel $dailyMetricTotals,
+        private readonly DailySliceTotalsModel  $dailySliceTotals,
     )
     {
     }
@@ -35,7 +39,8 @@ class TrackController extends AbstractController
     #[Route('/track/testdata', methods: ['GET'])]
     public function createTest()
     {
-        $metricId = $this->metrics->getId('test');
+        $metricId = $this->metrics->getId('testMetric');
+        $sliceId = $this->slices->getId('testSlice','testValue');
         $value = 1;
         $this->dailyMetrics
             ->setTableFromTimestamp(time())
@@ -44,6 +49,7 @@ class TrackController extends AbstractController
             'metric_id' => $metricId,
             'value' => 1,
         ]);
+        $this->dailySliceTotals->create($metricId, $sliceId, 1);
 
         return $this->json(['createdEvents' => 1]);
     }

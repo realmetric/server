@@ -42,7 +42,7 @@ class DailySliceTotalsModel extends AbstractModel
         });
     }
 
-    public function addValue(int $metricId, int $sliceId, float $value, float $diff)
+    public function create(int $metricId, int $sliceId, float $value, float $diff = 0)
     {
         if (!$value) {
             return false;
@@ -63,7 +63,7 @@ class DailySliceTotalsModel extends AbstractModel
     public function getAllValues()
     {
         return $this->qb()->selectRaw('slice_id as id, value, diff')
-            ->get();
+            ->get()->all();
     }
 
     public function dropTable($datePart)
