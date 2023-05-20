@@ -3,11 +3,8 @@ declare(strict_types = 1);
 
 namespace App\Library;
 
-use App\Injectable;
-
 class Pack
 {
-    use Injectable;
 
     public function addSlice($metricId, $categoryId, $sliceId, int $minute, int $value)
     {

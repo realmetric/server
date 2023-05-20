@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use Illuminate\Database\Connection;
+use Illuminate\Database\Query\Builder;
 
 abstract class AbstractModel
 {
@@ -33,7 +34,7 @@ abstract class AbstractModel
     protected function qb()
     {
         $connection = $this->connection;
-        $qb = new QueryBuilder(
+        $qb = new Builder(
             $connection,
             $connection->getQueryGrammar(),
             $connection->getPostProcessor()

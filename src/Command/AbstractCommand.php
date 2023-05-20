@@ -2,15 +2,15 @@
 
 namespace App\Command;
 
+
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class AbstractCommand extends \Symfony\Component\Console\Command\Command
+abstract class AbstractCommand extends Command
 {
     private $output;
     private $lastOut;
-
-    use \App\Injectable;
 
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
@@ -18,7 +18,7 @@ abstract class AbstractCommand extends \Symfony\Component\Console\Command\Comman
         $this->out('Started');
     }
 
-    public function run(InputInterface $input, OutputInterface $output)
+    public function run(InputInterface $input, OutputInterface $output): int
     {
         $timeStart = microtime(true);
         try {
@@ -27,6 +27,7 @@ abstract class AbstractCommand extends \Symfony\Component\Console\Command\Comman
             $output->writeln($e->getMessage() . ' ' . json_encode(debug_backtrace()));
         }
         $output->writeln('Done in ' . number_format(microtime(true) - $timeStart, 3));
+        return 0;
     }
 
     public function out($message)
