@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace App\Model;
+use Illuminate\Database\Connection;
 
 
 class DailySliceIntersect10Model extends AbstractModel
@@ -10,7 +11,7 @@ class DailySliceIntersect10Model extends AbstractModel
     const TABLE_PREFIX = 'daily_slice_intersect10_';
     const TABLE = self::TABLE_PREFIX . '2017_01_01'; // Just for example
 
-    public function __construct($connection)
+    public function __construct(Connection $connection)
     {
         parent::__construct($connection);
 

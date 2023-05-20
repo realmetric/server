@@ -2,7 +2,7 @@
 
 
 namespace App\Model;
-
+use Illuminate\Database\Connection;
 
 class SlicesModel extends AbstractModel
 {
@@ -10,7 +10,7 @@ class SlicesModel extends AbstractModel
 
     private $cache = [];
 
-    public function __construct($connection)
+    public function __construct(Connection $connection)
     {
         parent::__construct($connection);
 

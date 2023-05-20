@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Model;
+use Illuminate\Database\Connection;
 
 class CountersModel extends AbstractModel
 {
     const TABLE_PREFIX = '';
     const TABLE = self::TABLE_PREFIX . 'counters';
 
-    public function __construct($connection)
+    public function __construct(Connection $connection)
     {
         parent::__construct($connection);
 

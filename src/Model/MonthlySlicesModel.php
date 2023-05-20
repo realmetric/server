@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Model;
+use Illuminate\Database\Connection;
 
 class MonthlySlicesModel extends AbstractModel
 {
     const TABLE_PREFIX = 'monthly_slices';
     const TABLE = self::TABLE_PREFIX;
 
-    public function __construct($connection)
+    public function __construct(Connection $connection)
     {
         parent::__construct($connection);
 

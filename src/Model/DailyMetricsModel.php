@@ -1,13 +1,15 @@
 <?php
 
 namespace App\Model;
+use Illuminate\Database\Connection;
+
 
 class DailyMetricsModel extends AbstractModel
 {
     const TABLE_PREFIX = 'daily_metrics_';
     const TABLE = self::TABLE_PREFIX . '2017_01_01'; // Just for example
 
-    public function __construct($connection)
+    public function __construct(Connection $connection)
     {
         parent::__construct($connection);
 

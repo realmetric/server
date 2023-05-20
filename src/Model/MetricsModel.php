@@ -2,6 +2,7 @@
 
 
 namespace App\Model;
+use Illuminate\Database\Connection;
 
 
 class MetricsModel extends AbstractModel
@@ -10,7 +11,7 @@ class MetricsModel extends AbstractModel
 
     private $cache = [];
 
-    public function __construct($connection)
+    public function __construct(Connection $connection)
     {
         parent::__construct($connection);
         $this->createTable($this->getTable());
