@@ -57,7 +57,7 @@ class MonthlyMetricsModel extends AbstractModel
             ->selectRaw('metric_id, sum(value) value, \'' . $date . '\' date')
             ->from($dailyMetricsTableName)
             ->groupBy('metric_id')
-            ->get();
+            ->get()->all();
     }
 
     public function updateOrInsert($row)
@@ -81,6 +81,6 @@ class MonthlyMetricsModel extends AbstractModel
             $q->where('date', '<=', $to->format('Y-m-d'));
         }
 
-        return $q->get(['date', 'value']);
+        return $q->get(['date', 'value'])->all();
     }
 }

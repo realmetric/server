@@ -58,7 +58,7 @@ class DailyRawMetricsModel extends AbstractModel
     {
         return $this->qb()->selectRaw('metric_id, sum(value) as value')
             ->groupBy('metric_id')
-            ->get();
+            ->get()->all();
     }
 
     public function getMaxIdForTime(int $timestamp): int
@@ -77,7 +77,7 @@ class DailyRawMetricsModel extends AbstractModel
             ->where('id', '>=', $firstId)
             ->where('id', '<=', $lastId)
             ->groupBy(['metric_id', 'minute'])
-            ->get();
+            ->get()->all();
     }
 
 }

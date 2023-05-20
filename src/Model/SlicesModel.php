@@ -100,6 +100,6 @@ class SlicesModel extends AbstractModel
     {
         return $this->qb()
             ->whereIn('id', $sliceIds)
-            ->get($columns);
+            ->get($columns)->all();
     }
 }

@@ -63,7 +63,7 @@ class DailyRawSlicesModel extends AbstractModel
         return $this->qb()
             ->where('metric_id', '=', $metricId)
             ->where('slice_id', '=', $sliceId)
-            ->get(['minute', 'value']);
+            ->get(['minute', 'value'])->get();
     }
 
     public function getMaxIdForTime(int $ts): int
@@ -128,6 +128,6 @@ class DailyRawSlicesModel extends AbstractModel
             ->where($this->getTable() . '.id', '>=', $minId)
             ->where($this->getTable() . '.id', '<=', $lastId)
             ->groupBy([$this->getTable() .'.metric_id', $this->getTable() . '.minute', $this->getTable() . '.slice_id'])
-            ->get();
+            ->get()->all();
     }
 }

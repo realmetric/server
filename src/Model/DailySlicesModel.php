@@ -49,14 +49,14 @@ class DailySlicesModel extends AbstractModel
         return $this->qb()
             ->where('metric_id', '=', $metricId)
             ->where('slice_id', '=', $sliceId)
-            ->get(['minute', 'value']);
+            ->get(['minute', 'value'])->all();
     }
 
     public function getAllByMetricId(int $metricId): array
     {
         return $this->qb()
             ->where('metric_id', '=', $metricId)
-            ->get(['slice_id', 'minute', 'value']);
+            ->get(['slice_id', 'minute', 'value'])->all();
     }
 
     public function getSlicesByMetric(int $metricId, int $minute)
@@ -116,8 +116,7 @@ class DailySlicesModel extends AbstractModel
 
         $q->where($this->getTable() . '.minute', '<', $minute);
 
-        return $q->get();
-
+        return $q->get()->all();
     }
 
     public function getTotalsWithCategoryNames(int $timestamp): array
@@ -129,7 +128,7 @@ class DailySlicesModel extends AbstractModel
             ->join('metrics', $this->getTable() . '.metric_id', '=', 'metrics.id', 'left')
             ->where($this->getTable() . '.minute', '<', $minute)
             ->groupBy('metric_name', 'slices.name', 'slices.category');
-        return $q->get();
+        return $q->get()->all();
     }
 
     public function dropTable($datePart)

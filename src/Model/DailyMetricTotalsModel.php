@@ -54,7 +54,7 @@ class DailyMetricTotalsModel extends AbstractModel
                 ->groupBy($this->getTable() . '.metric_id', $this->getTable() . '.diff');
         }
 
-        return $q->get();
+        return $q->get()->all();
     }
 
 }

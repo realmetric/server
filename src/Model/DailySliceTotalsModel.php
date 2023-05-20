@@ -85,6 +85,6 @@ class DailySliceTotalsModel extends AbstractModel
             $q->where($this->getTable() . '.metric_id', '=', $metricId);
         }
 
-        return $q->get();
+        return $q->get()->all();
     }
 }

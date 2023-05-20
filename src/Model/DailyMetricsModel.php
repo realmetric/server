@@ -88,14 +88,14 @@ class DailyMetricsModel extends AbstractModel
         }
 
         $q->where($this->getTable() . '.minute', '<', $minute);
-        return $q->get();
+        return $q->get()->all();
     }
 
     public function getByMetricId(int $metricId): array
     {
         return $this->qb()
             ->where('metric_id', '=', $metricId)
-            ->get(['minute', 'value']);
+            ->get(['minute', 'value'])->all();
     }
 
     public function dropTable($datePart)

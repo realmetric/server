@@ -58,7 +58,7 @@ class MonthlySlicesModel extends AbstractModel
             ->selectRaw('metric_id, slice_id, sum(value) value, \'' . $date . '\' date')
             ->from($dailyMetricsTableName)
             ->groupBy('metric_id', 'slice_id')
-            ->get();
+            ->get()->all();
     }
 
     public function updateOrInsert($row)
@@ -86,7 +86,7 @@ class MonthlySlicesModel extends AbstractModel
         if ($to) {
             $q->where('date', '<=', $to->format('Y-m-d'));
         }
-        return $q->get(['date', 'value']);
+        return $q->get(['date', 'value'])->all();
     }
 
     public function getTotals(
@@ -112,7 +112,6 @@ class MonthlySlicesModel extends AbstractModel
         $q->where($this->getTable() . '.date', '<=', $to->format('Y-m-d'));
 //        $q->orderBy('value', 'desc');
 
-        return $q->get();
-
+        return $q->get()->all();
     }
 }

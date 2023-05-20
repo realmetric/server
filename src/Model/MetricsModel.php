@@ -92,6 +92,6 @@ class MetricsModel extends AbstractModel
     {
         return $this->qb()
             ->whereIn('id', $sliceIds)
-            ->get(['id', 'name']);
+            ->get(['id', 'name'])->all();
     }
 }

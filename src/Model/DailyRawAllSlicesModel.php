@@ -67,6 +67,6 @@ class DailyRawAllSlicesModel extends AbstractModel
     public function getAllByMinute(int $minute) {
         return $this->qb()
             ->where('minute', '=', $minute)
-            ->get();
+            ->get()->all();
     }
 }
