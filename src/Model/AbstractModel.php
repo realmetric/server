@@ -86,6 +86,10 @@ abstract class AbstractModel
         }
         return $insertId;
     }
+    public function insertOrUpdate(array $data): bool
+    {
+        return $this->qb()->updateOrInsert($data);
+    }
 
     public function insertBatch(array $arraysOfData)
     {

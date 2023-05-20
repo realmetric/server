@@ -5,16 +5,26 @@ namespace App\Controller;
 
 use App\Library\Format;
 use App\Model\DailyMetricsModel;
+use App\Model\DailyMetricTotalsModel;
 use Illuminate\Database\QueryException;
-use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
 
 class MetricsController extends AbstractController
 {
-    #[Route('/metrics/slice/{slice_id:\d+}', methods: ['GET'])]
-    public function getAll(ServerRequestInterface $request)
+    public function __construct(
+        private readonly DailyMetricsModel      $dailyMetrics,
+        private readonly DailyMetricTotalsModel $dailyMetricTotals
+    )
+    {
+    }
+
+    private $mysql;
+
+//    #[Route('/metrics/slice/{slice_id:\d+}', methods: ['GET'])]
+    #[Route('/metrics', methods: ['GET'])]
+    public function getAll()
     {
         $from = new \DateTime('today');
         $to = new \DateTime();
@@ -31,16 +41,15 @@ class MetricsController extends AbstractController
                 $value['total'] = $format->shorten($value['total']);
             }
         }
-
-        return $this->jsonResponse(['metrics' => $result]);
+        return $this->json(['metrics' => $result]);
     }
 
     #[Route('/metrics/{metric_id:\d+}', methods: ['GET'])]
     public function getByMetricId(ServerRequestInterface $request)
     {
         $attributes = $request->getAttributes();
-        $data = $this->mysql->dailyMetrics->getByMetricId($attributes['metric_id']);
-        $yesterdayData = $this->mysql->dailyMetrics
+        $data = $this->dailyMetrics->getByMetricId($attributes['metric_id']);
+        $yesterdayData = $this->dailyMetrics
             ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
             ->getByMetricId($attributes['metric_id']);
 
@@ -58,12 +67,12 @@ class MetricsController extends AbstractController
             date('Y-m-d', strtotime('-1 day')) => (object)$yesterday,
         ];
 
-        return $this->jsonResponse(['values' => $values]);
+        return $this->json(['values' => $values]);
     }
 
     private function getMetricValues(\DateTime $from, \DateTime $to)
     {
-        $totals = $this->mysql->dailyMetricTotals->getTotals(true);
+        $totals = $this->dailyMetricTotals->getTotals(true);
         $result = [];
         foreach ($totals as $row) {
             $nameParts = explode('.', $row['name']);
