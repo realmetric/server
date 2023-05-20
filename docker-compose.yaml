@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - composer i && symfony server:start
+    entrypoint: "/bin/bash -c"
+    volumes:
+      - .:/var/www
+    ports:
+      - "8000:8000"
+  mysql:
+    image: mysql:8.0.32
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: realmetric
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./var/db:/var/lib/mysql
