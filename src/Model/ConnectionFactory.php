@@ -3,6 +3,10 @@
 namespace App\Model;
 
 use Illuminate\Database\Capsule\Manager;
+use Illuminate\Database\Events\StatementPrepared;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Facades\Event;
+use PDO;
 
 class ConnectionFactory
 {
@@ -15,15 +19,19 @@ class ConnectionFactory
             'username' => $user,
             'password' => $password,
             'charset' => 'utf8mb4',
-            'collation' => 'utf8_unicode_ci',
             'prefix' => '',
             'options' => [
-                \PDO::ATTR_PERSISTENT => false,
+                PDO::ATTR_PERSISTENT => false,
             ],
         ];
 
         $capsule = new Manager();
-        $capsule->setFetchMode(\PDO::FETCH_ASSOC);
+        $dispatcher = new Dispatcher();
+        $capsule->setEventDispatcher($dispatcher);
+        $dispatcher->listen(StatementPrepared::class, function ($event) {
+            $event->statement->setFetchMode(PDO::FETCH_ASSOC);
+        });
+
         $capsule->addConnection($config);
         return $capsule->getConnection();
     }

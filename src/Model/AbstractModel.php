@@ -138,7 +138,7 @@ abstract class AbstractModel
 
     public function getAll($columns = ['*']): array
     {
-        return $this->qb()->get($columns);
+        return $this->qb()->get($columns)->all();
     }
 
     public function truncate()
