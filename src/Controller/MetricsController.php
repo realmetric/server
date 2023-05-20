@@ -19,8 +19,6 @@ class MetricsController extends AbstractController
     {
     }
 
-    private $mysql;
-
 //    #[Route('/metrics/slice/{slice_id:\d+}', methods: ['GET'])]
     #[Route('/metrics', methods: ['GET'])]
     public function getAll()
@@ -89,11 +87,11 @@ class MetricsController extends AbstractController
         $currentDailySlicesTableName = DailyMetricsModel::TABLE_PREFIX . $dt->format('Y_m_d');
         $pastDailySlicesTableName = DailyMetricsModel::TABLE_PREFIX . $pastDt->format('Y_m_d');
         try {
-            $currentSubtotals = $this->mysql->dailyMetrics
+            $currentSubtotals = $this->dailyMetrics
                 ->setTable($currentDailySlicesTableName)
                 ->getTotals($currentTimestamp, true);
             $currentSubtotals = $this->prepareSubtotals($currentSubtotals);
-            $pastSubtotals = $this->mysql->dailyMetrics
+            $pastSubtotals = $this->dailyMetrics
                 ->setTable($pastDailySlicesTableName)
                 ->getTotals($currentTimestamp, false);
             $pastSubtotals = $this->prepareSubtotals($pastSubtotals);
