@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     command:
-      - composer i && symfony server:start
+      - composer i && symfony server:ca:install && symfony server:start
     entrypoint: "/bin/bash -c"
     volumes:
       - .:/var/www
