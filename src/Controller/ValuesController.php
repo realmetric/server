@@ -2,24 +2,35 @@
 
 namespace App\Controller;
 
+use App\Model\DailyMetricsModel;
 use App\Model\DailySlicesModel;
+use App\Model\MonthlyMetricsModel;
+use App\Model\MonthlySlicesModel;
 use Illuminate\Database\QueryException;
-use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ValuesController extends AbstractController
 {
-    #[Route('/values/minutes', methods: ['GET'])]
-    public function minutes(ServerRequestInterface $request)
+    public function __construct(
+        private readonly DailySlicesModel    $dailySlices,
+        private readonly DailyMetricsModel   $dailyMetrics,
+        private readonly MonthlySlicesModel  $monthlySlices,
+        private readonly MonthlyMetricsModel $monthlyMetrics,
+    )
     {
-        $queryParams = $request->getQueryParams();
-        $metricId = isset($queryParams['metric_id']) ? (int)$queryParams['metric_id'] : null;
-        $sliceId = isset($queryParams['slice_id']) ? (int)$queryParams['slice_id'] : null;
-        $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime('today');
-        $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime('tomorrow');
-        $prevFrom = isset($queryParams['prev_from']) ? new \DateTime($queryParams['prev_from']) : new \DateTime('yesterday');
-        $prevTo = isset($queryParams['prev_to']) ? new \DateTime($queryParams['prev_to']) : new \DateTime('today');
+    }
+
+    #[Route('/values/minutes', methods: ['GET'])]
+    public function minutes(Request $request)
+    {
+        $metricId = $request->query->get('metric_id');
+        $sliceId = $request->query->get('slice_id');
+        $from = $request->query->has('from') ? new \DateTime($request->query->get('from')) : new \DateTime('today');
+        $to = $request->query->has('to') ? new \DateTime($request->query->get('to')) : new \DateTime('tomorrow');
+        $prevFrom = $request->query->has('prev_from') ? new \DateTime($request->query->get('prev_from')) : new \DateTime('yesterday');
+        $prevTo = $request->query->has('prev_to') ? new \DateTime($request->query->get('prev_to')) : new \DateTime('today');
 
         if (!$metricId && !$sliceId) {
             throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ') or slice_id(' . $sliceId . ') value');
@@ -34,19 +45,18 @@ class ValuesController extends AbstractController
             $values['prev'] = $this->getMetricValuesByMinutes($metricId, $prevFrom, $prevTo);
         }
 
-        return $this->jsonResponse(['values' => $values]);
+        return $this->json(['values' => $values]);
     }
 
     #[Route('/values/days', methods: ['GET'])]
-    public function days(ServerRequestInterface $request)
+    public function days(Request $request)
     {
-        $queryParams = $request->getQueryParams();
-        $metricId = isset($queryParams['metric_id']) ? (int)$queryParams['metric_id'] : null;
-        $sliceId = isset($queryParams['slice_id']) ? (int)$queryParams['slice_id'] : null;
-        $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime('first day of this month midnight');
-        $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime('first day of next month midnight');
-        $prevFrom = isset($queryParams['prev_from']) ? new \DateTime($queryParams['prev_from']) : new \DateTime('first day of this month midnight');
-        $prevTo = isset($queryParams['prev_to']) ? new \DateTime($queryParams['prev_to']) : new \DateTime('first day of next month midnight');
+        $metricId = $request->query->get('metric_id');
+        $sliceId = $request->query->get('slice_id');
+        $from = $request->query->has('from') ? new \DateTime($request->query->get('from')) : new \DateTime('first day of this month midnight');
+        $to = $request->query->has('to') ? new \DateTime($request->query->get('to')) : new \DateTime('first day of next month midnight');
+        $prevFrom = $request->query->has('prev_from') ? new \DateTime($request->query->get('prev_from')) : new \DateTime('first day of this month midnight');
+        $prevTo = $request->query->has('prev_to') ? new \DateTime($request->query->get('prev_to')) : new \DateTime('first day of next month midnight');
 
         if (!$metricId && !$sliceId) {
             throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ') or slice_id(' . $sliceId . ') value');
@@ -60,7 +70,7 @@ class ValuesController extends AbstractController
             $values['prev'] = $this->getMetricValuesByDays($metricId, $prevFrom, $prevTo);
         }
 
-        return $this->jsonResponse(['values' => $values]);
+        return $this->json(['values' => $values]);
     }
 
     private function getMetricValuesByMinutes(int $metricId, \DateTime $from, \DateTime $to): array
@@ -74,10 +84,10 @@ class ValuesController extends AbstractController
              * @var \DateTime $dt
              */
             try {
-                $data = $this->mysql->dailyMetrics
+                $data = $this->dailyMetrics
                     ->setTableFromTimestamp($dt->getTimestamp(), false)
                     ->getByMetricId($metricId);
-                if ($data){
+                if ($data) {
                     $result[$dt->format('Y-m-d')] = array_column($data, 'value', 'minute');
                 } else {
                     $result[$dt->format('Y-m-d')] = null;
@@ -95,16 +105,16 @@ class ValuesController extends AbstractController
     }
 
     private function getMetricValuesByDays(
-        int $metricId,
+        int       $metricId,
         \DateTime $from = null,
         \DateTime $to = null
     ): array
     {
-        $data = $this->mysql->monthlyMetrics
+        $data = $this->monthlyMetrics
             ->getByMetricId($metricId, $from, $to);
 
         $result = [];
-        if ($data){
+        if ($data) {
             $result = array_column($data, 'value', 'date');
         }
 
@@ -114,8 +124,8 @@ class ValuesController extends AbstractController
     }
 
     private function getSliceValuesByMinutes(
-        int $metricId,
-        int $sliceId,
+        int       $metricId,
+        int       $sliceId,
         \DateTime $from,
         \DateTime $to
     ): array
@@ -130,10 +140,10 @@ class ValuesController extends AbstractController
              * @var \DateTime $dt
              */
             try {
-                $data = $this->mysql->dailySlices
+                $data = $this->dailySlices
                     ->setTable(DailySlicesModel::TABLE_PREFIX . $dt->format('Y_m_d'))
                     ->getValues($metricId, $sliceId);
-                if ($data){
+                if ($data) {
                     $result[$dt->format('Y-m-d')] = array_column($data, 'value', 'minute');
                 } else {
                     $result[$dt->format('Y-m-d')] = null;
@@ -151,16 +161,16 @@ class ValuesController extends AbstractController
     }
 
     private function getSliceValuesByDays(
-        int $metricId,
-        int $sliceId,
+        int       $metricId,
+        int       $sliceId,
         \DateTime $from = null,
         \DateTime $to = null
     ): array
     {
         $result = [];
-        $data = $this->mysql->monthlySlices
+        $data = $this->monthlySlices
             ->getValues($metricId, $sliceId, $from, $to);
-        if ($data){
+        if ($data) {
             $result = array_column($data, 'value', 'date');
         }
 
@@ -174,7 +184,7 @@ class ValuesController extends AbstractController
         $interval = \DateInterval::createFromDateString('1 day');
         $period = new \DatePeriod($from, $interval, $to);
         foreach ($period as $dt) {
-            if (!isset($result[$dt->format('Y-m-d')])){
+            if (!isset($result[$dt->format('Y-m-d')])) {
                 $result[$dt->format('Y-m-d')] = null;
             }
         }

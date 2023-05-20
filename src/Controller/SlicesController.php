@@ -61,8 +61,8 @@ class SlicesController extends AbstractController
         return $this->json(['slices' => $result]);
     }
 
-    #[Route('/slices/{metricId:\d+}', methods: ['GET'])]
-    public function getByMetricId($metricId)
+    #[Route('/slices/{metricId}', methods: ['GET'])]
+    public function getByMetricId(int $metricId)
     {
         $format = new Format();
         $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime();
