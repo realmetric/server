@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Model;
+
 use Illuminate\Database\Connection;
 
 class MonthlySlicesModel extends AbstractModel
@@ -61,13 +62,13 @@ class MonthlySlicesModel extends AbstractModel
             ->get()->all();
     }
 
-    public function updateOrInsert($row)
+    public function track(int $metricId, int $sliceId, int $value, \DateTime $date): int
     {
-        return $this->qb()->updateOrInsert([
-            'metric_id' => $row['metric_id'],
-            'slice_id' => $row['slice_id'],
-            'date' => $row['date']
-        ], $row);
+        return $this->insertOrIncrement([
+            'metric_id' => $metricId,
+            'slice_id' => $sliceId,
+            'date' => $date->format('Y-m-d')
+        ], $value);
     }
 
     public function getDateFromDailySlicesTableName($dailySlicesTableName)
@@ -92,9 +93,10 @@ class MonthlySlicesModel extends AbstractModel
     public function getTotals(
         \DateTime $from,
         \DateTime $to,
-        $metricId = null,
-        $withNamesAndCategories = false
-    ): array {
+                  $metricId = null,
+                  $withNamesAndCategories = false
+    ): array
+    {
         $q = $this->qb();
         if ($withNamesAndCategories) {
             $q->selectRaw($this->getTable() . '.slice_id, slices.name, slices.category, SUM(' . $this->getTable() . '.value) as value')
@@ -104,7 +106,7 @@ class MonthlySlicesModel extends AbstractModel
             $q->selectRaw($this->getTable() . '.slice_id, SUM(' . $this->getTable() . '.value) as value')
                 ->groupBy($this->getTable() . '.slice_id');
         }
-        if ($metricId){
+        if ($metricId) {
             $q->where($this->getTable() . '.metric_id', '=', $metricId);
         }
 
