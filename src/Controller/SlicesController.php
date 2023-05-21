@@ -3,6 +3,7 @@
 
 namespace App\Controller;
 
+use App\Library\EventSaver;
 use App\Library\Format;
 use App\Model\DailySlicesModel;
 use App\Model\DailySliceTotalsModel;
@@ -10,15 +11,17 @@ use App\Model\MonthlySlicesModel;
 use App\Model\SlicesModel;
 use Illuminate\Database\QueryException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class SlicesController extends AbstractController
 {
     public function __construct(
-        private readonly SlicesModel $slices,
-        private readonly DailySlicesModel $dailySlices,
+        private readonly EventSaver            $eventSaver,
+        private readonly SlicesModel           $slices,
+        private readonly DailySlicesModel      $dailySlices,
         private readonly DailySliceTotalsModel $dailySliceTotals,
-        private readonly MonthlySlicesModel $monthlySlices,
+        private readonly MonthlySlicesModel    $monthlySlices,
     )
     {
     }
@@ -26,6 +29,8 @@ class SlicesController extends AbstractController
     #[Route('/slices', methods: ['GET'])]
     public function getAll()
     {
+        $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'all slices']);
+
         $result = [];
         $allValues = $this->dailySliceTotals->getAllValues();
         $values = array_column($allValues, 'value', 'id');
@@ -62,12 +67,15 @@ class SlicesController extends AbstractController
     }
 
     #[Route('/slices/{metricId}', methods: ['GET'])]
-    public function getByMetricId(int $metricId)
+    public function getByMetricId(int $metricId, Request $request)
     {
+        $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'slices for metricId']);
+
         $format = new Format();
-        $from = isset($queryParams['from']) ? new \DateTime($queryParams['from']) : new \DateTime();
+        $from = $request->query->has('from') ? new \DateTime($request->query->get('from')) : new \DateTime();
+        $to = $request->query->has('to') ? new \DateTime($request->query->get('to')) : new \DateTime();
+
         $from->setTime(0, 0, 0);
-        $to = isset($queryParams['to']) ? new \DateTime($queryParams['to']) : new \DateTime();
         $to->setTime(23, 59, 59);
 
         if (!$metricId) {

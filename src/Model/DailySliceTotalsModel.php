@@ -2,6 +2,7 @@
 
 
 namespace App\Model;
+
 use Illuminate\Database\Connection;
 
 
@@ -42,7 +43,7 @@ class DailySliceTotalsModel extends AbstractModel
         });
     }
 
-    public function create(int $metricId, int $sliceId, float $value, float $diff = 0)
+    public function track(int $metricId, int $sliceId, float $value, float $diff = 0): bool
     {
         if (!$value) {
             return false;
@@ -52,7 +53,7 @@ class DailySliceTotalsModel extends AbstractModel
         if (empty($exist)) {
 
             // Create new row
-            return $this->insert(['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'diff' => $diff]);
+            return (bool)$this->insert(['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'diff' => $diff]);
         }
 
         $this->qb()->where('id', $exist['id'])->update(['diff' => $diff]);

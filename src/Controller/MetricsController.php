@@ -3,6 +3,7 @@
 
 namespace App\Controller;
 
+use App\Library\EventSaver;
 use App\Library\Format;
 use App\Model\DailyMetricsModel;
 use App\Model\DailyMetricTotalsModel;
@@ -13,16 +14,18 @@ use Symfony\Component\Routing\Annotation\Route;
 class MetricsController extends AbstractController
 {
     public function __construct(
+        private readonly EventSaver             $eventSaver,
         private readonly DailyMetricsModel      $dailyMetrics,
         private readonly DailyMetricTotalsModel $dailyMetricTotals
     )
     {
     }
 
-//    #[Route('/metrics/slice/{slice_id:\d+}', methods: ['GET'])]
     #[Route('/metrics', methods: ['GET'])]
     public function getAll()
     {
+        $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'all metrics']);
+
         $from = new \DateTime('today');
         $to = new \DateTime();
         $result = $this->getMetricValues($from, $to);
@@ -41,14 +44,21 @@ class MetricsController extends AbstractController
         return $this->json(['metrics' => $result]);
     }
 
-    #[Route('/metrics/{metric_id:\d+}', methods: ['GET'])]
-    public function getByMetricId(ServerRequestInterface $request)
+    #[Route('/metrics/slice/{sliceId}', methods: ['GET'])]
+    public function getBySliceId(int $sliceId)
     {
-        $attributes = $request->getAttributes();
-        $data = $this->dailyMetrics->getByMetricId($attributes['metric_id']);
+        throw new \Exception('not implemented');
+    }
+
+    #[Route('/metrics/{metricId}', methods: ['GET'])]
+    public function getByMetricId(int $metricId)
+    {
+        $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'metric by id']);
+
+        $data = $this->dailyMetrics->getByMetricId($metricId);
         $yesterdayData = $this->dailyMetrics
             ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
-            ->getByMetricId($attributes['metric_id']);
+            ->getByMetricId($metricId);
 
         $today = [];
         foreach ($data as $record) {

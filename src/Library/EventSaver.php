@@ -22,27 +22,18 @@ class EventSaver
     {
     }
 
-    public function save(string $metric, int $value, int $timestamp, $sliceGroup = false, $slice = false)
+    public function save(string $metric, int $value, int $timestamp, array $slices = []): void
     {
-        $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
+        $minute = (int)date('G', $timestamp) * 60 + (int)date('i', $timestamp);
 
         $metricId = $this->metrics->getId($metric);
-        $this->dailyMetrics
-            ->setTableFromTimestamp($timestamp)
-            ->createOrIncrement($metricId, $value, $minute);
-        $this->dailyMetricTotals->insertOrUpdate([
-            'metric_id' => $metricId,
-            'value' => $value,
-        ]);
+        $this->dailyMetrics->setTableFromTimestamp($timestamp)->createOrIncrement($metricId, $value, $minute);
+        $this->dailyMetricTotals->track($metricId, $value);
 
-        if ($sliceGroup && $slice) {
+        foreach ($slices as $sliceGroup => $slice) {
             $sliceId = $this->slices->getId($sliceGroup, $slice);
-            $this->dailySlices
-                ->setTableFromTimestamp($timestamp)
-                ->createOrIncrement($metricId, $sliceId, $value, $minute);
-            $this->dailySliceTotals->create($metricId, $sliceId, $value);
+            $this->dailySlices->setTableFromTimestamp($timestamp)->createOrIncrement($metricId, $sliceId, $value, $minute);
+            $this->dailySliceTotals->track($metricId, $sliceId, $value);
         }
-
-
     }
 }

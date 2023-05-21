@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Library\EventSaver;
 use App\Model\DailyMetricsModel;
 use App\Model\DailySlicesModel;
 use App\Model\MonthlyMetricsModel;
@@ -14,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ValuesController extends AbstractController
 {
     public function __construct(
+        private readonly EventSaver            $eventSaver,
         private readonly DailySlicesModel    $dailySlices,
         private readonly DailyMetricsModel   $dailyMetrics,
         private readonly MonthlySlicesModel  $monthlySlices,
@@ -25,6 +27,8 @@ class ValuesController extends AbstractController
     #[Route('/values/minutes', methods: ['GET'])]
     public function minutes(Request $request)
     {
+        $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'minutely values for days']);
+
         $metricId = $request->query->get('metric_id');
         $sliceId = $request->query->get('slice_id');
         $from = $request->query->has('from') ? new \DateTime($request->query->get('from')) : new \DateTime('today');
@@ -51,6 +55,8 @@ class ValuesController extends AbstractController
     #[Route('/values/days', methods: ['GET'])]
     public function days(Request $request)
     {
+        $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'daily values for weeks']);
+
         $metricId = $request->query->get('metric_id');
         $sliceId = $request->query->get('slice_id');
         $from = $request->query->has('from') ? new \DateTime($request->query->get('from')) : new \DateTime('first day of this month midnight');

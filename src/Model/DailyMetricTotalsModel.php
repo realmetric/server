@@ -2,6 +2,7 @@
 
 
 namespace App\Model;
+
 use Illuminate\Database\Connection;
 
 
@@ -41,6 +42,11 @@ class DailyMetricTotalsModel extends AbstractModel
         });
     }
 
+    public function track(int $metricId, int $value): bool
+    {
+        return $this->insertOrUpdate(['metric_id' => $metricId, 'value' => $value]);
+    }
+
     public function getTotals(bool $withNames = false)
     {
         $q = $this->qb();
@@ -50,7 +56,7 @@ class DailyMetricTotalsModel extends AbstractModel
                 ->groupBy($this->getTable() . '.metric_id', 'metrics.name', $this->getTable() . '.diff');
 
         } else {
-            $q->selectRaw($this->getTable() . '.metric_id, sum('. $this->getTable() .'.value) as value, ' . $this->getTable() . '.diff')
+            $q->selectRaw($this->getTable() . '.metric_id, sum(' . $this->getTable() . '.value) as value, ' . $this->getTable() . '.diff')
                 ->groupBy($this->getTable() . '.metric_id', $this->getTable() . '.diff');
         }
 
