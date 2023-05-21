@@ -1,4 +1,4 @@
-## Send your events to an API (POST /track)
+## Send your events to API
 ```json
 [
   {
@@ -19,4 +19,9 @@
   },
   ...
 ]
+```
+
+Example with CURL
+```shell
+curl -k -X POST https://127.0.0.1:8000/track -u login:sha1ofPassword -d '[{"event":"TopAction","category":"Product","value":3}]'
 ```
