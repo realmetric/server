@@ -43,22 +43,12 @@ class DailySliceTotalsModel extends AbstractModel
         });
     }
 
-    public function track(int $metricId, int $sliceId, float $value, float $diff = 0): bool
+    public function track(int $metricId, int $sliceId, int $value): bool
     {
-        if (!$value) {
-            return false;
-        }
-
-        $exist = $this->qb()->where('metric_id', $metricId)->where('slice_id', $sliceId)->first();
-        if (empty($exist)) {
-
-            // Create new row
-            return (bool)$this->insert(['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'diff' => $diff]);
-        }
-
-        $this->qb()->where('id', $exist['id'])->update(['diff' => $diff]);
-        $this->increment($exist['id'], 'value', $value);
-        return true;
+        return $this->insertOrIncrement([
+            'metric_id' => $metricId,
+            'slice_id' => $sliceId,
+        ], $value);
     }
 
     public function getAllValues()

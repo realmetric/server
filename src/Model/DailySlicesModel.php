@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace App\Model;
+
 use Illuminate\Database\Connection;
 
 
@@ -74,27 +75,13 @@ class DailySlicesModel extends AbstractModel
             ->pluck('metric_id');
     }
 
-    public function createOrIncrement(int $metricId, int $sliceId, int $value, int $minute): int
+    public function track(int $metricId, int $sliceId, int $value, int $minute): int
     {
-        // Check exist
-        $id = $this->qb()->where('metric_id', $metricId)
-            ->where('slice_id', $sliceId)
-            ->where('minute', $minute)
-            ->value('id');
-
-        // Increment instead Insert
-        if ($id) {
-            $this->increment($id, 'value', $value);
-            return $id;
-        }
-
-        $data = [
+        return $this->insertOrIncrement([
             'metric_id' => $metricId,
             'slice_id' => $sliceId,
-            'value' => $value,
             'minute' => $minute,
-        ];
-        return $this->insert($data);
+        ], $value);
     }
 
     public function getTotals(int $timestamp, $metricId = null, bool $withNamesAndCategories = false): array

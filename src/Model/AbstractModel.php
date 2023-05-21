@@ -86,9 +86,16 @@ abstract class AbstractModel
         }
         return $insertId;
     }
-    public function insertOrUpdate(array $data): bool
+
+    public function insertOrIncrement(array $data, int $value): int
     {
-        return $this->qb()->updateOrInsert($data);
+        $existRow = $this->qb()->where($data)->first();
+        if ($existRow) {
+            $this->increment($existRow['id'], 'value', $value);
+            return $existRow['id'];
+        }
+        $data['value'] = $value;
+        return $this->insert($data);
     }
 
     public function insertBatch(array $arraysOfData)
@@ -111,7 +118,7 @@ abstract class AbstractModel
         $keysCount = count($keys);
         $valuesCount = count($values);
         $valuesSqlCount = $valuesCount / $keysCount;
-        $valuesSqlChunkSize = (int) floor(self::MAX_PREPARED_STMT_COUNT / $keysCount);
+        $valuesSqlChunkSize = (int)floor(self::MAX_PREPARED_STMT_COUNT / $keysCount);
         $valuesChunkSize = $valuesSqlChunkSize * $keysCount;
 
         $placeHolders = array_fill(0, $keysCount, '?');
@@ -122,22 +129,22 @@ abstract class AbstractModel
         $table = $this->getTable();
 
         $valuesOffset = 0;
-        foreach(array_chunk($valuesSql, $valuesSqlChunkSize) as $valuesSqlPart){
+        foreach (array_chunk($valuesSql, $valuesSqlChunkSize) as $valuesSqlPart) {
             $valuesPart = array_slice($values, $valuesOffset * $valuesSqlChunkSize * $keysCount, $valuesChunkSize);
             $valuesOffset++;
             $valuesSqlPart = implode(',', $valuesSqlPart);
 
             $sql = "insert into `{$table}` ({$keys}) values {$valuesSqlPart}";
-            
+
             $this->connection->getPdo()
                 ->prepare($sql)
                 ->execute($valuesPart);
         }
     }
 
-    public function increment(int $id, string $column, $amount = 1)
+    public function increment(int $id, string $column, $amount = 1): int
     {
-        $this->qb()->where('id', $id)->increment($column, $amount);
+        return $this->qb()->where('id', $id)->increment($column, $amount);
     }
 
     public function getAll($columns = ['*']): array
@@ -155,8 +162,8 @@ abstract class AbstractModel
     protected function createTableIfNotExists()
     {
         $tableName = $this->getTable();
-        if (!in_array($tableName, $this->tableNameExistsCache, true)){
-            if (count($this->tableNameExistsCache) > static::MAX_TABLE_NAME_EXISTS_CACHE_COUNT){
+        if (!in_array($tableName, $this->tableNameExistsCache, true)) {
+            if (count($this->tableNameExistsCache) > static::MAX_TABLE_NAME_EXISTS_CACHE_COUNT) {
                 $this->tableNameExistsCache = [];
             }
 

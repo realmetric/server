@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Model;
+
 use Illuminate\Database\Connection;
 
 class MonthlyMetricsModel extends AbstractModel
@@ -60,9 +61,9 @@ class MonthlyMetricsModel extends AbstractModel
             ->get()->all();
     }
 
-    public function updateOrInsert($row)
+    public function track(int $metricId, int $value, \DateTime $date): int
     {
-        return $this->qb()->updateOrInsert(['metric_id' => $row['metric_id'], 'date' => $row['date']], $row);
+        return $this->insertOrIncrement(['metric_id' => $metricId, 'date' => $date->format('Y-m-d')], $value);
     }
 
     public function getDateFromDailyMetricsTableName($dailyMetricsTableName)

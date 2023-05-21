@@ -27,12 +27,12 @@ class EventSaver
         $minute = (int)date('G', $timestamp) * 60 + (int)date('i', $timestamp);
 
         $metricId = $this->metrics->getId($metric);
-        $this->dailyMetrics->setTableFromTimestamp($timestamp)->createOrIncrement($metricId, $value, $minute);
+        $this->dailyMetrics->setTableFromTimestamp($timestamp)->track($metricId, $value, $minute);
         $this->dailyMetricTotals->track($metricId, $value);
 
         foreach ($slices as $sliceGroup => $slice) {
             $sliceId = $this->slices->getId($sliceGroup, $slice);
-            $this->dailySlices->setTableFromTimestamp($timestamp)->createOrIncrement($metricId, $sliceId, $value, $minute);
+            $this->dailySlices->setTableFromTimestamp($timestamp)->track($metricId, $sliceId, $value, $minute);
             $this->dailySliceTotals->track($metricId, $sliceId, $value);
         }
     }

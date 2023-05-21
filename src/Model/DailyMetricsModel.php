@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Model;
+
 use Illuminate\Database\Connection;
 
 
@@ -44,25 +45,12 @@ class DailyMetricsModel extends AbstractModel
         });
     }
 
-    public function createOrIncrement(int $metricId, int $value, int $minute): int
+    public function track(int $metricId, int $value, int $minute): int
     {
-        // Check exist
-        $id = $this->qb()->where('metric_id', $metricId)
-            ->where('minute', $minute)
-            ->value('id');
-
-        // Increment instead Insert
-        if ($id) {
-            $this->increment($id, 'value', $value);
-            return $id;
-        }
-
-        $data = [
+        return $this->insertOrIncrement([
             'metric_id' => $metricId,
-            'value' => $value,
             'minute' => $minute,
-        ];
-        return $this->insert($data);
+        ], $value);
     }
 
     public function getMetricsByMinute(int $minute)
