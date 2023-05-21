@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-alpine as base
+FROM php:8.2.2-fpm as base
 
 RUN apt-get update \
     && apt-get install -y unzip git htop --no-install-recommends \
