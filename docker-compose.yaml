@@ -11,7 +11,7 @@ services:
     volumes:
       - .:/var/www
     ports:
-      - "8000:8000"
+      - "8000:80"
   mysql:
     image: mysql:8.0.32
     command: --default-authentication-plugin=mysql_native_password
