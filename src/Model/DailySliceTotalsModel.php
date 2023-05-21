@@ -51,6 +51,11 @@ class DailySliceTotalsModel extends AbstractModel
         ], $value);
     }
 
+    public function getMetricsWithSlice(int $sliceId)
+    {
+        return $this->qb()->where('slice_id', $sliceId)->distinct()->get(['metric_id'])->pluck('metric_id')->all();
+    }
+
     public function getAllValues()
     {
         return $this->qb()->selectRaw('slice_id as id, value, diff')

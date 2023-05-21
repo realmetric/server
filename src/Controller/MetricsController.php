@@ -7,6 +7,7 @@ use App\Library\EventSaver;
 use App\Library\Format;
 use App\Model\DailyMetricsModel;
 use App\Model\DailyMetricTotalsModel;
+use App\Model\DailySliceTotalsModel;
 use Illuminate\Database\QueryException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +17,8 @@ class MetricsController extends AbstractController
     public function __construct(
         private readonly EventSaver             $eventSaver,
         private readonly DailyMetricsModel      $dailyMetrics,
-        private readonly DailyMetricTotalsModel $dailyMetricTotals
+        private readonly DailyMetricTotalsModel $dailyMetricTotals,
+        private readonly DailySliceTotalsModel  $dailySliceTotals
     )
     {
     }
@@ -25,10 +27,13 @@ class MetricsController extends AbstractController
     public function getAll()
     {
         $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'all metrics']);
-
-        $from = new \DateTime('today');
-        $to = new \DateTime();
-        $result = $this->getMetricValues($from, $to);
+        $totals = $this->dailyMetricTotals->getTotals(true);
+        $result = [];
+        foreach ($totals as $row) {
+            $nameParts = explode('.', $row['name']);
+            $catName = count($nameParts) > 1 ? $nameParts[0] : 'Other';
+            $result[$catName][] = $row;
+        }
         ksort($result, SORT_STRING);
 
         $format = new Format();
@@ -47,7 +52,31 @@ class MetricsController extends AbstractController
     #[Route('/metrics/slice/{sliceId}', methods: ['GET'])]
     public function getBySliceId(int $sliceId)
     {
-        throw new \Exception('not implemented');
+        $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'metrics by sliceId']);
+        $metricsWithSlice = $this->dailySliceTotals->getMetricsWithSlice($sliceId);
+        $totals = $this->dailyMetricTotals->getTotals(true);
+        $result = [];
+        foreach ($totals as $row) {
+            if (!in_array($row['id'], $metricsWithSlice)) {
+                continue;
+            }
+            $nameParts = explode('.', $row['name']);
+            $catName = count($nameParts) > 1 ? $nameParts[0] : 'Other';
+            $result[$catName][] = $row;
+        }
+        ksort($result, SORT_STRING);
+
+        $format = new Format();
+        // Sort by value
+        foreach ($result as &$values) {
+            usort($values, function ($a, $b) {
+                return $b['total'] - $a['total'];
+            });
+            foreach ($values as &$value) {
+                $value['total'] = $format->shorten($value['total']);
+            }
+        }
+        return $this->json(['metrics' => $result]);
     }
 
     #[Route('/metrics/{metricId}', methods: ['GET'])]
@@ -77,17 +106,6 @@ class MetricsController extends AbstractController
         return $this->json(['values' => $values]);
     }
 
-    private function getMetricValues(\DateTime $from, \DateTime $to)
-    {
-        $totals = $this->dailyMetricTotals->getTotals(true);
-        $result = [];
-        foreach ($totals as $row) {
-            $nameParts = explode('.', $row['name']);
-            $catName = count($nameParts) > 1 ? $nameParts[0] : 'Other';
-            $result[$catName][] = $row;
-        }
-        return $result;
-    }
 
     private function getTotalsFromDailyMetrics(\DateTime $dt, \DateTime $pastDt): array
     {
