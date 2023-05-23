@@ -32,14 +32,18 @@ class EventSaver
         $dateTime = (new \DateTime)->setTimestamp($timestamp);
 
         $metricId = $this->metrics->getId($metric);
-        $this->dailyMetrics->setTableFromTimestamp($timestamp)->track($metricId, $value, $minute);
-        $this->dailyMetricTotals->track($metricId, $value);
+        if ($timestamp > time() - 3600 * 24 * 3) {
+            $this->dailyMetrics->setTableFromTimestamp($timestamp)->track($metricId, $value, $minute);
+            $this->dailyMetricTotals->track($metricId, $value);
+        }
         $this->monthlyMetrics->track($metricId, $value, $dateTime);
 
         foreach ($slices as $sliceGroup => $slice) {
             $sliceId = $this->slices->getId($sliceGroup, $slice);
-            $this->dailySlices->setTableFromTimestamp($timestamp)->track($metricId, $sliceId, $value, $minute);
-            $this->dailySliceTotals->track($metricId, $sliceId, $value);
+            if ($timestamp > time() - 3600 * 24 * 3) {
+                $this->dailySlices->setTableFromTimestamp($timestamp)->track($metricId, $sliceId, $value, $minute);
+                $this->dailySliceTotals->track($metricId, $sliceId, $value);
+            }
             $this->monthlySlices->track($metricId, $sliceId, $value, $dateTime);
         }
     }
