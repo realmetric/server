@@ -14,6 +14,7 @@ class FillFakeDataCommand extends BaseCommand
         private readonly EventSaver $eventSaver
     )
     {
+        parent::__construct();
     }
 
     public function handle()
