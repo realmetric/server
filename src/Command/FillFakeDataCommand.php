@@ -31,11 +31,11 @@ class FillFakeDataCommand extends BaseCommand
             }
             $timestamp = mt_rand(1653327297, time());
 
-            $this->eventSaver->save($metric, $value, $timestamp, $slices);
+            $this->eventSaver->save($metric, $value, $timestamp, $slices, false);
             $insertCalc++;
-            if ($insertCalc >= 10) {
-                $timeDone = round((microtime(true) - $timeStart) * 1000);
-                echo 'Insert time: ' . round($timeDone / $insertCalc) . " ms\n";
+            if ($insertCalc >= 100) {
+                $timeDone = (microtime(true) - $timeStart) * 1000;
+                echo 'Insert time: ' . round($timeDone / $insertCalc) . "  ms\n";
                 $insertCalc = 0;
                 $timeStart = microtime(true);
             }

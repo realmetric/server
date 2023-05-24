@@ -28,7 +28,7 @@ class EventSaver
     {
     }
 
-    public function save(string $metric, int $value, int $timestamp, array $slices, $batch = true): void
+    public function save(string $metric, int $value, int $timestamp, array $slices, $batch = false): void
     {
         if (!$batch) {
             $this->directSave($metric, $value, $timestamp, $slices);
@@ -53,7 +53,7 @@ class EventSaver
             $key = json_encode([$metric, $timestamp, $sliceGroup, $slice]);
             @$this->batchValues[$key] += $value;
         }
-        if (!mt_rand(0, 99)) {
+        if (!mt_rand(0, 9)) {
             $this->flush();
         }
     }
