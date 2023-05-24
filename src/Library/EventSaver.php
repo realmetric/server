@@ -44,9 +44,15 @@ class EventSaver
     {
         $date = date('Y-m-d', $timestamp);
         $minute = (int)date('G', $timestamp) * 60 + (int)date('i', $timestamp);
-        $this->trackDaily($metric, $value, $date, $minute);
+        $this->trackMonthly($metric, $value, $date);
+        if ($timestamp > time() - 3600 * 24 * 3) {
+            $this->trackDaily($metric, $value, $date, $minute);
+        }
         foreach ($slices as $sliceGroup => $slice) {
-            $this->trackDaily($metric, $value, $date, $minute, $sliceGroup, $slice);
+            $this->trackMonthly($metric, $value, $date, $sliceGroup, $slice);
+            if ($timestamp > time() - 3600 * 24 * 3) {
+                $this->trackDaily($metric, $value, $date, $minute, $sliceGroup, $slice);
+            }
         }
     }
 

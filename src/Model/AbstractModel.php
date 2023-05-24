@@ -4,6 +4,7 @@ namespace App\Model;
 
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
+use PdoModel\PdoModel;
 
 abstract class AbstractModel
 {
@@ -11,24 +12,22 @@ abstract class AbstractModel
     const MAX_PREPARED_STMT_COUNT = 60000;
     const MAX_TABLE_NAME_EXISTS_CACHE_COUNT = 20;
 
-    protected $tableNameExistsCache = [];
+    protected array $tableNameExistsCache = [];
 
     private $tableName = null;
     private $connection = null;
 
+    private PdoModel $pdoModel;
+
     public function __construct(Connection $connection)
     {
+        $this->pdoModel = new PdoModel($connection->getPdo());
+
         if (!static::TABLE) {
             throw new \Exception('Model ' . static::class . ' without TABLE constant');
         }
         $this->setTable(static::TABLE);
         $this->connection = $connection;
-    }
-
-    public function minuteFromDate(string $date)
-    {
-        $ts = strtotime($date);
-        return date('H', $ts) * 60 + date('i', $ts);
     }
 
     protected function qb()
@@ -59,9 +58,10 @@ abstract class AbstractModel
         return $this->connection->getSchemaBuilder();
     }
 
-    public function setTable($name)
+    public function setTable($name): static
     {
         $this->tableName = $name;
+        $this->pdoModel->setTable($name);
         return $this;
     }
 
@@ -70,7 +70,6 @@ abstract class AbstractModel
         return $this->tableName;
     }
 
-    // ------------- Base public functions below -----------------
 
     public function getById(int $primaryId): array
     {
@@ -87,15 +86,14 @@ abstract class AbstractModel
         return $insertId;
     }
 
-    public function insertOrIncrement(array $data, int $value): int
+    public function insertOrIncrement(array $insertData, int $value): int
     {
-        $existRow = $this->qb()->where($data)->first();
-        if ($existRow) {
-            $this->increment($existRow['id'], 'value', $value);
-            return $existRow['id'];
+        $insertData['value'] = $value;
+        foreach ($insertData as $k => $v) {
+            unset($insertData[$k]);
+            $insertData['`' . $k . '`'] = '"' . $v . '"';
         }
-        $data['value'] = $value;
-        return $this->insert($data);
+        return $this->pdoModel->insertUpdate($insertData, ['`value`' => '`value` + ' . $value], true);
     }
 
     public function insertBatch(array $arraysOfData)
@@ -112,7 +110,7 @@ abstract class AbstractModel
         $this->insertBatchRaw($keys, $values);
     }
 
-    public function insertBatchRaw(array $keys, array $values)
+    private function insertBatchRaw(array $keys, array $values)
     {
         // Hard but fast
         $keysCount = count($keys);

@@ -11,6 +11,7 @@
         "illuminate/database": "6.*",
         "illuminate/events": "^6.20",
         "nelmio/cors-bundle": "^2.3",
+        "phpset/pdomodel": "^1.4",
         "symfony/console": "6.2.*",
         "symfony/dotenv": "6.2.*",
         "symfony/flex": "^2",
