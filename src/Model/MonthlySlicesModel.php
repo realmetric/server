@@ -62,12 +62,15 @@ class MonthlySlicesModel extends AbstractModel
             ->get()->all();
     }
 
-    public function track(int $metricId, int $sliceId, int $value, \DateTime $date): int
+    public function track(int $metricId, int $sliceId, int $value, string $date): int
     {
+        if (!str_contains($date, '-')) {
+            throw new \Exception('Wrong date format: ' . $date);
+        }
         return $this->insertOrIncrement([
             'metric_id' => $metricId,
             'slice_id' => $sliceId,
-            'date' => $date->format('Y-m-d')
+            'date' => $date,
         ], $value);
     }
 

@@ -13,7 +13,9 @@ use App\Model\SlicesModel;
 
 class EventSaver
 {
-    private array $batchValues = [];
+    private array $batchDailyValues = [];
+    private array $batchMonthlyValues = [];
+    private int $batchStarted;
 
     public function __construct(
         private readonly MetricsModel           $metrics,
@@ -26,6 +28,7 @@ class EventSaver
         private readonly MonthlySlicesModel     $monthlySlices,
     )
     {
+        $this->batchStarted = time();
     }
 
     public function save(string $metric, int $value, int $timestamp, array $slices, $batch = false): void
@@ -39,56 +42,90 @@ class EventSaver
 
     private function directSave(string $metric, int $value, int $timestamp, array $slices): void
     {
-        $this->track($metric, $value, $timestamp);
+        $date = date('Y-m-d', $timestamp);
+        $minute = (int)date('G', $timestamp) * 60 + (int)date('i', $timestamp);
+        $this->trackDaily($metric, $value, $date, $minute);
         foreach ($slices as $sliceGroup => $slice) {
-            $this->track($metric, $value, $timestamp, $sliceGroup, $slice);
+            $this->trackDaily($metric, $value, $date, $minute, $sliceGroup, $slice);
         }
     }
 
     private function batchSave(string $metric, int $value, int $timestamp, array $slices): void
     {
-        $key = json_encode([$metric, $timestamp, null, null]);
-        @$this->batchValues[$key] += $value;
-        foreach ($slices as $sliceGroup => $slice) {
-            $key = json_encode([$metric, $timestamp, $sliceGroup, $slice]);
-            @$this->batchValues[$key] += $value;
+        $date = date('Y-m-d', $timestamp);
+        $minute = (int)date('G', $timestamp) * 60 + (int)date('i', $timestamp);
+        $keyDaily = json_encode([$metric, $date, $minute, null, null]);
+        $keyMonthly = json_encode([$metric, $date, null, null]);
+        @$this->batchMonthlyValues[$keyMonthly] += $value;
+        if ($timestamp > time() - 3600 * 24 * 3) {
+            @$this->batchDailyValues[$keyDaily] += $value;
         }
-        if (!mt_rand(0, 9)) {
+        foreach ($slices as $sliceGroup => $slice) {
+            $keyDaily = json_encode([$metric, $date, $minute, $sliceGroup, $slice]);
+            $keyMonthly = json_encode([$metric, $date, $sliceGroup, $slice]);
+            @$this->batchDailyValues[$keyDaily] += $value;
+            @$this->batchMonthlyValues[$keyMonthly] += $value;
+        }
+        if (time() - $this->batchStarted >= 60) {
             $this->flush();
         }
     }
 
     private function flush(): void
     {
-        $batchData = $this->batchValues;
-        $this->batchValues = [];
-        foreach ($batchData as $key => $value) {
-            [$metric, $timestamp, $sliceGroup, $slice] = json_decode($key, true);
-            $this->track($metric, $value, $timestamp, $sliceGroup, $slice);
+        $timeStart = microtime(true);
+        // Daily
+        $batchDailyData = $this->batchDailyValues;
+        $this->batchDailyValues = [];
+        foreach ($batchDailyData as $key => $value) {
+            [$metric, $date, $minute, $sliceGroup, $slice] = json_decode($key, true);
+            $this->trackDaily($metric, $value, $date, $minute, $sliceGroup, $slice);
         }
+        // Monthly
+        $batchMonthlyData = $this->batchMonthlyValues;
+        $this->batchMonthlyValues = [];
+        foreach ($batchMonthlyData as $key => $value) {
+            [$metric, $date, $sliceGroup, $slice] = json_decode($key, true);
+            $this->trackMonthly($metric, $value, $date, $sliceGroup, $slice);
+        }
+        echo "Flush done in " . round((microtime(true) - $timeStart) * 1000) . " seconds. \n";
+        $this->batchStarted = time();
     }
 
-    private function track(string $metric, int $value, int $timestamp, ?string $sliceGroup = null, ?string $slice = null): void
+    private function trackMonthly(string $metric, int $value, string $date, ?string $sliceGroup = null, ?string $slice = null): void
     {
-        $minute = (int)date('G', $timestamp) * 60 + (int)date('i', $timestamp);
-        $dateTime = (new \DateTime)->setTimestamp($timestamp);
+        if (!str_contains($date, '-')) {
+            throw new \Exception('Wrong date format: ' . $date);
+        }
+        $metricId = $this->metrics->getId($metric);
+        $this->monthlyMetrics->track($metricId, $value, $date);
+        if ($sliceGroup == null && $slice == null) {
+            return;
+        }
+        $sliceId = $this->slices->getId($sliceGroup, $slice);
+        $this->monthlySlices->track($metricId, $sliceId, $value, $date);
+    }
+
+    private function trackDaily(string $metric, int $value, string $date, int $minute, ?string $sliceGroup = null, ?string $slice = null): void
+    {
+        if (!str_contains($date, '-')) {
+            throw new \Exception('Wrong date format: ' . $date);
+        }
+        if ($minute > 24 * 60) {
+            throw new \Exception('Wrong minute format: ' . $minute);
+        }
+        $timestamp = strtotime($date);
 
         $metricId = $this->metrics->getId($metric);
-        if ($timestamp > time() - 3600 * 24 * 3) {
-            $this->dailyMetrics->setTableFromTimestamp($timestamp)->track($metricId, $value, $minute);
-            $this->dailyMetricTotals->track($metricId, $value);
-        }
-        $this->monthlyMetrics->track($metricId, $value, $dateTime);
+        $this->dailyMetrics->setTableFromTimestamp($timestamp)->track($metricId, $value, $minute);
+        $this->dailyMetricTotals->track($metricId, $value);
 
         if ($sliceGroup == null && $slice == null) {
             return;
         }
 
         $sliceId = $this->slices->getId($sliceGroup, $slice);
-        if ($timestamp > time() - 3600 * 24 * 3) {
-            $this->dailySlices->setTableFromTimestamp($timestamp)->track($metricId, $sliceId, $value, $minute);
-            $this->dailySliceTotals->track($metricId, $sliceId, $value);
-        }
-        $this->monthlySlices->track($metricId, $sliceId, $value, $dateTime);
+        $this->dailySlices->setTableFromTimestamp($timestamp)->track($metricId, $sliceId, $value, $minute);
+        $this->dailySliceTotals->track($metricId, $sliceId, $value);
     }
 }

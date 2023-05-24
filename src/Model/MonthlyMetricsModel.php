@@ -61,9 +61,12 @@ class MonthlyMetricsModel extends AbstractModel
             ->get()->all();
     }
 
-    public function track(int $metricId, int $value, \DateTime $date): int
+    public function track(int $metricId, int $value, string $date): int
     {
-        return $this->insertOrIncrement(['metric_id' => $metricId, 'date' => $date->format('Y-m-d')], $value);
+        if (!str_contains($date, '-')) {
+            throw new \Exception('Wrong date format: ' . $date);
+        }
+        return $this->insertOrIncrement(['metric_id' => $metricId, 'date' => $date], $value);
     }
 
     public function getDateFromDailyMetricsTableName($dailyMetricsTableName)
