@@ -9,7 +9,6 @@ use PdoModel\PdoModel;
 abstract class AbstractModel
 {
     const TABLE = null;
-    const MAX_PREPARED_STMT_COUNT = 60000;
     const MAX_TABLE_NAME_EXISTS_CACHE_COUNT = 20;
 
     protected array $tableNameExistsCache = [];
@@ -42,17 +41,7 @@ abstract class AbstractModel
         return $qb->from($this->getTable());
     }
 
-    /**
-     * @return Connection
-     */
-    protected function getConnection()
-    {
-        return $this->connection;
-    }
 
-    /**
-     * @return \Illuminate\Database\Schema\Builder
-     */
     protected function shema()
     {
         return $this->connection->getSchemaBuilder();
@@ -70,12 +59,10 @@ abstract class AbstractModel
         return $this->tableName;
     }
 
-
     public function getById(int $primaryId): array
     {
         return $this->qb()->find($primaryId);
     }
-
 
     public function insert(array $data): int
     {
@@ -96,64 +83,12 @@ abstract class AbstractModel
         return $this->pdoModel->insertUpdate($insertData, ['`value`' => '`value` + ' . $value], true);
     }
 
-    public function insertBatch(array $arraysOfData)
-    {
-        $keys = array_keys(reset($arraysOfData));
-        $values = [];
-
-        foreach ($arraysOfData as $data) {
-            foreach ($data as $key => $value) {
-                $values[] = $value;
-            }
-        }
-
-        $this->insertBatchRaw($keys, $values);
-    }
-
-    private function insertBatchRaw(array $keys, array $values)
-    {
-        // Hard but fast
-        $keysCount = count($keys);
-        $valuesCount = count($values);
-        $valuesSqlCount = $valuesCount / $keysCount;
-        $valuesSqlChunkSize = (int)floor(self::MAX_PREPARED_STMT_COUNT / $keysCount);
-        $valuesChunkSize = $valuesSqlChunkSize * $keysCount;
-
-        $placeHolders = array_fill(0, $keysCount, '?');
-        $placeHolders = implode(',', $placeHolders);
-        $valuesSql = array_fill(0, $valuesSqlCount, '(' . $placeHolders . ')');
-
-        $keys = implode(',', $keys);
-        $table = $this->getTable();
-
-        $valuesOffset = 0;
-        foreach (array_chunk($valuesSql, $valuesSqlChunkSize) as $valuesSqlPart) {
-            $valuesPart = array_slice($values, $valuesOffset * $valuesSqlChunkSize * $keysCount, $valuesChunkSize);
-            $valuesOffset++;
-            $valuesSqlPart = implode(',', $valuesSqlPart);
-
-            $sql = "insert into `{$table}` ({$keys}) values {$valuesSqlPart}";
-
-            $this->connection->getPdo()
-                ->prepare($sql)
-                ->execute($valuesPart);
-        }
-    }
-
-    public function increment(int $id, string $column, $amount = 1): int
-    {
-        return $this->qb()->where('id', $id)->increment($column, $amount);
-    }
 
     public function getAll($columns = ['*']): array
     {
         return $this->qb()->get($columns)->all();
     }
 
-    public function truncate()
-    {
-        $this->qb()->truncate();
-    }
 
     abstract protected function createTable($name);
 

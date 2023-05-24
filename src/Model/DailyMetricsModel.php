@@ -53,43 +53,10 @@ class DailyMetricsModel extends AbstractModel
         ], $value);
     }
 
-    public function getMetricsByMinute(int $minute)
-    {
-        return $this->qb()
-            ->where('minute', $minute)
-            ->distinct()
-            ->pluck('metric_id');
-    }
-
-    public function getTotals(int $timestamp, bool $withNames = false)
-    {
-        $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
-        $q = $this->qb();
-        if ($withNames) {
-            $q->selectRaw($this->getTable() . '.metric_id, metrics.name, sum(' . $this->getTable() . '.value) as value')
-                ->join('metrics', $this->getTable() . '.metric_id', '=', 'metrics.id')
-                ->groupBy($this->getTable() . '.metric_id', 'metrics.name');
-
-        } else {
-            $q->selectRaw($this->getTable() . '.metric_id, sum(' . $this->getTable() . '.value) as value')
-                ->groupBy('metric_id');
-        }
-
-        $q->where($this->getTable() . '.minute', '<', $minute);
-        return $q->get()->all();
-    }
-
     public function getByMetricId(int $metricId): array
     {
         return $this->qb()
             ->where('metric_id', '=', $metricId)
             ->get(['minute', 'value'])->all();
     }
-
-    public function dropTable($datePart)
-    {
-        $name = self::TABLE_PREFIX . $datePart;
-        return $this->shema()->dropIfExists($name);
-    }
-
 }

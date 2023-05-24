@@ -36,31 +36,6 @@ class MonthlySlicesModel extends AbstractModel
         });
     }
 
-    public function getUnprocessedDailySlicesTableNames($dailyCounterTimestamp = null)
-    {
-        $q = $this->qb()
-            ->select(['table_name'])
-            ->from('information_schema.tables')
-            ->whereRaw('table_schema = DATABASE()')
-            ->where('table_name', 'LIKE', 'daily_slices_%')
-            ->orderBy('table_name');
-        if ($dailyCounterTimestamp) {
-            $tableName = 'daily_slices_' . date('Y_m_d', $dailyCounterTimestamp);
-            $q->where('table_name', '>', $tableName);
-        }
-
-        return $q->pluck('table_name');
-    }
-
-    public function getAggregatedDailySlicesByTableName($dailyMetricsTableName)
-    {
-        $date = $this->getDateFromDailySlicesTableName($dailyMetricsTableName);
-        return $this->qb()
-            ->selectRaw('metric_id, slice_id, sum(value) value, \'' . $date . '\' date')
-            ->from($dailyMetricsTableName)
-            ->groupBy('metric_id', 'slice_id')
-            ->get()->all();
-    }
 
     public function track(int $metricId, int $sliceId, int $value, string $date): int
     {
@@ -72,11 +47,6 @@ class MonthlySlicesModel extends AbstractModel
             'slice_id' => $sliceId,
             'date' => $date,
         ], $value);
-    }
-
-    public function getDateFromDailySlicesTableName($dailySlicesTableName)
-    {
-        return str_replace('_', '-', str_replace('daily_slices_', '', $dailySlicesTableName));
     }
 
     public function getValues(int $metricId, int $sliceId, \DateTime $from = null, \DateTime $to = null): array

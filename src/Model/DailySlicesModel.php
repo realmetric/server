@@ -53,28 +53,6 @@ class DailySlicesModel extends AbstractModel
             ->get(['minute', 'value'])->all();
     }
 
-    public function getAllByMetricId(int $metricId): array
-    {
-        return $this->qb()
-            ->where('metric_id', '=', $metricId)
-            ->get(['slice_id', 'minute', 'value'])->all();
-    }
-
-    public function getSlicesByMetric(int $metricId, int $minute)
-    {
-        return $this->qb()
-            ->where('metric_id', $metricId)
-            ->where('minute', $minute)
-            ->pluck('slice_id');
-    }
-
-    public function getMetricsBySlice(int $sliceId)
-    {
-        return $this->qb()->where('slice_id', $sliceId)
-            ->groupBy('metric_id')
-            ->pluck('metric_id');
-    }
-
     public function track(int $metricId, int $sliceId, int $value, int $minute): int
     {
         return $this->insertOrIncrement([
@@ -104,41 +82,5 @@ class DailySlicesModel extends AbstractModel
         $q->where($this->getTable() . '.minute', '<', $minute);
 
         return $q->get()->all();
-    }
-
-    public function getTotalsWithCategoryNames(int $timestamp): array
-    {
-        $minute = date('G', $timestamp) * 60 + date('i', $timestamp);
-        $q = $this->qb()
-            ->selectRaw('metrics.name as metric_name, slices.name, slices.category, sum(' . $this->getTable() . '.value) as value')
-            ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id', 'left')
-            ->join('metrics', $this->getTable() . '.metric_id', '=', 'metrics.id', 'left')
-            ->where($this->getTable() . '.minute', '<', $minute)
-            ->groupBy('metric_name', 'slices.name', 'slices.category');
-        return $q->get()->all();
-    }
-
-    public function dropTable($datePart)
-    {
-        $name = self::TABLE_PREFIX . $datePart;
-        return $this->shema()->dropIfExists($name);
-    }
-
-    public function getDiff($metricId, $sliceId, $value, $minute): float
-    {
-        $yesterdayValue = $this->qb()
-            ->selectRaw('sum(value) as value')
-            ->where('metric_id', $metricId)
-            ->where('slice_id', $sliceId)
-            ->where('minute', '<', $minute)
-            ->value('value');
-
-        if (!$yesterdayValue) {
-            return (float)0;
-        }
-
-        $diffPercent = (($value * 100) / $yesterdayValue) - 100;
-
-        return (float)$diffPercent;
     }
 }

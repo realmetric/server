@@ -88,10 +88,4 @@ class MetricsModel extends AbstractModel
         return $record['id'];
     }
 
-    public function getByIds(array $sliceIds):array
-    {
-        return $this->qb()
-            ->whereIn('id', $sliceIds)
-            ->get(['id', 'name'])->all();
-    }
 }

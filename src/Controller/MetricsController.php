@@ -8,7 +8,6 @@ use App\Library\Format;
 use App\Model\DailyMetricsModel;
 use App\Model\DailyMetricTotalsModel;
 use App\Model\DailySliceTotalsModel;
-use Illuminate\Database\QueryException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -104,44 +103,5 @@ class MetricsController extends AbstractController
         ];
 
         return $this->json(['values' => $values]);
-    }
-
-
-    private function getTotalsFromDailyMetrics(\DateTime $dt, \DateTime $pastDt): array
-    {
-        $currentSubtotals = [];
-        $pastSubtotals = [];
-        $currentTimestamp = time();
-        $currentDailySlicesTableName = DailyMetricsModel::TABLE_PREFIX . $dt->format('Y_m_d');
-        $pastDailySlicesTableName = DailyMetricsModel::TABLE_PREFIX . $pastDt->format('Y_m_d');
-        try {
-            $currentSubtotals = $this->dailyMetrics
-                ->setTable($currentDailySlicesTableName)
-                ->getTotals($currentTimestamp, true);
-            $currentSubtotals = $this->prepareSubtotals($currentSubtotals);
-            $pastSubtotals = $this->dailyMetrics
-                ->setTable($pastDailySlicesTableName)
-                ->getTotals($currentTimestamp, false);
-            $pastSubtotals = $this->prepareSubtotals($pastSubtotals);
-        } catch (QueryException $exception) {
-            if ($exception->getCode() !== '42S02') { //table does not exists
-                throw $exception;
-            }
-        }
-        return [
-            'currentSubtotals' => $currentSubtotals,
-            'pastSubtotals' => $pastSubtotals,
-        ];
-    }
-
-    private function prepareSubtotals(array $subtotals)
-    {
-        $result = [];
-        foreach ($subtotals as $subtotal) {
-            $index = $subtotal['metric_id'];
-            unset($subtotal['metric_id']);
-            $result[$index] = $subtotal;
-        }
-        return $result;
     }
 }

@@ -5,7 +5,6 @@ namespace App\Model;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Events\StatementPrepared;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Facades\Event;
 use PDO;
 
 class ConnectionFactory
