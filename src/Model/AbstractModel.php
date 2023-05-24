@@ -83,9 +83,10 @@ abstract class AbstractModel
         return $this->pdoModel->insertUpdate($insertData, ['`value`' => '`value` + ' . $value], true);
     }
 
-    public function insertUpdateBatch(array $insertRows, array $updateColumns = [], array $incrementColumns = [])
+
+    public function insertOrIncrementBatch(array $insertRows)
     {
-        return $this->pdoModel->insertUpdateBatch($insertRows, $updateColumns, $incrementColumns);
+        return $this->pdoModel->insertUpdateBatch($insertRows, incrementColumns: ['value']);
     }
 
 
