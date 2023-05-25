@@ -69,6 +69,10 @@ class EventSaver
 
     private function flush(): void
     {
+        if (empty($this->batchDailyValues) && empty($this->batchMonthlyValues)) {
+            return;
+        }
+
         $timeStart = microtime(true);
         $this->flushDaily($this->batchDailyValues);
         $this->batchDailyValues = [];
