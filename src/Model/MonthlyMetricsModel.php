@@ -35,15 +35,6 @@ class MonthlyMetricsModel extends AbstractModel
         });
     }
 
-
-    public function track(int $metricId, int $value, string $date): int
-    {
-        if (!str_contains($date, '-')) {
-            throw new \Exception('Wrong date format: ' . $date);
-        }
-        return $this->insertOrIncrement(['metric_id' => $metricId, 'date' => $date], $value);
-    }
-
     public function getByMetricId(int $metricId, \DateTime $from = null, \DateTime $to = null): array
     {
         $q = $this->qb()

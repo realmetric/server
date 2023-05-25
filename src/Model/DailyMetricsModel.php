@@ -45,14 +45,6 @@ class DailyMetricsModel extends AbstractModel
         });
     }
 
-    public function track(int $metricId, int $value, int $minute): int
-    {
-        return $this->insertOrIncrement([
-            'metric_id' => $metricId,
-            'minute' => $minute,
-        ], $value);
-    }
-
     public function getByMetricId(int $metricId): array
     {
         return $this->qb()

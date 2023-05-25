@@ -43,14 +43,6 @@ class DailySliceTotalsModel extends AbstractModel
         });
     }
 
-    public function track(int $metricId, int $sliceId, int $value): bool
-    {
-        return $this->insertOrIncrement([
-            'metric_id' => $metricId,
-            'slice_id' => $sliceId,
-        ], $value);
-    }
-
     public function getMetricsWithSlice(int $sliceId)
     {
         return $this->qb()->where('slice_id', $sliceId)->distinct()->get(['metric_id'])->pluck('metric_id')->all();

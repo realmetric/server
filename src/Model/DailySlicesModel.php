@@ -53,15 +53,6 @@ class DailySlicesModel extends AbstractModel
             ->get(['minute', 'value'])->all();
     }
 
-    public function track(int $metricId, int $sliceId, int $value, int $minute): int
-    {
-        return $this->insertOrIncrement([
-            'metric_id' => $metricId,
-            'slice_id' => $sliceId,
-            'minute' => $minute,
-        ], $value);
-    }
-
     public function getTotals(int $timestamp, $metricId = null, bool $withNamesAndCategories = false): array
     {
         $minute = date('G', $timestamp) * 60 + date('i', $timestamp);

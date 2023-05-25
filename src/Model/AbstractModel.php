@@ -72,18 +72,7 @@ abstract class AbstractModel
         }
         return $insertId;
     }
-
-    public function insertOrIncrement(array $insertData, int $value): int
-    {
-        $insertData['value'] = $value;
-        foreach ($insertData as $k => $v) {
-            unset($insertData[$k]);
-            $insertData['`' . $k . '`'] = '"' . $v . '"';
-        }
-        return $this->pdoModel->insertUpdate($insertData, ['`value`' => '`value` + ' . $value], true);
-    }
-
-
+    
     public function insertOrIncrementBatch(array $insertRows)
     {
         return $this->pdoModel->insertUpdateBatch($insertRows, incrementColumns: ['value']);

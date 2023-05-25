@@ -42,11 +42,6 @@ class DailyMetricTotalsModel extends AbstractModel
         });
     }
 
-    public function track(int $metricId, int $value): bool
-    {
-        return $this->insertOrIncrement(['metric_id' => $metricId], $value);
-    }
-
     public function getTotals(bool $withNames = false)
     {
         $q = $this->qb();
