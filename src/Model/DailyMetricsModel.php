@@ -14,25 +14,11 @@ class DailyMetricsModel extends AbstractModel
     {
         parent::__construct($connection);
 
-        $this->setTableFromTimestamp(time());
-    }
-
-    public function setTableFromTimestamp(int $timestamp, bool $createTableIfNotExists = true)
-    {
-        $this->setTable(self::TABLE_PREFIX . date('Y_m_d', $timestamp));
-        if ($createTableIfNotExists) {
-            $this->createTableIfNotExists();
-        }
-        return $this;
-    }
-
-    protected function createTable($name)
-    {
-        if ($this->shema()->hasTable($name)) {
+        $this->setTable(self::TABLE_PREFIX . date('Y_m_d', time()));
+        if ($this->shema()->hasTable($this->getTable())) {
             return;
         }
-
-        $this->shema()->create($name, function ($table) {
+        $this->shema()->create($this->getTable(), function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->unsignedInteger('metric_id');
@@ -45,7 +31,14 @@ class DailyMetricsModel extends AbstractModel
         });
     }
 
-    public function getByMetricId(int $metricId): array
+    public function getYesterdayValues(int $metricId): array
+    {
+        return $this->qb()->from(self::TABLE_PREFIX . date('Y_m_d', strtotime('yesterday')))
+            ->where('metric_id', '=', $metricId)
+            ->get(['minute', 'value'])->all();
+    }
+
+    public function getTodayValues(int $metricId): array
     {
         return $this->qb()
             ->where('metric_id', '=', $metricId)

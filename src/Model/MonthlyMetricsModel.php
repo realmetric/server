@@ -14,16 +14,11 @@ class MonthlyMetricsModel extends AbstractModel
         parent::__construct($connection);
 
         $this->setTable(self::TABLE);
-        $this->createTable($this->getTable());
-    }
-
-    protected function createTable($name)
-    {
-        if ($this->shema()->hasTable($name)) {
+        if ($this->shema()->hasTable($this->getTable())) {
             return;
         }
 
-        $this->shema()->create($name, function ($table) {
+        $this->shema()->create($this->getTable(), function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->unsignedInteger('metric_id');

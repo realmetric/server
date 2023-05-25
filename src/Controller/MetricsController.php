@@ -85,10 +85,8 @@ class MetricsController extends AbstractController
     {
         $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'metric by id']);
 
-        $data = $this->dailyMetrics->getByMetricId($metricId);
-        $yesterdayData = $this->dailyMetrics
-            ->setTable(DailyMetricsModel::TABLE_PREFIX . date('Y_m_d', strtotime('-1 day')))
-            ->getByMetricId($metricId);
+        $data = $this->dailyMetrics->getTodayValues($metricId);
+        $yesterdayData = $this->dailyMetrics->getYesterdayValues($metricId);
 
         $today = [];
         foreach ($data as $record) {

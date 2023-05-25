@@ -9,19 +9,13 @@ use PdoModel\PdoModel;
 abstract class AbstractModel
 {
     const TABLE = null;
-    const MAX_TABLE_NAME_EXISTS_CACHE_COUNT = 20;
-
-    protected array $tableNameExistsCache = [];
-
     private $tableName = null;
     private $connection = null;
-
     private PdoModel $pdoModel;
 
     public function __construct(Connection $connection)
     {
         $this->pdoModel = new PdoModel($connection->getPdo());
-
         if (!static::TABLE) {
             throw new \Exception('Model ' . static::class . ' without TABLE constant');
         }
@@ -37,10 +31,8 @@ abstract class AbstractModel
             $connection->getQueryGrammar(),
             $connection->getPostProcessor()
         );
-
         return $qb->from($this->getTable());
     }
-
 
     protected function shema()
     {
@@ -54,17 +46,17 @@ abstract class AbstractModel
         return $this;
     }
 
-    public function getTable()
+    protected function getTable()
     {
         return $this->tableName;
     }
 
-    public function getById(int $primaryId): array
+    protected function getById(int $primaryId): array
     {
         return $this->qb()->find($primaryId);
     }
 
-    public function insert(array $data): int
+    protected function insert(array $data): int
     {
         $insertId = $this->qb()->insertGetId($data);
         if (!$insertId) {
@@ -72,33 +64,14 @@ abstract class AbstractModel
         }
         return $insertId;
     }
-    
+
     public function insertOrIncrementBatch(array $insertRows)
     {
         return $this->pdoModel->insertUpdateBatch($insertRows, incrementColumns: ['value']);
     }
 
-
     public function getAll($columns = ['*']): array
     {
         return $this->qb()->get($columns)->all();
-    }
-
-
-    abstract protected function createTable($name);
-
-    protected function createTableIfNotExists()
-    {
-        $tableName = $this->getTable();
-        if (!in_array($tableName, $this->tableNameExistsCache, true)) {
-            if (count($this->tableNameExistsCache) > static::MAX_TABLE_NAME_EXISTS_CACHE_COUNT) {
-                $this->tableNameExistsCache = [];
-            }
-
-            $this->createTable($tableName);
-            $this->tableNameExistsCache[] = $tableName;
-        }
-
-        return $this;
     }
 }

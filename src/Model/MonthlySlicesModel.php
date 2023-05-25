@@ -12,18 +12,11 @@ class MonthlySlicesModel extends AbstractModel
     public function __construct(Connection $connection)
     {
         parent::__construct($connection);
-
         $this->setTable(self::TABLE);
-        $this->createTable($this->getTable());
-    }
-
-    protected function createTable($name)
-    {
-        if ($this->shema()->hasTable($name)) {
+        if ($this->shema()->hasTable($this->getTable())) {
             return;
         }
-
-        $this->shema()->create($name, function ($table) {
+        $this->shema()->create($this->getTable(), function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->unsignedInteger('metric_id');
@@ -35,6 +28,7 @@ class MonthlySlicesModel extends AbstractModel
             $table->unique(['metric_id', 'slice_id', 'date']);
         });
     }
+
 
     public function getValues(int $metricId, int $sliceId, \DateTime $from = null, \DateTime $to = null): array
     {

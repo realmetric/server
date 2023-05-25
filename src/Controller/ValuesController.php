@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ValuesController extends AbstractController
 {
     public function __construct(
-        private readonly EventSaver            $eventSaver,
+        private readonly EventSaver          $eventSaver,
         private readonly DailySlicesModel    $dailySlices,
         private readonly DailyMetricsModel   $dailyMetrics,
         private readonly MonthlySlicesModel  $monthlySlices,
@@ -31,10 +31,6 @@ class ValuesController extends AbstractController
 
         $metricId = $request->query->get('metric_id');
         $sliceId = $request->query->get('slice_id');
-        $from = $request->query->has('from') ? new \DateTime($request->query->get('from')) : new \DateTime('today');
-        $to = $request->query->has('to') ? new \DateTime($request->query->get('to')) : new \DateTime('tomorrow');
-        $prevFrom = $request->query->has('prev_from') ? new \DateTime($request->query->get('prev_from')) : new \DateTime('yesterday');
-        $prevTo = $request->query->has('prev_to') ? new \DateTime($request->query->get('prev_to')) : new \DateTime('today');
 
         if (!$metricId && !$sliceId) {
             throw new \InvalidArgumentException('Invalid metric_id(' . $metricId . ') or slice_id(' . $sliceId . ') value');
@@ -42,12 +38,14 @@ class ValuesController extends AbstractController
 
         $values = [];
         if ($sliceId) {
-            $values['curr'] = $this->getSliceValuesByMinutes($metricId, $sliceId, $from, $to);
-            $values['prev'] = $this->getSliceValuesByMinutes($metricId, $sliceId, $prevFrom, $prevTo);
+            $todayValues = $this->dailySlices->getTodayValues($metricId, $sliceId);
+            $yesterdayValues = $this->dailySlices->getYesterdayValues($metricId, $sliceId);
         } else {
-            $values['curr'] = $this->getMetricValuesByMinutes($metricId, $from, $to);
-            $values['prev'] = $this->getMetricValuesByMinutes($metricId, $prevFrom, $prevTo);
+            $todayValues = $this->dailyMetrics->getTodayValues($metricId);
+            $yesterdayValues = $this->dailyMetrics->getYesterdayValues($metricId);
         }
+        $values['curr'][date('Y-m-d')] = array_column($todayValues, 'value', 'minute');
+        $values['prev'][date('Y-m-d', strtotime('yesterday'))] = array_column($yesterdayValues, 'value', 'minute');
 
         return $this->json(['values' => $values]);
     }
@@ -79,37 +77,6 @@ class ValuesController extends AbstractController
         return $this->json(['values' => $values]);
     }
 
-    private function getMetricValuesByMinutes(int $metricId, \DateTime $from, \DateTime $to): array
-    {
-        $result = [];
-
-        $interval = \DateInterval::createFromDateString('1 day');
-        $period = new \DatePeriod($from, $interval, $to);
-        foreach ($period as $dt) {
-            /**
-             * @var \DateTime $dt
-             */
-            try {
-                $data = $this->dailyMetrics
-                    ->setTableFromTimestamp($dt->getTimestamp(), false)
-                    ->getByMetricId($metricId);
-                if ($data) {
-                    $result[$dt->format('Y-m-d')] = array_column($data, 'value', 'minute');
-                } else {
-                    $result[$dt->format('Y-m-d')] = null;
-                }
-            } catch (QueryException $exception) {
-                if ($exception->getCode() === '42S02') { //table does not exists
-                    $result[$dt->format('Y-m-d')] = null;
-                } else {
-                    throw $exception;
-                }
-            }
-        }
-
-        return $result;
-    }
-
     private function getMetricValuesByDays(
         int       $metricId,
         \DateTime $from = null,
@@ -129,42 +96,6 @@ class ValuesController extends AbstractController
         return $result;
     }
 
-    private function getSliceValuesByMinutes(
-        int       $metricId,
-        int       $sliceId,
-        \DateTime $from,
-        \DateTime $to
-    ): array
-    {
-        $result = [];
-
-        $interval = \DateInterval::createFromDateString('1 day');
-        $period = new \DatePeriod($from, $interval, $to);
-
-        foreach ($period as $dt) {
-            /**
-             * @var \DateTime $dt
-             */
-            try {
-                $data = $this->dailySlices
-                    ->setTable(DailySlicesModel::TABLE_PREFIX . $dt->format('Y_m_d'))
-                    ->getValues($metricId, $sliceId);
-                if ($data) {
-                    $result[$dt->format('Y-m-d')] = array_column($data, 'value', 'minute');
-                } else {
-                    $result[$dt->format('Y-m-d')] = null;
-                }
-            } catch (QueryException $exception) {
-                if ($exception->getCode() === '42S02') { //table does not exists
-                    $result[$dt->format('Y-m-d')] = null;
-                } else {
-                    throw $exception;
-                }
-            }
-        }
-
-        return $result;
-    }
 
     private function getSliceValuesByDays(
         int       $metricId,
