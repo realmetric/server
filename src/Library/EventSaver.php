@@ -3,9 +3,7 @@
 namespace App\Library;
 
 use App\Model\DailyMetricsModel;
-use App\Model\DailyMetricTotalsModel;
 use App\Model\DailySlicesModel;
-use App\Model\DailySliceTotalsModel;
 use App\Model\MetricsModel;
 use App\Model\MonthlyMetricsModel;
 use App\Model\MonthlySlicesModel;
@@ -22,8 +20,6 @@ class EventSaver
         private readonly SlicesModel            $slices,
         private readonly DailyMetricsModel      $dailyMetrics,
         private readonly DailySlicesModel       $dailySlices,
-        private readonly DailyMetricTotalsModel $dailyMetricTotals,
-        private readonly DailySliceTotalsModel  $dailySliceTotals,
         private readonly MonthlyMetricsModel    $monthlyMetrics,
         private readonly MonthlySlicesModel     $monthlySlices,
     )
@@ -86,25 +82,18 @@ class EventSaver
     {
         $dailyMetricsRows = [];
         $dailySlicesRows = [];
-        $dailyMetricTotalsRows = [];
-        $dailySliceTotalsRows = [];
-
         foreach ($batchDailyData as $key => $value) {
             [$metric, $minute, $sliceGroup, $slice] = json_decode($key, true);
             $metricId = $this->metrics->getId($metric);
             $dailyMetricsRows[] = ['metric_id' => $metricId, 'value' => $value, 'minute' => $minute];
-            $dailyMetricTotalsRows[] = ['metric_id' => $metricId, 'value' => $value];
             if ($sliceGroup !== null || $slice !== null) {
                 $sliceId = $this->slices->getId($sliceGroup, $slice);
                 $dailySlicesRows[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'minute' => $minute];
-                $dailySliceTotalsRows[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value];
             }
         }
         $this->dailyMetrics->insertOrIncrementBatch($dailyMetricsRows);
-        $this->dailyMetricTotals->insertOrIncrementBatch($dailyMetricTotalsRows);
         if (!empty($dailySlicesRows)) {
             $this->dailySlices->insertOrIncrementBatch($dailySlicesRows);
-            $this->dailySliceTotals->insertOrIncrementBatch($dailySliceTotalsRows);
         }
     }
 

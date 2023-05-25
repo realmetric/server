@@ -35,6 +35,15 @@ class MonthlyMetricsModel extends AbstractModel
         });
     }
 
+    public function getTodayTotals()
+    {
+        return $this->qb()
+            ->select(['metric_id as id', 'metrics.name', 'value as total'])
+            ->join('metrics', $this->getTable() . '.metric_id', '=', 'metrics.id')
+            ->where('date', date('Y-m-d'))
+            ->get()->all();
+    }
+
     public function getByMetricId(int $metricId, \DateTime $from = null, \DateTime $to = null): array
     {
         $q = $this->qb()

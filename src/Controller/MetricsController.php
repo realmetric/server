@@ -6,18 +6,18 @@ namespace App\Controller;
 use App\Library\EventSaver;
 use App\Library\Format;
 use App\Model\DailyMetricsModel;
-use App\Model\DailyMetricTotalsModel;
-use App\Model\DailySliceTotalsModel;
+use App\Model\MonthlyMetricsModel;
+use App\Model\MonthlySlicesModel;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MetricsController extends AbstractController
 {
     public function __construct(
-        private readonly EventSaver             $eventSaver,
-        private readonly DailyMetricsModel      $dailyMetrics,
-        private readonly DailyMetricTotalsModel $dailyMetricTotals,
-        private readonly DailySliceTotalsModel  $dailySliceTotals
+        private readonly EventSaver            $eventSaver,
+        private readonly DailyMetricsModel     $dailyMetrics,
+        private readonly MonthlyMetricsModel   $monthlyMetrics,
+        private readonly MonthlySlicesModel    $monthlySlicesModel
     )
     {
     }
@@ -26,7 +26,7 @@ class MetricsController extends AbstractController
     public function getAll()
     {
         $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'all metrics']);
-        $totals = $this->dailyMetricTotals->getTotals(true);
+        $totals = $this->monthlyMetrics->getTodayTotals();
         $result = [];
         foreach ($totals as $row) {
             $nameParts = explode('.', $row['name']);
@@ -52,8 +52,10 @@ class MetricsController extends AbstractController
     public function getBySliceId(int $sliceId)
     {
         $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'metrics by sliceId']);
-        $metricsWithSlice = $this->dailySliceTotals->getMetricsWithSlice($sliceId);
-        $totals = $this->dailyMetricTotals->getTotals(true);
+
+        $metricsWithSlice = $this->monthlySlicesModel->getTodayTotals(sliceId: $sliceId);
+
+        $totals = $this->monthlyMetrics->getTodayTotals();
         $result = [];
         foreach ($totals as $row) {
             if (!in_array($row['id'], $metricsWithSlice)) {

@@ -50,6 +50,22 @@ class MonthlySlicesModel extends AbstractModel
         return $q->get(['date', 'value'])->all();
     }
 
+    public function getTodayTotals(?int $metricId = null, ?int $sliceId = null)
+    {
+        $q = $this->qb()
+            ->select(['slice_id as id', 'slices.name', 'slices.category', 'value as total'])
+            ->join('slices', $this->getTable() . '.slice_id', '=', 'slices.id');
+        if ($metricId) {
+            $q->where('metric_id', $metricId);
+        }
+        if ($sliceId) {
+            // @TODO group by slice
+            $q->where('slice_id', $metricId);
+        }
+        return $q->where('date', date('Y-m-d'))
+            ->get()->all();
+    }
+
     public function getTotals(
         \DateTime $from,
         \DateTime $to,

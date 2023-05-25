@@ -11,7 +11,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class FillFakeDataCommand extends BaseCommand
 {
     public function __construct(
-        private readonly EventSaver $eventSaver
+        private readonly EventSaver $eventSaver,
     )
     {
         parent::__construct();

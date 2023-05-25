@@ -6,7 +6,6 @@ namespace App\Controller;
 use App\Library\EventSaver;
 use App\Library\Format;
 use App\Model\DailySlicesModel;
-use App\Model\DailySliceTotalsModel;
 use App\Model\MonthlySlicesModel;
 use App\Model\SlicesModel;
 use Illuminate\Database\QueryException;
@@ -20,7 +19,6 @@ class SlicesController extends AbstractController
         private readonly EventSaver            $eventSaver,
         private readonly SlicesModel           $slices,
         private readonly DailySlicesModel      $dailySlices,
-        private readonly DailySliceTotalsModel $dailySliceTotals,
         private readonly MonthlySlicesModel    $monthlySlices,
     )
     {
@@ -32,9 +30,8 @@ class SlicesController extends AbstractController
         $this->eventSaver->save('RealmetricVisits', 1, time(), ['page' => 'all slices']);
 
         $result = [];
-        $allValues = $this->dailySliceTotals->getAllValues();
-        $values = array_column($allValues, 'value', 'id');
-        $diffs = array_column($allValues, 'diff', 'id');
+        $allValues = $this->monthlySlices->getTodayTotals();
+        $values = array_column($allValues, 'total', 'id');
 
         $slices = $this->slices->getAll();
         foreach ($slices as $slice) {
@@ -47,7 +44,6 @@ class SlicesController extends AbstractController
                 'id' => $sliceId,
                 'name' => $slice['name'],
                 'total' => $values[$sliceId],
-                'diff' => isset($diffs[$sliceId]) ? $diffs[$sliceId] : 0,
             ];
         }
 
@@ -122,7 +118,7 @@ class SlicesController extends AbstractController
             $pastDt->modify('-' . $periodDiffDays . ' day');
 
             if ($from->getTimestamp() > $yesterdayTimestamp) {
-                $result = $this->getTotalsFromDailySliceTotals($dt, $metricId);
+                $result = $this->getTotalsFromDailySliceTotals($metricId);
             } else {
                 $dailyTotals = $this->getTotalsFromDailySlices($dt, $pastDt, $metricId);
                 //select totals from monthly table
@@ -183,27 +179,15 @@ class SlicesController extends AbstractController
         ];
     }
 
-    private function getTotalsFromDailySliceTotals(\DateTime $dt, $metricId = null): array
+    private function getTotalsFromDailySliceTotals(int $metricId): array
     {
-        $currentSliceTotalsTable = DailySliceTotalsModel::TABLE_PREFIX . $dt->format('Y_m_d');
+        $currentSubtotals = $this->monthlySlices->getTodayTotals($metricId);
         $result = [];
-        try {
-            $currentSubtotals = $this->dailySliceTotals
-                ->setTable($currentSliceTotalsTable)
-                ->getTotals($metricId, true);
-            $result = [];
-            foreach ($currentSubtotals as $row) {
-                $category = $row['category'];
-                unset($row['category']);
-                $result[$category][] = $row;
-            }
-
-        } catch (QueryException $exception) {
-            if ($exception->getCode() !== '42S02') { //table does not exists
-                throw $exception;
-            }
+        foreach ($currentSubtotals as $row) {
+            $category = $row['category'];
+            unset($row['category']);
+            $result[$category][] = $row;
         }
-
         return $result;
     }
 
