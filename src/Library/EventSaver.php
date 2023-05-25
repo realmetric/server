@@ -31,6 +31,11 @@ class EventSaver
         $this->batchStarted = time();
     }
 
+    public function __destruct()
+    {
+        $this->flush();
+    }
+
     public function save(string $metric, int $value, int $timestamp, array $slices, $batch = false): void
     {
         $this->batchSave($metric, $value, $timestamp, $slices);
