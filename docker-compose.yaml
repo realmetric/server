@@ -12,6 +12,9 @@ services:
       - .:/var/www
     ports:
       - "8000:8080"
+      - "8888:8888/udp"
+    expose:
+      - "8888/udp"
   mysql:
     image: mysql:8.0.32
     command: --default-authentication-plugin=mysql_native_password
