@@ -31,3 +31,5 @@ bin/console app:udp_server
 echo -n '[{"event":"TopAction","category":"Product","value":3}]' | nc -4u -w0 localhost 8888
 ```
 
+---
+Made inspired by https://github.com/statsd/statsd
