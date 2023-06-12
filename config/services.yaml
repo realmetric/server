@@ -4,6 +4,7 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
+    public: true
 
   App\:
     resource: '../src/'
@@ -15,7 +16,8 @@ services:
   Illuminate\Database\Connection:
     factory: [ 'App\Model\ConnectionFactory','build' ]
     arguments:
-      $host: '%env(MYSQL_HOST)%'
-      $database: '%env(MYSQL_DATABASE)%'
-      $user: '%env(MYSQL_USER)%'
-      $password: '%env(MYSQL_PASSWORD)%'
+      $host: '%env(DB_HOST)%'
+      $database: '%env(DB_DATABASE)%'
+      $user: '%env(DB_USER)%'
+      $password: '%env(DB_PASSWORD)%'
+      $driver: '%env(DB_DRIVER)%'
