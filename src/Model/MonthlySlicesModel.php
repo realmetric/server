@@ -21,7 +21,7 @@ class MonthlySlicesModel extends AbstractModel
             $table->increments('id');
             $table->unsignedInteger('metric_id');
             $table->unsignedInteger('slice_id');
-            $table->double('value');
+            $table->unsignedBigInteger('value');
             $table->date('date');
 
             $table->index(['metric_id', 'slice_id']);

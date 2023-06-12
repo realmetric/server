@@ -83,8 +83,7 @@ class ValuesController extends AbstractController
         \DateTime $to = null
     ): array
     {
-        $data = $this->monthlyMetrics
-            ->getByMetricId($metricId, $from, $to);
+        $data = $this->monthlyMetrics->getByMetricId($metricId, $from, $to);
 
         $result = [];
         if ($data) {

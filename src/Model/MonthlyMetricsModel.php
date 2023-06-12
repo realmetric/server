@@ -22,9 +22,8 @@ class MonthlyMetricsModel extends AbstractModel
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->unsignedInteger('metric_id');
-            $table->double('value');
+            $table->unsignedBigInteger('value');
             $table->date('date');
-
             $table->index('metric_id');
             $table->unique(['metric_id', 'date']);
         });
