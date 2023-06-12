@@ -33,7 +33,7 @@ class SlicesController extends AbstractController
         $allValues = $this->monthlySlices->getTodayTotals();
         $values = array_column($allValues, 'total', 'id');
 
-        $slices = $this->slices->getAll();
+        $slices = $this->slices->select()->getAllRows();
         foreach ($slices as $slice) {
             $sliceId = $slice['id'];
             if (empty($values[$sliceId])) {

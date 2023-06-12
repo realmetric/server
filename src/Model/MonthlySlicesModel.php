@@ -13,10 +13,10 @@ class MonthlySlicesModel extends AbstractModel
     {
         parent::__construct($connection);
         $this->setTable(self::TABLE);
-        if ($this->shema()->hasTable($this->getTable())) {
+        if ($this->schema()->hasTable($this->getTable())) {
             return;
         }
-        $this->shema()->create($this->getTable(), function ($table) {
+        $this->schema()->create($this->getTable(), function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->unsignedInteger('metric_id');

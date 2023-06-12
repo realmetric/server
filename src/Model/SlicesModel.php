@@ -14,10 +14,10 @@ class SlicesModel extends AbstractModel
     {
         parent::__construct($connection);
 
-        if ($this->shema()->hasTable($this->getTable())) {
+        if ($this->schema()->hasTable($this->getTable())) {
             return;
         }
-        $this->shema()->create($this->getTable(), function ($table) {
+        $this->schema()->create($this->getTable(), function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->string('category');
@@ -36,7 +36,7 @@ class SlicesModel extends AbstractModel
             return;
         }
 
-        $rows = $this->getAll();
+        $rows = $this->select()->getAllRows();
         foreach ($rows as $row) {
             $this->cache[crc32($row['category'] . ':' . $row['name'])] = $row;
         }
@@ -67,7 +67,7 @@ class SlicesModel extends AbstractModel
         }
 
         $createdId = $this->create($category, $name);
-        return $this->getById($createdId);
+        return $this->find($createdId);
     }
 
     public function getId(string $category, string $name): int

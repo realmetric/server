@@ -14,10 +14,10 @@ class MetricsModel extends AbstractModel
     public function __construct(Connection $connection)
     {
         parent::__construct($connection);
-        if ($this->shema()->hasTable($this->getTable())) {
+        if ($this->schema()->hasTable($this->getTable())) {
             return;
         }
-        $this->shema()->create($this->getTable(), function ($table) {
+        $this->schema()->create($this->getTable(), function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->string('name');
@@ -33,7 +33,7 @@ class MetricsModel extends AbstractModel
             return;
         }
 
-        $rows = $this->getAll();
+        $rows = $this->select()->getAllRows();
         foreach ($rows as $row) {
             $this->cache[crc32($row['name'])] = $row;
         }
@@ -62,7 +62,7 @@ class MetricsModel extends AbstractModel
         }
 
         $createdId = $this->create($name);
-        return $this->getById($createdId);
+        return $this->find($createdId);
     }
 
     public function create(string $name): int

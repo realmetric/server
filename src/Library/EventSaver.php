@@ -16,12 +16,12 @@ class EventSaver
     private int $batchStarted;
 
     public function __construct(
-        private readonly MetricsModel           $metrics,
-        private readonly SlicesModel            $slices,
-        private readonly DailyMetricsModel      $dailyMetrics,
-        private readonly DailySlicesModel       $dailySlices,
-        private readonly MonthlyMetricsModel    $monthlyMetrics,
-        private readonly MonthlySlicesModel     $monthlySlices,
+        private readonly MetricsModel        $metrics,
+        private readonly SlicesModel         $slices,
+        private readonly DailyMetricsModel   $dailyMetrics,
+        private readonly DailySlicesModel    $dailySlices,
+        private readonly MonthlyMetricsModel $monthlyMetrics,
+        private readonly MonthlySlicesModel  $monthlySlices,
     )
     {
         $this->batchStarted = time();
@@ -91,9 +91,9 @@ class EventSaver
                 $dailySlicesRows[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'minute' => $minute];
             }
         }
-        $this->dailyMetrics->insertOrIncrementBatch($dailyMetricsRows);
+        $this->dailyMetrics->insertUpdateBatch($dailyMetricsRows, incrementColumns: ['value']);
         if (!empty($dailySlicesRows)) {
-            $this->dailySlices->insertOrIncrementBatch($dailySlicesRows);
+            $this->dailySlices->insertUpdateBatch($dailySlicesRows, incrementColumns: ['value']);
         }
     }
 
@@ -110,9 +110,9 @@ class EventSaver
                 $monthlySlicesRows[] = ['metric_id' => $metricId, 'slice_id' => $sliceId, 'value' => $value, 'date' => $date];
             }
         }
-        $this->monthlyMetrics->insertOrIncrementBatch($monthlyMetricsRows);
+        $this->monthlyMetrics->insertUpdateBatch($monthlyMetricsRows, incrementColumns: ['value']);
         if (!empty($monthlySlicesRows)) {
-            $this->monthlySlices->insertOrIncrementBatch($monthlySlicesRows);
+            $this->monthlySlices->insertUpdateBatch($monthlySlicesRows, incrementColumns: ['value']);
         }
     }
 }
