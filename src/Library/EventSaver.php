@@ -69,13 +69,13 @@ class EventSaver
             return;
         }
 
-        $timeStart = microtime(true);
+//        $timeStart = microtime(true);
         $this->flushDaily($this->batchDailyValues);
         $this->batchDailyValues = [];
         $this->flushMonthly($this->batchMonthlyValues);
         $this->batchMonthlyValues = [];
         $this->batchStarted = time();
-        echo "Flush done in " . round((microtime(true) - $timeStart) * 1000) . " ms. \n";
+//        echo "Flush done in " . round((microtime(true) - $timeStart) * 1000) . " ms. \n";
     }
 
     private function flushDaily(array $batchDailyData)
