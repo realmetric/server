@@ -15,10 +15,18 @@ class DailyMetricsModel extends AbstractModel
         parent::__construct($connection);
 
         $this->setTable(self::TABLE_PREFIX . date('Y_m_d', time()));
-        if ($this->schema()->hasTable($this->getTable())) {
-            return;
+        if (!$this->schema()->hasTable($this->getTable())) {
+            $this->createDMTable($this->getTable());
         }
-        $this->schema()->create($this->getTable(), function ($table) {
+        $yesterdayTable = self::TABLE_PREFIX . date('Y_m_d', strtotime('yesterday'));
+        if (!$this->schema()->hasTable($yesterdayTable)) {
+            $this->createDMTable($yesterdayTable);
+        }
+    }
+
+    private function createDMTable($name)
+    {
+        $this->schema()->create($name, function ($table) {
             /** @var \Illuminate\Database\Schema\Blueprint $table */
             $table->increments('id');
             $table->unsignedInteger('metric_id');
