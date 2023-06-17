@@ -28,9 +28,9 @@ You just need PHP8+ and Composer.
 git clone https://github.com/realmetric/server.git
 cd server
 composer install
-symfony server:start
+php -S localhost:8000 public/index.php  #or any other local server e.g. Nginx
 ```
-Then open in your browser https://realmetric.github.io/?api=127.0.0.1:8000
+Then open in your browser https://realmetric.github.io/?api=http://127.0.0.1:8000
 
 
 ## Sending data to Realmetric (tracking)
