@@ -3,6 +3,8 @@
 namespace App\Tests;
 
 use App\Library\EventSaver;
+use App\Model\DailyMetricsModel;
+use App\Model\DailySlicesModel;
 use App\Model\MetricsModel;
 use App\Model\MonthlyMetricsModel;
 use App\Model\MonthlySlicesModel;
@@ -21,7 +23,8 @@ class TrackAndReadTest extends KernelTestCase
         $sliceCategory = 'quality';
         $sliceName = 'best';
         $value = 3;
-        $time = strtotime('10 days ago');
+        $time = strtotime('2 hours ago');
+        $minute = (int)date('G', $time) * 60 + (int)date('i', $time);
         $date = date('Y-m-d', $time);
         $eventSaver->save('test', $value, $time, [$sliceCategory => $sliceName]);
 
@@ -45,6 +48,20 @@ class TrackAndReadTest extends KernelTestCase
         $this->assertEquals([
             ['date' => $date, 'value' => $value]],
             $monthlySlicesModel->getValues($metricId, $sliceId)
+        );
+
+        /** @var DailyMetricsModel $dailyMetricsModel */
+        $dailyMetricsModel = $container->get(DailyMetricsModel::class);
+        $this->assertEquals(
+            [['minute' => $minute, 'value' => $value]],
+            $dailyMetricsModel->getTodayValues($metricId)
+        );
+
+        /** @var DailySlicesModel $dailySlicesModel */
+        $dailySlicesModel = $container->get(DailySlicesModel::class);
+        $this->assertEquals(
+            [['minute' => $minute, 'value' => $value]],
+            $dailySlicesModel->getTodayValues($metricId, $sliceId)
         );
     }
 }
