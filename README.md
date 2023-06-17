@@ -22,11 +22,23 @@ Pack your events data to format below, and send API GET request to /track
 ]
 ```
 
-Tracking example with CURL
+## Quick start
+You just need PHP8+ and Composer.
+```shell
+git clone https://github.com/realmetric/server.git
+cd server
+composer install
+symfony server:start
+```
+Then open in your browser https://realmetric.github.io/?api=127.0.0.1:8000
+
+
+## Sending data to Realmetric (tracking)
+to API via cURL
 ```shell
 curl -k -X POST https://127.0.0.1:8000/track -u login:sha1ofPassword -d '[{"event":"TopAction","category":"Product","value":3}]'
 ```
-Tracking example with fast UDP server
+to UDP server
 ```shell
 bin/console app:udp_server
 echo -n '[{"event":"TopAction","category":"Product","value":3}]' | nc -4u -w0 localhost 8888
