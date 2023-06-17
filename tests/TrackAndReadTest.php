@@ -63,5 +63,12 @@ class TrackAndReadTest extends KernelTestCase
             [['minute' => $minute, 'value' => $value]],
             $dailySlicesModel->getTodayValues($metricId, $sliceId)
         );
+
+        // -------------- Second Track --------------------
+        $eventSaver->save('test', $value, $time, [$sliceCategory => $sliceName]);
+        $this->assertEquals(
+            [['date' => $date, 'value' => $value * 2]],
+            $monthlyMetricsModel->getByMetricId($metricId)
+        );
     }
 }
