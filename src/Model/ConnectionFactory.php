@@ -14,8 +14,7 @@ class ConnectionFactory
     {
         $config = [
             'driver' => $driver,
-            'host' => $host,
-            'port' => $port,
+            'host' => $host . ':' . $port,
             'database' => $database,
             'username' => $user,
             'password' => $password,
