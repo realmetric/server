@@ -40,6 +40,8 @@ class UdpServerCommand extends BaseCommand
                         $metric = $event['category'] . '.' . $event['event'];
                         $this->eventSaver->save($metric, $event['value'], $event['timestamp'], $event['segments'], true);
                     }
+
+                    $this->eventSaver->flush(); // TODO once per minute at least
                 } catch (\Throwable $ex) {
                     echo 'Error: ' . $ex->getMessage() . "\n";
                 }

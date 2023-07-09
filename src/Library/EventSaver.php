@@ -69,7 +69,7 @@ class EventSaver
         }
     }
 
-    private function flush(): void
+    public function flush(): void
     {
         if (empty($this->batchDailyValues) && empty($this->batchMonthlyValues)) {
             return;
