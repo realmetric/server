@@ -38,7 +38,7 @@ class EventSaver
             $timestamp = time();
         }
         if (!$slices) {
-            $timestamp = time();
+            $slices = [];
         }
         $this->batchSave($metric, $value, $timestamp, $slices);
         if (!$batch) {
