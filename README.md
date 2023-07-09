@@ -33,6 +33,10 @@ php -S localhost:8000 public/index.php  #or any other local server e.g. Nginx
 ```
 Then open in your browser https://realmetric.github.io/?api=http://127.0.0.1:8000
 
+Don't forget to create Production ENV on prod server
+```shell
+composer dump-env prod
+```
 
 ## Sending data to Realmetric (tracking)
 to API via cURL
