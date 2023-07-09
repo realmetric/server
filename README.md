@@ -48,7 +48,7 @@ curl -k -X POST https://127.0.0.1:8000/track -u login:sha1ofPassword -d '[{"even
 ```
 to UDP server
 ```shell
-bin/console app:udp_server
+bin/console app:udp_server localhost 8888
 echo -n '[{"event":"TopAction","category":"Product","value":3}]' | nc -4u -w0 localhost 8888
 ```
 

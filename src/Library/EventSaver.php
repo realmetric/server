@@ -32,8 +32,11 @@ class EventSaver
         $this->flush();
     }
 
-    public function save(string $metric, int $value, int $timestamp, array $slices, $batch = false): void
+    public function save(string $metric, int $value = 1, ?int $timestamp = null, array $slices = [], $batch = false): void
     {
+        if (!$timestamp) {
+            $timestamp = time();
+        }
         $this->batchSave($metric, $value, $timestamp, $slices);
         if (!$batch) {
             $this->flush();
