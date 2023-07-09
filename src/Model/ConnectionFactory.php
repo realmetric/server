@@ -10,11 +10,12 @@ use PDO;
 
 class ConnectionFactory
 {
-    public static function build(string $host, string $database, string $user, string $password, string $driver = 'mysql'): Connection
+    public static function build(string $host, string $database, string $user, string $password, string $driver = 'mysql', int $port = 3306): Connection
     {
         $config = [
             'driver' => $driver,
             'host' => $host,
+            'port' => $port,
             'database' => $database,
             'username' => $user,
             'password' => $password,
