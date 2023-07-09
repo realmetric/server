@@ -36,6 +36,9 @@ Then open in your browser https://realmetric.github.io/?api=http://127.0.0.1:800
 Don't forget to create Production ENV on prod server
 ```shell
 composer dump-env prod
+
+# For nginx server you can use sample config and edit then
+cp config/nginx.conf.sample config/nginx.prod.conf
 ```
 
 ## Sending data to Realmetric (tracking)
