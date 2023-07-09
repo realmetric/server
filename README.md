@@ -38,7 +38,7 @@ Don't forget to create Production ENV on prod server
 composer dump-env prod
 
 # For nginx server you can use sample config and edit then
-cp config/nginx.conf.sample config/nginx.prod.conf
+cp config/infrastructure/nginx.conf.sample config/infrastructure/nginx.prod.conf
 ```
 
 ## Sending data to Realmetric (tracking)
