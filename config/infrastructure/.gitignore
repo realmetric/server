@@ -1,7 +1,2 @@
-../routes
 !.gitignore
-!*.sample
-!middleware.php
-!routes.php
-!services.php
-!tasks.php
+nginx.prod.conf
