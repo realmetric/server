@@ -41,7 +41,7 @@ class UdpServerCommand extends BaseCommand
                         $this->eventSaver->save($metric, $event['value'], $event['timestamp'], $event['segments'], true);
                     }
                 } catch (\Throwable $ex) {
-                    echo 'Error' . $ex->getMessage() . "\n";
+                    echo 'Error: ' . $ex->getMessage() . "\n";
                 }
             });
         });
