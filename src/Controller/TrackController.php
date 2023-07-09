@@ -21,7 +21,12 @@ class TrackController extends AbstractController
         $events = json_decode($data, true);
 
         foreach ($events as $event) {
-            $this->eventSaver->save($event['m'], $event['v'], $event['t'], $event['s']);
+            $this->eventSaver->save(
+                $event['category'] . '.' . $event['event'],
+                $event['value'],
+                $event['timestamp'],
+                $event['segments']
+            );
         }
         return $this->json(['createdEvents' => count($events)]);
     }
