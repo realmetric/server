@@ -16,10 +16,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class SlicesController extends AbstractController
 {
     public function __construct(
-        private readonly EventSaver            $eventSaver,
-        private readonly SlicesModel           $slices,
-        private readonly DailySlicesModel      $dailySlices,
-        private readonly MonthlySlicesModel    $monthlySlices,
+        private readonly EventSaver         $eventSaver,
+        private readonly SlicesModel        $slices,
+        private readonly DailySlicesModel   $dailySlices,
+        private readonly MonthlySlicesModel $monthlySlices,
     )
     {
     }
@@ -34,6 +34,9 @@ class SlicesController extends AbstractController
         $values = array_column($allValues, 'total', 'id');
 
         $slices = $this->slices->select()->getAllRows();
+        if (!$slices) {
+            return $this->json(['slices' => []]);
+        }
         foreach ($slices as $slice) {
             $sliceId = $slice['id'];
             if (empty($values[$sliceId])) {

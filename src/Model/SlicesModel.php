@@ -2,6 +2,7 @@
 
 
 namespace App\Model;
+
 use Illuminate\Database\Connection;
 
 class SlicesModel extends AbstractModel
@@ -37,6 +38,9 @@ class SlicesModel extends AbstractModel
         }
 
         $rows = $this->select()->getAllRows();
+        if (!$rows) {
+            return;
+        }
         foreach ($rows as $row) {
             $this->cache[crc32($row['category'] . ':' . $row['name'])] = $row;
         }

@@ -23,10 +23,11 @@ Pack your events data to format below, and send API GET request to /track
 ```
 
 ## Quick start
-You just need PHP8+ and Composer.
+You need PHP 8.1 or higher. PHP extensions: pdo, pdo_mysql or sqlite3, xml.
 ```shell
 git clone https://github.com/realmetric/server.git
 cd server
+sudo apt install php8.1-pdo php8.1-mysql php8.1-sqlite3 php8.1-xml # if you dont have them yet
 composer install
 php -S localhost:8000 public/index.php  #or any other local server e.g. Nginx
 ```

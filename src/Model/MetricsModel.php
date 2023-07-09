@@ -2,6 +2,7 @@
 
 
 namespace App\Model;
+
 use Illuminate\Database\Connection;
 
 
@@ -32,8 +33,10 @@ class MetricsModel extends AbstractModel
         if (count($this->cache)) {
             return;
         }
-
         $rows = $this->select()->getAllRows();
+        if (!$rows) {
+            return;
+        }
         foreach ($rows as $row) {
             $this->cache[crc32($row['name'])] = $row;
         }
